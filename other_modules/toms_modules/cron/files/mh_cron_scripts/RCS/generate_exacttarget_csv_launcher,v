@@ -1,0 +1,32 @@
+head	1.1;
+access;
+symbols;
+locks
+	jjoy:1.1; strict;
+comment	@# @;
+
+
+1.1
+date	2010.06.09.20.55.46;	author jjoy;	state Exp;
+branches;
+next	;
+
+
+desc
+@Script to launch generate_exacttarget_csv.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@#!/bin/bash
+
+. /etc/manhunt/source.sh
+
+$ROOT=/usr/local/manhunt/cron
+$DATE=`date +%F`
+
+$ROOT/generate_exacttarget_csv 2>&1 1> ${CARE_LOG}/${DATE}-generate_exacttarget_csv@

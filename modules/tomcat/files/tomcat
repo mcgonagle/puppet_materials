@@ -1,0 +1,47 @@
+##############################################################################
+# This file is mananged by puppet.  Do NOT edit on the server, your changes  #
+# will be blown away on the next puppet run.                                 #
+##############################################################################
+#!/bin/sh
+#
+# tomcat
+#
+# chkconfig: - 50 50
+# description:  Start up the Tomcat servlet engine.
+
+# Source function library.
+. /etc/init.d/functions
+
+
+RETVAL=$?
+CATALINA_HOME="/opt/tomcat"
+CATALINA_BASE="/opt/tomcat"
+CATALINA_TMPDIR="/opt/tomcat/temp"
+JRE_HOME="/usr/java/latest"
+JAVA_HOME="/usr/java/latest"
+
+export JRE_HOME JAVA_HOME CATALINA_HOME CATALINA_BASE CATALINA_HOME CATALINA_TMPDIR
+
+case "$1" in
+ start)
+        if [ -f $CATALINA_HOME/bin/startup.sh ];
+          then
+            echo $"Starting Tomcat"
+            /bin/su root $CATALINA_HOME/bin/startup.sh
+        fi
+        ;;
+ stop)
+        if [ -f $CATALINA_HOME/bin/shutdown.sh ];
+          then
+            echo $"Stopping Tomcat"
+            /bin/su root $CATALINA_HOME/bin/shutdown.sh
+       ps auxwww | grep tomcat | grep -v grep | awk '{print $2}' | xargs kill -9
+        fi
+        ;;
+ *)
+        echo $"Usage: $0 {start|stop}"
+        exit 1
+        ;;
+esac
+
+exit $RETVAL

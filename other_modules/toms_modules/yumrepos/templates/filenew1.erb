@@ -1,0 +1,26 @@
+test1 variable is equal to <%= scope.lookupvar("tom::params::test1") %>
+
+
+
+
+
+
+<% scope.lookupvar("tom::params::values").each do |i| -%>
+ values in array "values" are <%= i %> 
+<% end -%>
+
+<% scope.lookupvar("tom::params::values2").each do |val| -%>
+ values in array "values2" are <%= val %> 
+<% end -%>
+
+<% scope.lookupvar("tom::params::values3").each do |val| -%>
+<%  array = val.split(":") %> 
+ key is equal to <%= array[0] %> value is equal to <%= array[1] %>
+<% end -%>
+
+<% zone = scope.lookupvar("zone") %> 
+zone is <%= zone %>
+var using zone for dynamic variable assignment <%= scope.lookupvar("tom::params::".concat(zone)) %>
+
+"$qa" variable is  <%= scope.lookupvar("tom::params::qa") %>
+

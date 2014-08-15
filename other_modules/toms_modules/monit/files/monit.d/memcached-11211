@@ -1,0 +1,8 @@
+check process memcached-11211
+   with pidfile "/var/run/memcached-11211.pid"
+   start program = "/etc/init.d/memcached start"
+   stop program = "/etc/init.d/memcached stop"
+   if 2 restarts within 3 cycles then timeout
+   if totalmem > 500 Mb then alert
+   if cpu usage > 95% for 3 cycles then restart
+   #if failed port 4949 then restart

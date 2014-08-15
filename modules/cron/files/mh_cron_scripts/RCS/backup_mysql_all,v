@@ -1,0 +1,1000 @@
+head	1.44;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.44
+date	2010.09.01.21.22.30;	author kpanacy;	state Exp;
+branches;
+next	1.43;
+
+1.43
+date	2010.06.21.21.22.00;	author rbraun;	state Exp;
+branches;
+next	1.42;
+
+1.42
+date	2010.02.04.14.57.44;	author sfrattura;	state Exp;
+branches;
+next	1.41;
+
+1.41
+date	2010.02.03.18.46.25;	author sfrattura;	state Exp;
+branches;
+next	1.40;
+
+1.40
+date	2010.02.03.18.44.44;	author sfrattura;	state Exp;
+branches;
+next	1.39;
+
+1.39
+date	2010.02.03.18.38.13;	author sfrattura;	state Exp;
+branches;
+next	1.38;
+
+1.38
+date	2009.10.21.14.00.11;	author hschmidt;	state Exp;
+branches;
+next	1.37;
+
+1.37
+date	2009.10.21.13.35.48;	author hschmidt;	state Exp;
+branches;
+next	1.36;
+
+1.36
+date	2009.10.19.20.57.33;	author hschmidt;	state Exp;
+branches;
+next	1.35;
+
+1.35
+date	2009.10.19.17.03.39;	author hschmidt;	state Exp;
+branches;
+next	1.34;
+
+1.34
+date	2009.08.10.21.23.48;	author jjoy;	state Exp;
+branches;
+next	1.33;
+
+1.33
+date	2009.08.04.14.21.23;	author jjoy;	state Exp;
+branches;
+next	1.32;
+
+1.32
+date	2009.08.03.20.11.00;	author jjoy;	state Exp;
+branches;
+next	1.31;
+
+1.31
+date	2009.07.28.14.58.12;	author jjoy;	state Exp;
+branches;
+next	1.30;
+
+1.30
+date	2009.07.27.19.41.23;	author jjoy;	state Exp;
+branches;
+next	1.29;
+
+1.29
+date	2009.07.24.22.32.03;	author jjoy;	state Exp;
+branches;
+next	1.28;
+
+1.28
+date	2009.05.18.16.16.17;	author hschmidt;	state Exp;
+branches;
+next	1.27;
+
+1.27
+date	2009.05.13.15.51.37;	author hschmidt;	state Exp;
+branches;
+next	1.26;
+
+1.26
+date	2009.05.08.01.23.35;	author hschmidt;	state Exp;
+branches;
+next	1.25;
+
+1.25
+date	2009.05.05.18.58.45;	author hschmidt;	state Exp;
+branches;
+next	1.24;
+
+1.24
+date	2009.05.05.18.57.17;	author hschmidt;	state Exp;
+branches;
+next	1.23;
+
+1.23
+date	2009.04.30.21.04.28;	author hschmidt;	state Exp;
+branches;
+next	1.22;
+
+1.22
+date	2009.04.13.14.38.12;	author hschmidt;	state Exp;
+branches;
+next	1.21;
+
+1.21
+date	2009.04.11.01.08.14;	author rbraun;	state Exp;
+branches;
+next	1.20;
+
+1.20
+date	2009.04.11.01.03.26;	author rbraun;	state Exp;
+branches;
+next	1.19;
+
+1.19
+date	2009.04.09.17.45.15;	author hschmidt;	state Exp;
+branches;
+next	1.18;
+
+1.18
+date	2009.04.07.21.02.47;	author hschmidt;	state Exp;
+branches;
+next	1.17;
+
+1.17
+date	2009.03.27.14.19.34;	author hschmidt;	state Exp;
+branches;
+next	1.16;
+
+1.16
+date	2009.03.26.20.09.35;	author hschmidt;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	2009.03.19.13.35.29;	author rbraun;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	2009.03.03.19.23.53;	author rbraun;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	2008.11.12.17.33.37;	author wflynn;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	2008.08.28.19.01.39;	author wflynn;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	2008.08.07.19.19.10;	author wflynn;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	2008.06.27.16.39.07;	author wflynn;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	2008.06.19.15.41.23;	author wflynn;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	2008.06.09.16.18.33;	author rbraun;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	2008.04.30.19.40.13;	author sfrattura;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	2008.04.30.19.35.58;	author rbraun;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	2008.03.16.21.04.06;	author rbraun;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	2008.03.02.22.48.55;	author rbraun;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2008.02.29.15.04.56;	author rbraun;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2008.02.28.02.17.16;	author rbraun;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2008.02.28.02.12.14;	author rbraun;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.44
+log
+@changed double ampersand to semi-colon so that bzip2 command will work
+@
+text
+@#!/bin/bash
+# $Id: backup_mysql_all,v 1.43 2010/06/21 21:22:00 rbraun Exp kpanacy $
+#
+# Created 2/08 by rbraun
+#
+# This will keep daily dumps of each production database in subdirectories
+# of /var/backup/mysql, by hostname and day of week.
+
+. /etc/manhunt/source.sh
+LOG=${CARE_LOG}
+
+echo START $APPNAME `date` >> $LOG
+
+USER=bkp
+PSWD=807d854bq
+## MySQL command syntax for creating bkp user:
+## Tera-Bactyl02:
+# GRANT SELECT,RELOAD,SUPER,REPLICATION CLIENT ON *.* TO '$USER'@@'192.168.1.228' IDENTIFIED BY '$PSWD';
+## Tera-Bactyl03:
+# GRANT SELECT,RELOAD,SUPER,REPLICATION CLIENT ON *.* TO '$USER'@@'192.168.1.194' IDENTIFIED BY '$PSWD';
+## Tera-Bactyl01:
+# GRANT SELECT,RELOAD,SUPER,REPLICATION CLIENT ON *.* TO '$USER'@@'192.168.218.105' IDENTIFIED BY '$PSWD';
+
+# The --master-data option can be useful when taking a dump directly from a master server
+#
+####  BUT IS NEVER USEFUL 
+####  WHEN DUMPING A SLAVE.
+#
+####  AND THIS SCRIPT IS USED TO DUMP SLAVES.
+#
+####  THIS SAME SCRIPT IS USED FOR SLAVES THAT HAVE BINLOG DISABLED.  IT BREAKS.
+#
+# DON'T USE --master-data HERE!
+#
+
+DUMPOPTS="--flush-logs --all-databases --force -R --skip-opt --quick --single-transaction --add-drop-table --set-charset --create-options --no-autocommit --extended-insert"
+SCHEMA_DUMP_OPTS=" --flush-logs --force --no-data -R --triggers --events --all-databases" 
+
+## Did I remind you not to use --master-data?
+
+DESTDIR=/var/backup/mysql
+DAY=`date +%a`
+COMPRESS="bzip2 -f"
+COMPRESS_EXT="bz2"
+OLD_EXT="gz"
+
+if [ "$#" -eq "0" ]; then
+    echo "Usage: backup_mysql_all <days to keep> <list: instances>"
+    exit
+fi
+
+FREQUENCY=$1
+shift;
+
+for HOST in $@@
+do
+    [ -d $DESTDIR/$HOST/$DAY ] || mkdir -p $DESTDIR/$HOST/$DAY
+ # Delete any lingering files that are over FREQUENCY days old:
+    /usr/bin/find $DESTDIR/$HOST/* -type f -mtime +$FREQUENCY -exec rm {} \; 2>&1 > /dev/null
+ # Schema only
+ # Delete any lingering files from a previous incarnation (or incantation) of this script, compressed or otherwise:
+    rm -f $DESTDIR/$HOST/$DAY/$HOST-schema.sql.$OLD_EXT
+    rm -f $DESTDIR/$HOST/$DAY/$HOST-schema.sql
+    SCHEMA_TARGET=$DESTDIR/$HOST/$DAY/$HOST-schema.sql
+    ( mysqldump -u $USER -p$PSWD $SCHEMA_DUMP_OPTS -h $HOST >$SCHEMA_TARGET ;  $COMPRESS $SCHEMA_TARGET & )
+ # Data
+ # Delete any lingering files from a previous incarnation (or incantation) of this script, compressed or otherwise:
+    rm -f $DESTDIR/$HOST/$DAY/$HOST-backup.sql.$OLD_EXT
+    rm -f $DESTDIR/$HOST/$DAY/$HOST-backup.sql
+    BACKUP_TARGET=$DESTDIR/$HOST/$DAY/$HOST-backup.sql
+    MASTER_STATUS=$DESTDIR/$HOST/$DAY/$HOST-master-status.txt
+    ( mysql -u $USER -p$PSWD -h $HOST -se "show slave status\G" >$MASTER_STATUS & )
+    ( mysqldump -u $USER -p$PSWD $DUMPOPTS -h $HOST >$BACKUP_TARGET ;  $COMPRESS $BACKUP_TARGET & )
+done
+
+echo FINISHED $APPNAME `date` >> $LOG 
+@
+
+
+1.43
+log
+@minor cleanup
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.42 2010/02/04 14:57:44 sfrattura Exp rbraun $
+d65 1
+a65 1
+    ( mysqldump -u $USER -p$PSWD $SCHEMA_DUMP_OPTS -h $HOST >$SCHEMA_TARGET && $COMPRESS $SCHEMA_TARGET & )
+d73 1
+a73 1
+    ( mysqldump -u $USER -p$PSWD $DUMPOPTS -h $HOST >$BACKUP_TARGET && $COMPRESS $BACKUP_TARGET & )
+@
+
+
+1.42
+log
+@remove fauly logging at the end to care log
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.41 2010/02/03 18:46:25 sfrattura Exp sfrattura $
+a13 2
+
+
+d16 1
+a16 1
+## MySQL command syntax for creating this user:
+d48 1
+a48 1
+    echo "Usage: backup_mysql_all <days to keep> <list: machines>"
+@
+
+
+1.41
+log
+@fixing logging
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.40 2010/02/03 18:44:44 sfrattura Exp sfrattura $
+d75 1
+a75 1
+    ( mysqldump -u $USER -p$PSWD $DUMPOPTS -h $HOST >$BACKUP_TARGET && $COMPRESS $BACKUP_TARGET && echo FINISHED $APPNAME `date` >> $LOG & )
+d78 1
+a78 1
+
+@
+
+
+1.40
+log
+@attempt to fix logging
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.39 2010/02/03 18:38:13 sfrattura Exp sfrattura $
+d75 1
+a75 1
+    ( mysqldump -u $USER -p$PSWD $DUMPOPTS -h $HOST >$BACKUP_TARGET && $COMPRESS $BACKUP_TARGET && echo FINISH $APPNAME `date` >> $LOG & )
+@
+
+
+1.39
+log
+@added logging to backup_mysql_all
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.38 2009/10/21 14:00:11 hschmidt Exp sfrattura $
+d75 1
+a75 1
+    ( mysqldump -u $USER -p$PSWD $DUMPOPTS -h $HOST >$BACKUP_TARGET && $COMPRESS $BACKUP_TARGET & )
+a78 1
+echo FINISH $APPNAME `date` >> $LOG
+@
+
+
+1.38
+log
+@fixed schema opts with --all-databases
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.37 2009/10/21 13:35:48 hschmidt Exp hschmidt $
+d9 7
+d77 3
+@
+
+
+1.37
+log
+@--no-data flag failing, put back in -d flag for mysql backups
+for schema
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.36 2009/10/19 20:57:33 hschmidt Exp hschmidt $
+d32 1
+a32 1
+SCHEMA_DUMP_OPTS=" -d  --flush-logs --force --no-data -R --triggers --events" 
+@
+
+
+1.36
+log
+@fixed my --no-data
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.35 2009/10/19 17:03:39 hschmidt Exp hschmidt $
+d32 1
+a32 1
+SCHEMA_DUMP_OPTS=" --no-data --flush-logs --force --no-data -R --triggers --events" 
+@
+
+
+1.35
+log
+@the schema only opts were removed and need to be with --no-data for schema only
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.34 2009/08/10 21:23:48 jjoy Exp hschmidt $
+d32 1
+a32 1
+SCHEMA_DUMP_OPTS=" --flush-logs --force --no-data -R --triggers --events" 
+@
+
+
+1.34
+log
+@Changing the parameter to find to be a little less noisy.
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.33 2009/08/04 14:21:23 jjoy Exp jjoy $
+d32 1
+d60 1
+a60 1
+    ( mysqldump -u $USER -p$PSWD -d $DUMPOPTS -h $HOST >$SCHEMA_TARGET && $COMPRESS $SCHEMA_TARGET & )
+@
+
+
+1.33
+log
+@Added a bit of safety with the -f flag for this script in find.
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.32 2009/08/03 20:11:00 jjoy Exp jjoy $
+d53 1
+a53 1
+    /usr/bin/find $DESTDIR/$HOST/* -type f -mtime +$FREQUENCY -exec rm {} \; 2>&1 > /tmp/$HOST
+@
+
+
+1.32
+log
+@Added specific logging around the find statement to capture errors it is throwing itself.
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.31 2009/07/28 14:58:12 jjoy Exp jjoy $
+d53 1
+a53 1
+    /usr/bin/find $DESTDIR/$HOST/* -mtime +$FREQUENCY -exec rm {} \; 2>&1 > /tmp/$HOST
+@
+
+
+1.31
+log
+@Changed the find parameters for this script.
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.30 2009/07/27 19:41:23 jjoy Exp jjoy $
+d53 1
+a53 1
+    /usr/bin/find $DESTDIR/$HOST/* -mtime +$FREQUENCY -exec rm {} \;
+@
+
+
+1.30
+log
+@Slight fix to the find feature of the backup script.  The find, as previously written, was not actually doing anything useful.  Now it is picking up old data in the directories it's scanning. JIRA SYS-1822
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.29 2009/07/24 22:32:03 jjoy Exp jjoy $
+d53 1
+a53 1
+    /usr/bin/find $DESTDIR/$HOST/* -mtime +$FREQUENCY -ls -exec rm {} \;
+@
+
+
+1.29
+log
+@Added functionality to limit the amount of time to keep backups when databases get big.  SYS-1822
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.28 2009/05/18 16:16:17 hschmidt Exp jjoy $
+d53 1
+a53 1
+    /usr/bin/find $DESTDIR/$HOST/$DAY -name "*.*" -ls -mtime +$FREQUENCY -exec rm {} \;
+@
+
+
+1.28
+log
+@find and remove command changed to retain 7 days worth per SYS-1104
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.27 2009/05/13 15:51:37 hschmidt Exp hschmidt $
+d41 8
+a48 1
+#for HOST in $1 $2 $3 $4 $5 $6 $7 $8 $9
+d52 2
+a53 2
+ # Delete any lingering files that are over 7 days old:
+    /usr/bin/find $DESTDIR/$HOST/$DAY -name "*.*" -ls -mtime +7 -exec rm {} \;
+@
+
+
+1.27
+log
+@retain 3 days of backups on disk to help offset disk space on tera bactyl servers
+and growing size of databases (now > 30G before compression
+) heidi  May 13, 2009 11:52 AM
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.26 2009/05/08 01:23:35 hschmidt Exp hschmidt $
+d46 1
+a46 1
+    /usr/bin/find $DESTDIR/$HOST/$DAY -name "*.*" -ls -mtime +3 -exec rm {} \;
+@
+
+
+1.26
+log
+@fixed the line so the compress happens when the dump is done... still has timing issues when reverted... will have to explore later.
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.25 2009/05/05 18:58:45 hschmidt Exp hschmidt $
+d46 1
+a46 1
+    /usr/bin/find $DESTDIR/$HOST/$DAY -name "*.*" -ls -mtime +4 -exec rm {} \;
+@
+
+
+1.25
+log
+@changed the retention to 4 days so that we would not run out of space while figuring out the compression hit or miss issue
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.24 2009/05/05 18:57:17 hschmidt Exp hschmidt $
+d60 1
+a60 2
+    ( mysqldump -u $USER -p$PSWD $DUMPOPTS -h $HOST >$BACKUP_TARGET & )
+    ( $COMPRESS $BACKUP_TARGET & )
+@
+
+
+1.24
+log
+@noticing that the backup is not always being successfully compressed which causes issues. Put this as a separate line to handle after the backup is done in case of conflict.
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.23 2009/04/30 21:04:28 hschmidt Exp hschmidt $
+d46 1
+a46 1
+    /usr/bin/find $DESTDIR/$HOST/$DAY -name "*.*" -ls -mtime +7 -exec rm {} \;
+@
+
+
+1.23
+log
+@adding in the capture of the show slave status command regardless of dump so that we have a known good reference point and removed --master-data mysqldump flag.
+heidi  April 30, 2009 5:05 PM
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.22 2009/04/13 14:38:12 hschmidt Exp hschmidt $
+d39 1
+a39 1
+OLD_EXT="sql"
+d60 2
+a61 1
+    ( mysqldump -u $USER -p$PSWD $DUMPOPTS -h $HOST >$BACKUP_TARGET && $COMPRESS $BACKUP_TARGET & )
+@
+
+
+1.22
+log
+@added back in master-data flag
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.21 2009/04/11 01:08:14 rbraun Exp hschmidt $
+d31 1
+a31 1
+DUMPOPTS="--flush-logs --all-databases --force -R --skip-opt --quick --single-transaction --master-data --add-drop-table --set-charset --create-options --no-autocommit --extended-insert"
+d39 1
+a39 1
+OLD_EXT="gz"
+d58 2
+@
+
+
+1.21
+log
+@*** empty log message ***
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.20 2009/04/11 01:03:26 rbraun Exp rbraun $
+d31 1
+a31 1
+DUMPOPTS="--flush-logs --all-databases --force -R --skip-opt --quick --single-transaction --add-drop-table --set-charset --create-options --no-autocommit --extended-insert"
+@
+
+
+1.20
+log
+@*** empty log message ***
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.19 2009/04/09 17:45:15 hschmidt Exp rbraun $
+d19 1
+a19 1
+# The --master-data option can be useful when taking a dump directly from a master user
+d24 5
+a28 1
+# DON'T USE IT HERE!
+d32 3
+@
+
+
+1.19
+log
+@added in --master-data and -R to get positioning if a master or slave and to get all procedures as well.
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.18 2009/04/07 21:02:47 hschmidt Exp hschmidt $
+d19 9
+a27 3
+# The --master-data option is also useful but only when taking a dump
+# directly from a master server.
+DUMPOPTS="--flush-logs --all-databases --force --master-data -R --skip-opt --quick --single-transaction --add-drop-table --set-charset --create-options --no-autocommit --extended-insert"
+@
+
+
+1.18
+log
+@added force flag as per experiences with dw02 V2 backup per ticket SYS-1585
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.17 2009/03/27 14:19:34 hschmidt Exp hschmidt $
+d21 1
+a21 1
+DUMPOPTS="--flush-logs --all-databases --force --skip-opt --quick --single-transaction --add-drop-table --set-charset --create-options --no-autocommit --extended-insert"
+@
+
+
+1.17
+log
+@adding in self pruning mechanism to not retain more than 7 days worth of files. this can be reused if we want to backup dw boxen on a different schedule as well since it will remove the previous incarnation and then make way for a new backup regardless of number of copies on tera-bactyl servers.
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.16 2009/03/26 20:09:35 hschmidt Exp hschmidt $
+d21 1
+a21 1
+DUMPOPTS="--flush-logs --all-databases --skip-opt --quick --single-transaction --add-drop-table --set-charset --create-options --no-autocommit --extended-insert"
+@
+
+
+1.16
+log
+@added the --flush-logs flag so that the backups would flush logs and allow a full schema dump.
+SYS-1104
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.15 2009/03/19 13:35:29 rbraun Exp hschmidt $
+d32 2
+@
+
+
+1.15
+log
+@removed --master-data because we're no longer doing binlogs from read-only boxes
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.14 2009/03/03 19:23:53 rbraun Exp rbraun $
+d21 1
+a21 1
+DUMPOPTS="--all-databases --skip-opt --quick --single-transaction --add-drop-table --set-charset --create-options --no-autocommit --extended-insert"
+@
+
+
+1.14
+log
+@tera-bactyl03 added to comments
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.13 2008/11/12 17:33:37 wflynn Exp rbraun $
+d21 1
+a21 2
+# Added --master-data to take a backup from maildb02a master.  See JIRA SYS-919
+DUMPOPTS="--all-databases --skip-opt --quick --single-transaction --add-drop-table --set-charset --create-options --no-autocommit --extended-insert --master-data"
+@
+
+
+1.13
+log
+@Indentation
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.12 2008/08/28 19:01:39 wflynn Exp wflynn $
+d14 2
+@
+
+
+1.12
+log
+@Added --master-data to take a backup from maildb02a master.  JIRA: SYS-919
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.11 2008/08/07 19:19:10 wflynn Exp wflynn $
+d30 1
+a30 1
+ [ -d $DESTDIR/$HOST/$DAY ] || mkdir -p $DESTDIR/$HOST/$DAY
+d33 4
+a36 4
+ rm -f $DESTDIR/$HOST/$DAY/$HOST-schema.sql.$OLD_EXT
+ rm -f $DESTDIR/$HOST/$DAY/$HOST-schema.sql
+SCHEMA_TARGET=$DESTDIR/$HOST/$DAY/$HOST-schema.sql
+( mysqldump -u $USER -p$PSWD -d $DUMPOPTS -h $HOST >$SCHEMA_TARGET && $COMPRESS $SCHEMA_TARGET & )
+d39 4
+a42 4
+ rm -f $DESTDIR/$HOST/$DAY/$HOST-backup.sql.$OLD_EXT
+ rm -f $DESTDIR/$HOST/$DAY/$HOST-backup.sql
+BACKUP_TARGET=$DESTDIR/$HOST/$DAY/$HOST-backup.sql
+( mysqldump -u $USER -p$PSWD $DUMPOPTS -h $HOST >$BACKUP_TARGET && $COMPRESS $BACKUP_TARGET & )
+@
+
+
+1.11
+log
+@Add backup user creation hint for tera-bactyl01 as well.  JIRA SYS-821
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.10 2008/06/27 16:39:07 wflynn Exp wflynn $
+d19 2
+a20 1
+DUMPOPTS="--all-databases --skip-opt --quick --single-transaction --add-drop-table --set-charset --create-options --no-autocommit --extended-insert"
+@
+
+
+1.10
+log
+@Updated to perform backups consecutively, with compression happening post-download.
+..
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.9 2008/06/19 15:41:23 wflynn Exp $
+d11 5
+a15 3
+# MySQL command syntax for creating this user:
+#  GRANT SELECT,RELOAD,SUPER,REPLICATION CLIENT ON *.* TO
+#    'bkp'@@'192.168.1.228' IDENTIFIED BY '$PSWD'
+@
+
+
+1.9
+log
+@Update script to bzip mysql backups.
+Also deletes any leftover files from previous incranations.
+JIRA: SYS-657
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.8 2008/06/09 16:18:33 rbraun Exp wflynn $
+d11 1
+a11 1
+# MySQL command syntax for creating this user: 
+d15 3
+d19 2
+a20 2
+DUMPOPTS="--skip-opt --quick --single-transaction --add-drop-table --set-charset --create-options --no-autocommit --extended-insert"
+COMPRESS="bzip2 -c"
+d24 2
+a25 3
+# The --master-data option is also useful but only when taking a dump
+# directly from a master server.
+for HOST in $1 $2 $3 $4 $5 $6 $7 $8 $9
+d27 1
+a27 1
+ [ -d $DESTDIR/$HOST/`date +%a` ] || mkdir -p $DESTDIR/$HOST/`date +%a`
+d29 5
+a33 4
+ # Delete any lingering files from a previous incarnation of this script, compressed or otherwise:
+ rm -f $DESTDIR/$HOST/`date +%a`/$HOST-schema.sql.$OLD_EXT
+ rm -f $DESTDIR/$HOST/`date +%a`/$HOST-schema.sql
+ mysqldump -u $USER -p$PSWD -d --all-databases $DUMPOPTS -h $HOST | $COMPRESS >$DESTDIR/$HOST/`date +%a`/$HOST-schema.sql.$COMPRESS_EXT
+d35 5
+a39 4
+ # Delete any lingering files from a previous incarnation of this script, compressed or otherwise:
+ rm -f $DESTDIR/$HOST/`date +%a`/$HOST-backup.sql.$OLD_EXT
+ rm -f $DESTDIR/$HOST/`date +%a`/$HOST-backup.sql
+ mysqldump -u $USER -p$PSWD --all-databases $DUMPOPTS -h $HOST | $COMPRESS >$DESTDIR/$HOST/`date +%a`/$HOST-backup.sql.$COMPRESS_EXT
+@
+
+
+1.8
+log
+@added --no-autocommit and --extended-insert per recommendation of
+Harrison Fisk of MySQL (ticket SYS-586)
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.7 2008/04/30 19:40:13 sfrattura Exp rbraun $
+d17 3
+a22 1
+
+d27 4
+a30 1
+ mysqldump -u $USER -p$PSWD -d --all-databases $DUMPOPTS -h $HOST >$DESTDIR/$HOST/`date +%a`/$HOST-schema.sql
+d32 4
+a35 1
+ mysqldump -u $USER -p$PSWD --all-databases $DUMPOPTS -h $HOST | gzip -c >$DESTDIR/$HOST/`date +%a`/$HOST-backup.sql.gz
+@
+
+
+1.7
+log
+@sandro added "| gzip -c" to the middle and ".gz" the teh end of the data backup command
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.6 2008/04/30 19:35:58 rbraun Exp sfrattura $
+d16 1
+a16 1
+DUMPOPTS="--skip-opt --quick --single-transaction --add-drop-table --set-charset --create-options"
+@
+
+
+1.6
+log
+@*** empty log message ***
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.5 2008/03/16 21:04:06 rbraun Exp rbraun $
+d27 1
+a27 1
+ mysqldump -u $USER -p$PSWD --all-databases $DUMPOPTS -h $HOST >$DESTDIR/$HOST/`date +%a`/$HOST-backup.sql
+@
+
+
+1.5
+log
+@maildb04 replaced maildb05
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.4 2008/03/02 22:48:55 rbraun Exp rbraun $
+d21 1
+a21 1
+for HOST in itdb04 dbrosl2 trackdb02 maildb03 maildb04 adsdb02 jpdb03 jpmaildb03
+@
+
+
+1.4
+log
+@added Japan databases (main and mail)
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.3 2008/02/29 15:04:56 rbraun Exp rbraun $
+d21 1
+a21 1
+for HOST in itdb04 dbrosl2 trackdb02 maildb03 maildb05 adsdb02 jpdb03 jpmaildb03
+@
+
+
+1.3
+log
+@improved DUMPOPTS
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.2 2008/02/28 02:17:16 rbraun Exp rbraun $
+d21 1
+a21 1
+for HOST in itdb04 dbrosl2 trackdb02 maildb03 maildb05 adsdb02
+@
+
+
+1.2
+log
+@*** empty log message ***
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.1 2008/02/28 02:12:14 rbraun Exp rbraun $
+d16 4
+d24 4
+a27 1
+ mysqldump -u $USER -p$PSWD --all-databases --master-data -h $HOST >$DESTDIR/$HOST/`date +%a`/$HOST-backup.sql
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 1
+a2 1
+# $Id$
+d17 1
+a17 1
+for HOST in itdb03 dbrosl2 trackdb02 maildb03 maildb05 adsdb02
+@

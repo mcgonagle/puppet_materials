@@ -1,0 +1,22 @@
+Puppet module: monit
+
+# Written by Tom McGonagle #
+# mcgonagle@gmail.com
+# Google Voice (617)229-5185
+# http://www.puppetll.com
+
+
+DESCRIPTION:
+This module installs and manages monit software
+Standard and extended classes are available.
+Decide and customize how you want to define configation files: static files, templates, infile modifications...
+
+
+USAGE:
+# Standard Classes 
+include monit              # Install and run monit with standard configurations.
+include monit::disable     # Disable monit service.
+include monit::disableboot # Disable monit service at boot time, but don't stop if it's running.
+include monit::absent      # Remove monit package.
+
+DEPENDENCIES:

@@ -1,0 +1,249 @@
+head	1.7;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.7
+date	2010.07.26.14.02.24;	author wflynn;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	2010.07.23.14.02.59;	author wflynn;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	2010.07.22.21.59.00;	author wflynn;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	2010.07.22.19.49.56;	author wflynn;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2010.07.21.13.46.39;	author sfrattura;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2010.05.07.15.31.18;	author sfrattura;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2010.05.07.15.30.46;	author sfrattura;	state Exp;
+branches;
+next	;
+
+
+desc
+@Excange Rate Script
+@
+
+
+1.7
+log
+@SYS-3112  Removed the advisory success email
+@
+text
+@#!/bin/sh
+# written by Sandro Frattura
+#
+# $Id: ImportExchangeRates.sh,v 1.6 2010/07/23 14:02:59 wflynn Exp wflynn $
+#
+# This file imports a text file of exchange rates into a mySql table
+# called "fact_exchange" on MANHAUS in the dw03 database
+#
+
+. /etc/manhunt/source.sh
+PASS=${V4_PW}
+USERHOST=${V4_DATAWAREHOUSE}
+USERDB=${V4_WAREHOUSEDB}
+LOG=${CARE_LOG}
+VERBOSITY=-vv
+CHAROPT="--default-character-set=utf8"
+
+mh_user_check "care"
+mh_init
+
+# Log Start Of Script
+echo START $APPNAME `date` >> $LOG
+
+# Create Y/M/D cariables
+year=`date +%Y`
+month=`date +%m`
+day=`date +%d`
+
+# Create Filename to look for & import
+myFilename="/var/tmp/xe.rates.$year-$month-$day"
+
+# is the expected file present???
+if [ ! -e $myFilename ]; then
+    echo "$myFilename  does not exist!" | /usr/local/manhunt/cron/mailif -t sfrattura@@online-buddies.com  "exchange rate script failure"
+    echo "$myFilename  does not exist!" >> $LOG
+    mh_exit $CRITICAL
+fi
+
+# Is the expected file zero bytes???
+if [ ! -s $myFilename ]; then
+    echo "$myFilename is zero bytes!" | /usr/local/manhunt/cron/mailif -t sfrattura@@online-buddies.com  "exchange rate script failure"
+    echo "$myFilename is zero bytes!"  >> $LOG
+    mh_exit $CRITICAL
+fi
+
+#Build the SQL stmt
+sqlStmt="load data LOCAL infile '$myFilename' into table fact_ExchangeRate FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '\'' (@@tmpdt,currencyTypeID,exchangeRateToUSD) set dt=STR_TO_DATE(@@tmpdt, '%Y-%m-%d')"
+
+#execute the SQL Statement
+`mysql $CHAROPT -u $V4_USER -p$PASS -h $USERHOST $USERDB -s -e "$sqlStmt"`
+
+#Get the number of rows in the Exchange Rate Tabke
+RowCnt=`mysql $CHAROPT -u $V4_USER -p$PASS -h $USERHOST $USERDB -s -e "select count(*) from fact_ExchangeRate"`
+
+#Send Confirmation Email
+#  SYS-3112, monitoring this with NAGIOS now, the advisory success email isn't necessary
+#echo "ExchangeRate script complete!" | /usr/local/manhunt/cron/mailif -t sfrattura@@online-buddies.com "exchange rate script complete: #Rows in table - $RowCnt"
+
+#Log Script Completion
+echo END $APPNAME `date` >> $LOG
+
+mh_exit $OK
+@
+
+
+1.6
+log
+@Removed re-assignment to $USER, which was breaking the nagios hooks
+@
+text
+@d4 1
+a4 1
+# $Id: ImportExchangeRates.sh,v 1.5 2010/07/22 21:59:00 wflynn Exp wflynn $
+d56 2
+a57 1
+echo "ExchangeRate script complete!" | /usr/local/manhunt/cron/mailif -t sfrattura@@online-buddies.com "exchange rate script complete: #Rows in table - $RowCnt"
+@
+
+
+1.5
+log
+@Added in mh_ hooks for nagios log monitoring
+@
+text
+@d4 1
+a4 1
+# $Id: ImportExchangeRates.sh,v 1.4 2010/07/22 19:49:56 wflynn Exp wflynn $
+a11 1
+USER=${V4_USER}
+d50 1
+a50 1
+`mysql $CHAROPT -u $USER -p$PASS -h $USERHOST $USERDB -s -e "$sqlStmt"`
+d53 1
+a53 1
+RowCnt=`mysql $CHAROPT -u $USER -p$PASS -h $USERHOST $USERDB -s -e "select count(*) from fact_ExchangeRate"`
+@
+
+
+1.4
+log
+@Formatting changes, also use $CRITICAL
+@
+text
+@d4 1
+a4 1
+# $Id: $
+d19 2
+a20 13
+# Run as care.
+if [ "$UID" -ne "$CARE_UID" ]
+then
+    echo "Must be care to run this script."
+    exit $CRITICAL
+fi
+
+# Make Sure Log Is Accessible
+if [ "`touch $LOG`" != "" ]
+then
+    echo "Cannot write to logfile."
+    exit $CRITICAL
+fi
+d25 1
+a25 1
+# CReate Y/M/D cariables
+d30 1
+a30 1
+#Create Filename to look for & import
+d33 1
+a33 2
+
+#is the expected file present???
+d37 1
+a37 1
+    exit $CRITICAL
+d44 1
+a44 1
+    exit $CRITICAL
+d61 2
+@
+
+
+1.3
+log
+@changed email recipient to Sandro
+@
+text
+@d2 3
+a4 1
+#written by Sandro Frattura
+a15 1
+ERROR=1
+d23 1
+a23 1
+    exit $ERROR
+d30 1
+a30 1
+    exit $ERROR
+d47 3
+a49 3
+echo "$myFilename  does not exist!" | /usr/local/manhunt/cron/mailif -t sfrattura@@online-buddies.com  "exchange rate script failure"
+echo "$myFilename  does not exist!" >> $LOG
+exit $ERROR
+d54 3
+a56 3
+echo "$myFilename is zero bytes!" | /usr/local/manhunt/cron/mailif -t sfrattura@@online-buddies.com  "exchange rate script failure"
+echo "$myFilename is zero bytes!"  >> $LOG
+exit $ERROR
+@
+
+
+1.2
+log
+@removed Sarah From The Confirmation Email
+@
+text
+@d46 1
+a46 1
+echo "$myFilename  does not exist!" | /usr/local/manhunt/cron/mailif -t SystemsEngineering@@online-buddies.com  "exchange rate script failure"
+d53 1
+a53 1
+echo "$myFilename is zero bytes!" | /usr/local/manhunt/cron/mailif -t SystemsEngineering@@online-buddies.com  "exchange rate script failure"
+d68 1
+a68 1
+echo "ExchangeRate script complete!" | /usr/local/manhunt/cron/mailif -t systemsengineering@@online-buddies.com "exchange rate script complete: #Rows in table - $RowCnt"
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d68 1
+a68 1
+echo "ExchangeRate script complete!" | /usr/local/manhunt/cron/mailif -t systemsengineering@@online-buddies.com -c smaston@@online-buddies.com "exchange rate script complete: #Rows in table - $RowCnt"
+@

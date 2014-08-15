@@ -1,0 +1,68 @@
+head	1.2;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.2
+date	2009.08.28.15.39.12;	author jjoy;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2009.08.10.15.26.05;	author jjoy;	state Exp;
+branches;
+next	;
+
+
+desc
+@Very simple and quick cleanup script.
+cleanup.sh <days-to-live> <directory1> <directory2> ... <directoryN>
+@
+
+
+1.2
+log
+@Fixed small reference bug in the call to find.
+@
+text
+@#!/bin/bash
+
+if [ "$#" -eq "0" ]; then
+    echo "Usage: clean <days to keep> <list: directories>"
+    exit
+fi
+
+FREQUENCY=$1
+shift;
+
+for DIRECTORY in $@@
+
+do
+    if [ -d $DIRECTORY ]; then
+        echo "Cleaning $DIRECTORY ..."
+        /usr/bin/find $DIRECTORY -type f -mtime +$FREQUENCY -exec rm  {} \; 2>&1 > /dev/null
+    else
+        echo "$DIRECTORY doesn't exist.";
+    fi
+done
+
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@a1 4
+## cleanup.sh, from jjoy on 08/10/09
+## basic cleanup shell script to clean up logs and various 
+## pieces of data that should have a limited lifetime.
+
+d16 1
+a16 1
+        /usr/bin/find $DIRECTORIES -type f -mtime +$FREQUENCY -exec rm {} \; 2>&1 > /dev/null
+d21 1
+@

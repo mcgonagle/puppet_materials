@@ -1,0 +1,7 @@
+--- 
+parameters: 
+  bee: baz
+  foo: bar
+classes: 
+- sub
+- testing

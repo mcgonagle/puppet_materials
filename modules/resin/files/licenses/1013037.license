@@ -1,0 +1,12 @@
+<!-- install in $RESIN_HOME/licenses/1013037.license -->
+<caucho-license>
+  <id>1013037</id>
+  <type>Resin</type>
+  <customer>Online Buddies, Inc.</customer>
+  <server-count>16</server-count> <!-- CPU count -->
+  <issue-date>1288162800000</issue-date> <!-- 2010-10-27 -->
+  <version-expire-date>1319612400000</version-expire-date> <!-- 2011-10-26 -->
+  <expire-date>1327388400000</expire-date> <!-- 2012-01-23 -->
+  <signature>MCwCFDWKnwrwoQP3YJxspEvyvMc69PFgAhQfaR2mNG8LAdWCVS+D+HcDIoE1OQ==</signature>
+  <signature31>MCwCFEWZ/iIeDPleHTSyjHPFhYg/fcD7AhRySJ22Q6js/h6AzStMoGCldBEdrA==</signature31>
+</caucho-license>

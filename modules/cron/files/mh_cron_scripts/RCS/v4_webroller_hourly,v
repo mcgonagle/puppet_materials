@@ -1,0 +1,281 @@
+head	1.8;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.8
+date	2010.04.20.14.12.16;	author rbraun;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	2009.12.04.19.19.08;	author rbraun;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	2009.12.04.19.16.07;	author rbraun;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	2009.09.29.19.03.23;	author rbraun;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	2009.09.25.14.35.51;	author wflynn;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2009.09.24.22.32.31;	author wflynn;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2009.09.18.21.20.18;	author wflynn;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2009.09.18.21.19.48;	author wflynn;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.8
+log
+@A whole lot of changes made by Jason on 15-Jan-10 weren't yet checked in
+@
+text
+@#!/usr/bin/perl
+# $Id$
+
+use strict;
+use warnings;
+
+my $dir = "/var/log/httpd/";
+my $remote_dir = "/data01/www";
+my $remote_host = "sawmill";
+my %files;
+
+my $hostname = `hostname -s`;
+chomp $hostname;
+
+my $file_timestamp = `date +\%Y\.\%m\.\%d\.\%H\.\%Z -d "3 hours ago"`;
+
+print "Running on: $hostname\n\n";
+print "Targeting: $file_timestamp\n\n";
+
+print "bzip2'ing files ...\n";
+my $testout =  system("find","-L","$dir","-name","*.log","-mmin","+120","-exec","bzip2","{}","\;");
+
+print "The files I see are:\n\n";
+
+opendir (my $dir_handle, $dir) or die "Cannot open directory! $!\n";
+while(my $file = readdir($dir_handle)) {
+    my $check = $file;
+    if ($check =~ m/\.bz2$/) {
+        my ($year,$month,$date,$hour,$dst) = $check =~ m/^.*?\.(....)\.(..)\.(..)\.(..)\.(...)/;
+        my $dirname = $year.".".$month.".".$date.".".$hour.".".$dst;
+        $files{$dirname} = "$year$month$date$hour$dst";
+        print "$file\n";
+    }
+}
+
+print "\nNow cleaning up relevent files ...\n";
+
+my $mkdir_www_output = `ssh $remote_host "if [ -d $remote_dir/$hostname ] ; then echo 'Using $hostname'; else echo 'Making $hostname Directory.' ; mkdir $remote_dir/$hostname; fi"`;
+
+foreach (sort(keys(%files))) {
+    next if $_ eq "....";
+    print "$_\n";
+    my $du_output = `ssh $remote_host "df -h $remote_dir/$hostname"`;
+    chomp $du_output;
+    sleep 3;
+    ## To Do, check the DU output and stop this process if something wrong happens.
+ 
+    my $ssh_output = `ssh $remote_host "if [ -d $remote_dir/$hostname/$files{$_} ] ; then echo 'Using already existing directory'; else echo 'Making Directory.' ; mkdir $remote_dir/$hostname/$files{$_}; fi"`;   
+    print "$ssh_output\n"; 
+    $ssh_output = `scp $dir*$_*.bz2  $remote_host://$remote_dir/$hostname/$files{$_}`;
+
+    my @@file_list = `ssh $remote_host "ls -1 $remote_dir/$hostname/$files{$_}"`;
+
+    foreach (@@file_list) {
+        chomp;
+        if ( m/\.bz2$/ ) {
+            system("rm -f $dir/$_");
+        }
+    }      
+ 
+}    
+
+print "Completed.\n\n";
+
+sub source_parse() {  ## I'll complete this part shortly.
+    open(my $source, "/etc/manhunt/source.sh") or die "Cannot open source file: $!\n";
+    while(<$source>) {
+        next if m/^#/;
+    }
+}
+@
+
+
+1.7
+log
+@*** empty log message ***
+@
+text
+@d1 2
+a2 45
+#!/bin/bash
+# v4_webroller_hourly
+#
+# $Id: v4_webroller_hourly,v 1.6 2009/12/04 19:16:07 rbraun Exp rbraun $
+#
+# Created 03/2009 by wflynn, modified and adapted to hourly by jjoy.
+#
+# Script for cron to zip, backup and delete web logs
+#
+# ###############NOTE WELL##################
+# TBD rbraun 12/4/09:  why does this run as 'root' when it should 'logs'?
+# ##########################################
+
+if [ ! ${1} -ge 0  ]
+then
+    echo "Usage: $0 <hoursago>"
+    echo "       Compress and archive <hoursago> hours ago's logs"
+    exit 1
+fi
+HOURSAGO=$1
+RUNAS="logs"
+ZIP_COMMAND="bzip2"
+ZIP_EXTENSION="bz2"
+LOGDIR="/etc/httpd/logs"
+## TODAY=`date +%Y.%m.%d`  ## This variable is not called, remove if true.
+## YESTERDAY=`date +%Y.%m.%d -d "yesterday"` ## This variable is not called, remove if true.
+
+## Belive it or not, apache logrotate doesn't comprehend DST,
+## So here %Z works, in the logfile name its always "EST".
+#LOGFILEDATE=`date +%Y.%m.%d.%H.%Z -d "${HOURSAGO} hours ago"`
+LOGFILEDATE=`date +%Y.%m.%d.%H -d "${HOURSAGO} hours ago"`
+#  Do the right thing with the directory, though
+LOGDIRDATE=`date +%Y%m%d%H%Z -d "${HOURSAGO} hours ago"`
+SOURCEDIR=${LOGDIR}
+DESTDIR="/manhunt/www"
+REMOTEHOST="sawmill"
+HOSTNAME=`hostname -s`
+
+# Zip em
+find -L ${LOGDIR} -name "*${LOGFILEDATE}*.log" -exec ${ZIP_COMMAND} {} \;
+# Archive em
+su ${RUNAS} -c "ssh ${REMOTEHOST} mkdir -p ${DESTDIR}/${HOSTNAME}/${LOGDIRDATE}"
+su ${RUNAS} -c "rsync -ac --include \"*${LOGFILEDATE}*.${ZIP_EXTENSION}\" --bwlimit=500 --exclude \"*\" --partial --partial-dir=${DESTDIR}/temp ${SOURCEDIR}/ ${REMOTEHOST}:${DESTDIR}/${HOSTNAME}/${LOGDIRDATE}"
+# Delete successfully transferred files
+for logfile in `su ${RUNAS} -c "ssh ${REMOTEHOST} ls ${DESTDIR}/${HOSTNAME}/${LOGDIRDATE}"`; do rm -f ${SOURCEDIR}/${logfile}; done
+d4 67
+a70 1
+exit
+@
+
+
+1.6
+log
+@changed syntax of 'su' so it will work under openSUSE
+@
+text
+@d4 1
+a4 1
+# $Id: v4_webroller_hourly,v 1.5 2009/09/29 19:03:23 rbraun Exp rbraun $
+d10 3
+@
+
+
+1.5
+log
+@use short hostname
+@
+text
+@d4 1
+a4 1
+# $Id: v4_webroller_hourly,v 1.4 2009/09/25 14:35:51 wflynn Exp rbraun $
+d39 2
+a40 2
+su - ${RUNAS} -c "ssh ${REMOTEHOST} mkdir -p ${DESTDIR}/${HOSTNAME}/${LOGDIRDATE}"
+su - ${RUNAS} -c "rsync -ac --include \"*${LOGFILEDATE}*.${ZIP_EXTENSION}\" --bwlimit=500 --exclude \"*\" --partial --partial-dir=${DESTDIR}/temp ${SOURCEDIR}/ ${REMOTEHOST}:${DESTDIR}/${HOSTNAME}/${LOGDIRDATE}"
+d42 1
+a42 1
+for logfile in `su - ${RUNAS} -c "ssh ${REMOTEHOST} ls ${DESTDIR}/${HOSTNAME}/${LOGDIRDATE}"`; do rm -f ${SOURCEDIR}/${logfile}; done
+@
+
+
+1.4
+log
+@uncomment production code, remove debugging code. oops
+@
+text
+@d4 1
+a4 1
+# $Id: v4_webroller_hourly,v 1.3 2009/09/24 22:32:31 wflynn Exp wflynn $
+d34 1
+@
+
+
+1.3
+log
+@update to use broken apache
+@
+text
+@d4 1
+a4 1
+# $Id: v4_webroller_hourly,v 1.2 2009/09/18 21:20:18 wflynn Exp wflynn $
+d36 1
+a36 1
+## find -L ${LOGDIR} -name "*${LOGFILEDATE}*.log" -exec ${ZIP_COMMAND} {} \;
+d38 2
+a39 2
+## su - ${RUNAS} -c "ssh ${REMOTEHOST} mkdir -p ${DESTDIR}/${HOSTNAME}/${LOGDIRDATE}"
+## su - ${RUNAS} -c "rsync -ac --include \"*${LOGFILEDATE}*.${ZIP_EXTENSION}\" --bwlimit=500 --exclude \"*\" --partial --partial-dir=${DESTDIR}/temp ${SOURCEDIR}/ ${REMOTEHOST}:${DESTDIR}/${HOSTNAME}/${LOGDIRDATE}"
+d41 1
+a41 7
+## for logfile in `su - ${RUNAS} -c "ssh ${REMOTEHOST} ls ${DESTDIR}/${HOSTNAME}/${LOGDIRDATE}"`; do rm -f ${SOURCEDIR}/${logfile}; done
+
+## Debugging output:
+echo "Searching in ${LOGDIR} for filenames like *${LOGFILEDATE}*.log" >> /tmp/${LOGFILEDATE}.run.txt
+echo "To be copied from ${SOURCEDIR} on ${HOSTNAME} to $DESTDIR/${HOSTNAME}/${LOGDIRDATE} on ${REMOTEHOST}" >> /tmp/${LOGFILEDATE}.run.txt
+echo "" >> /tmp/${LOGFILEDATE}.run.txt
+##
+@
+
+
+1.2
+log
+@Added some debugging code for test runs ahead of rollout
+@
+text
+@d4 1
+a4 1
+# $Id: v4_webroller_hourly,v 1.1 2009/09/18 21:19:48 wflynn Exp wflynn $
+d24 6
+a29 1
+LOGFILEDATE=`date +%Y.%m.%d.%H.%Z -d "${HOURSAGO} hours ago"`
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d4 1
+a4 1
+# $Id: v4_webroller,v 1.2 2009/03/03 20:37:09 wflynn Exp $
+d10 1
+@

@@ -1,0 +1,4 @@
+#! /bin/sh
+
+cd /usr/local/manhunt/cron
+mysql -h jpdb01 -u apache -pLQSyM manhunt_jp < minute.sql

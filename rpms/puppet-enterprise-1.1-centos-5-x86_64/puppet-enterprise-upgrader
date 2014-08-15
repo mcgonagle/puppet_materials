@@ -1,0 +1,95 @@
+#!/bin/sh
+#
+#==========================================================
+# Copyright @ 2011 Puppet Labs, LLC
+# Redistribution prohibited.
+# Address: 411 NW Park Ave., Suite 500 / Portland, OR 97209
+# Phone: (877) 575-9775
+# Email: info@puppetlabs.com
+#
+# Please refer to the LICENSE.pdf file included
+# with the Puppet Enterprise distribution
+# for licensing information.
+#==========================================================
+#
+# Puppet Enterprise Upgrader 
+#
+# This script sources the installer script
+#
+# It makes use of the following functions from the installer:
+#   * register_exception_handler
+#   * prepare_platform
+#   * is_package_installed
+#   * package_file_to_name
+#   * package_name_to_file
+#   * package_pe_deps
+#   * quit
+#
+# It scans the packages directory for the platform,
+# checks to see if a version of that package is installed,
+# and if so, adds that package and any PE dependencies to
+# the list of packages to be installed,
+# and then installs them.
+
+
+set -e
+
+
+UPGRADER_DIR="$(dirname "${0?}")"
+INSTALLER_DIR=$UPGRADER_DIR . "${UPGRADER_DIR}/puppet-enterprise-installer"
+
+register_exception_handler
+prepare_platform
+prepare_user
+
+PKG_NAMES=""
+PKG_FILES=""
+
+for p in $(ls $(platform_package_dir)); do
+    PKG_NAME="$(package_file_to_name "${p}")"
+    if is_package_installed "${PKG_NAME}"; then
+        PKG_NAMES="${PKG_NAMES} ${PKG_NAME} $(package_pe_deps "${p?}")"
+    fi
+done
+
+PKG_NAMES=$(echo "${PKG_NAMES}" | tr " " "\n" | sort | uniq | tr "\n" " " )
+
+for n in $PKG_NAMES; do
+    PKG_FILES="${PKG_FILES} $(package_name_to_file "${n}")"
+done
+
+display_step 'UPGRADE PACKAGES'
+display_comment 'The following packages are scheduled to be installed.'
+display_major_separator
+display_newline
+for i in ${PKG_NAMES}; do
+  echo $i
+done
+display_newline
+ask q_upgrade_installation 'Perform Upgrade Installation?' yN
+
+if [ ! "y" = "${q_upgrade_installation}" ]; then
+  display_comment "Cancelling Upgrade Installation..."
+  quit
+fi
+display_comment "Upgrading Installation..."
+
+# Do the actual install. We're avoiding the enqueing system of the installer
+# for now, but should possibly revisit this later.
+case "${PLATFORM_PACKAGING}" in
+    rpm)
+        yum localinstall --nogpgcheck -y ${PKG_FILES}
+        ;;
+    dpkg)
+        dpkg --force-confdef -i ${PKG_FILES}
+        ;;
+    *)
+        display_failure "Don't know how to upgrade packages on platform: ${PLATFORM_NAME?}"
+        ;;
+esac
+
+cp ${UPGRADER_DIR?}/VERSION /opt/puppet/pe_version
+
+display_comment "Upgrade Installation Complete."
+
+quit

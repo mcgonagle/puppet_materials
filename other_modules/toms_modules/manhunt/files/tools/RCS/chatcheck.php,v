@@ -1,0 +1,165 @@
+head	1.4;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.4
+date	2009.09.28.19.46.37;	author jjoy;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2009.09.28.18.52.52;	author wflynn;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2009.09.28.16.02.36;	author jjoy;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2009.09.25.21.57.44;	author jjoy;	state Exp;
+branches;
+next	;
+
+
+desc
+@Chat/Smartfox Host Verification Script.
+@
+
+
+1.4
+log
+@Setting to dev from prod for the time being.
+@
+text
+@<?php	
+define('ENVIRONMENT', 'dev');
+set_time_limit(0); // kill execution time limit
+
+// parse config file
+require_once('lib/sfYaml.php');
+$config = sfYaml::load('./app.yml');
+$servers = $config[ENVIRONMENT]['chat']['hostnames'];
+		
+while (true) {
+  $online = array();
+    
+  // check servers
+  foreach ($servers as $hostname)
+    if (strlen(file_get_contents("http://$hostname:8080/crossdomain.xml")) > 0)
+      $online[] = $hostname;
+    	       
+  echo 'Online servers: ' . print_r($online, true) . "\n";
+        
+  // save online servers
+  $server = $config[ENVIRONMENT]['memcacheChat']['host'];
+  echo "Memcached server: $server\n";
+  $server = explode(':', reset(explode(';', $server)));
+        
+  $memcached = new Memcache();
+  $memcached->connect($server[0], $server[1]);
+  $memcached->set($config[ENVIRONMENT]['chat']['online_list_key'], $online);
+  $memcached->close();
+    	
+  file_put_contents('/var/log/healthcheck', print_r($online, true));
+        
+  sleep(30); // run every 30 seconds
+ }@
+
+
+1.3
+log
+@Cleaned up formatting
+@
+text
+@d2 1
+a2 1
+define('ENVIRONMENT', 'prod');
+@
+
+
+1.2
+log
+@Updated chatcheck.php:  Runs every 30 seconds, and runs for production environment.
+@
+text
+@d2 2
+a3 2
+    define('ENVIRONMENT', 'prod');
+    set_time_limit(0); // kill execution time limit
+d5 4
+a8 4
+    // parse config file
+	require_once('lib/sfYaml.php');
+	$config = sfYaml::load('./app.yml');
+    $servers = $config[ENVIRONMENT]['chat']['hostnames'];
+d10 2
+a11 2
+	while (true) {
+        $online = array();
+d13 4
+a16 4
+    	// check servers
+    	foreach ($servers as $hostname)
+    	    if (strlen(file_get_contents("http://$hostname:8080/crossdomain.xml")) > 0)
+    	       $online[] = $hostname;
+d18 1
+a18 1
+        echo 'Online servers: ' . print_r($online, true) . "\n";
+d20 4
+a23 4
+    	// save online servers
+    	$server = $config[ENVIRONMENT]['memcacheChat']['host'];
+    	echo "Memcached server: $server\n";
+        $server = explode(':', reset(explode(';', $server)));
+d25 4
+a28 4
+        $memcached = new Memcache();
+        $memcached->connect($server[0], $server[1]);
+    	$memcached->set($config[ENVIRONMENT]['chat']['online_list_key'], $online);
+    	$memcached->close();
+d30 1
+a30 1
+        file_put_contents('/var/log/healthcheck', print_r($online, true));
+d32 2
+a33 2
+        sleep(30); // run every 30 seconds
+	}@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 2
+a3 1
+    define('ENVIRONMENT', 'dev');
+d9 3
+a11 9
+	
+	$online = array();
+	
+	// check servers
+	foreach ($servers as $hostname)
+	    if (strlen(file_get_contents("http://$hostname:8080/crossdomain.xml")) > 0)
+	       $online[] = $hostname;
+	       
+    echo 'Online servers: ' . print_r($online, true) . "\n";
+d13 21
+a33 11
+	// save online servers
+	$server = $config[ENVIRONMENT]['memcacheChat']['host'];
+	echo "Memcached server: $server\n";
+    $server = explode(':', reset(explode(';', $server)));
+    $memcached = new Memcache();
+    $memcached->connect($server[0], $server[1]);
+	       
+	$memcached->set($config[ENVIRONMENT]['chat']['online_list_key'], $online);
+	$memcached->close();
+	
+    file_put_contents('/var/log/healthcheck', print_r($online, true));@

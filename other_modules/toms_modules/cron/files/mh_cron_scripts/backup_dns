@@ -1,0 +1,18 @@
+#!/bin/bash
+# $Id: backup_dns,v 1.2 2008/07/09 15:16:05 rbraun Exp $
+#
+# Created 3/08 by rbraun
+#
+# This backs up the BIND9 (DNS) configuration and zone information
+# from one or more DNS servers (specify on command line).  It should be
+# invoked as user 'care' which should be a member of the group 'named'
+# on the DNS server host(s).
+
+DESTDIR=/var/backup/dns
+DAY=`date +%a`
+
+for HOST in $1 $2 $3 $4 $5 $6 $7 $8
+do
+  [ -d $DESTDIR/$HOST/$DAY ] || mkdir -p $DESTDIR/$HOST/$DAY
+  rsync --delete --exclude "Kman*" -a $HOST:"/var/named/chroot/{etc,var}" $DESTDIR/$HOST/$DAY
+done

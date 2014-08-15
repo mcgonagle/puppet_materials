@@ -1,0 +1,42 @@
+#!/bin/bash
+# svnroller
+#
+# $Id: svnroller,v 1.2 2010/06/22 20:15:42 wflynn Exp $
+#
+# Created 06/2010 by wflynn
+#
+# Script for rolling subversion backups on tera-bactyl.
+# Maintains a week's worth of backups, overwriting each day's in order.
+#
+
+my_usage () {
+    echo "Usage: $0 <daysago> <host>"
+    echo "       Compress and archive <daysago> days ago's svn backup for <host>"
+    exit 1
+}
+
+if [ ! -n "${1}" ] || [ ! -n "${2}" ] || [ ! ${1} -ge 0  ]
+then
+    my_usage
+fi
+
+# Run as care.
+if [ "$USER" != "care" ]
+then
+    echo "Must be care to run this script."
+    exit 1
+fi
+
+DAYSAGO=$1
+HOST=$2
+SVNROOT="/var/backup/subversion"
+BUDAY=`date +%A -d "${DAYSAGO} days ago"`
+ZIP_COMMAND="tar jcvf"
+ZIP_EXTENSION="tar.bz2"
+BZBALL="${HOST}.${BUDAY}.${ZIP_EXTENSION}"
+
+zipit () {
+    pushd ${SVNROOT} && ${ZIP_COMMAND} ${BZBALL} ${HOST} && popd
+}
+
+zipit; exit $?

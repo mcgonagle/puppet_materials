@@ -1,0 +1,22 @@
+Puppet module: gems
+
+# Written by Tom McGonagle #
+# mcgonagle@gmail.com
+# Google Voice (617)229-5185
+# http://www.puppetll.com
+
+
+DESCRIPTION:
+This module installs and manages gems software
+Standard and extended classes are available.
+Decide and customize how you want to define configation files: static files, templates, infile modifications...
+
+
+USAGE:
+# Standard Classes 
+include gems              # Install and run gems with standard configurations.
+include gems::disable     # Disable gems service.
+include gems::disableboot # Disable gems service at boot time, but don't stop if it's running.
+include gems::absent      # Remove gems package.
+
+DEPENDENCIES:

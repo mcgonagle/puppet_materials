@@ -1,0 +1,69 @@
+head	1.2;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.2
+date	2008.08.11.20.04.37;	author rbraun;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2008.03.17.22.37.53;	author rbraun;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.2
+log
+@keep a separate copy per day of week
+@
+text
+@#!/bin/bash
+# $Id: backup_tftp,v 1.1 2008/03/17 22:37:53 rbraun Exp rbraun $
+#
+# Created 3/08 by rbraun
+#
+# This backs up the tftp directory which we use for router/switch
+# configuration backups and the base OS definitions for Instant Linux.
+# On these hosts, user 'care' must have group read permissions for all
+# files under /tftpboot.
+#
+# Command line parameters:  list of hosts to back up.
+
+DESTDIR=/var/backup/tftp
+SRCDIR=/tftpboot
+DAY=`date +%a`
+
+for HOST in $@@
+do
+  [ -d $DESTDIR/$HOST/$DAY ] || mkdir -p $DESTDIR/$HOST/$DAY
+  rsync --delete -a $HOST:$SRCDIR/. $DESTDIR/$HOST/$DAY
+done
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.5 2008/03/16 21:04:06 rbraun Exp $
+d10 2
+d14 2
+d17 1
+a17 1
+for HOST in $1 $2 $3 $4 $5 $6 $7 $8
+d19 2
+a20 2
+  [ -d $DESTDIR/$HOST ] || mkdir -p $DESTDIR/$HOST
+  rsync --delete -a $HOST:/tftpboot/. $DESTDIR/$HOST
+@

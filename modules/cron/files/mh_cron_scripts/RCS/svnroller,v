@@ -1,0 +1,120 @@
+head	1.2;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.2
+date	2010.06.22.20.15.42;	author wflynn;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2010.06.22.19.00.14;	author wflynn;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.2
+log
+@A shell script for tarballing a host's subversion repository on tera-bactyl.
+@
+text
+@#!/bin/bash
+# svnroller
+#
+# $Id: svnroller,v 1.1 2010/06/22 19:00:14 wflynn Exp wflynn $
+#
+# Created 06/2010 by wflynn
+#
+# Script for rolling subversion backups on tera-bactyl.
+# Maintains a week's worth of backups, overwriting each day's in order.
+#
+
+my_usage () {
+    echo "Usage: $0 <daysago> <host>"
+    echo "       Compress and archive <daysago> days ago's svn backup for <host>"
+    exit 1
+}
+
+if [ ! -n "${1}" ] || [ ! -n "${2}" ] || [ ! ${1} -ge 0  ]
+then
+    my_usage
+fi
+
+# Run as care.
+if [ "$USER" != "care" ]
+then
+    echo "Must be care to run this script."
+    exit 1
+fi
+
+DAYSAGO=$1
+HOST=$2
+SVNROOT="/var/backup/subversion"
+BUDAY=`date +%A -d "${DAYSAGO} days ago"`
+ZIP_COMMAND="tar jcvf"
+ZIP_EXTENSION="tar.bz2"
+BZBALL="${HOST}.${BUDAY}.${ZIP_EXTENSION}"
+
+zipit () {
+    pushd ${SVNROOT} && ${ZIP_COMMAND} ${BZBALL} ${HOST} && popd
+}
+
+zipit; exit $?
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 1
+a2 1
+# v4_webroller
+d4 1
+a4 1
+# $Id: v4_webroller,v 1.4 2009/12/04 19:16:51 rbraun Exp $
+d6 1
+a6 1
+# Created 03/2009 by wflynn
+d8 2
+a9 1
+# Script for cron to zip, backup and delete web logs
+d11 8
+a18 1
+if [ ! ${1} -ge 0  ]
+d20 7
+a26 2
+    echo "Usage: $0 <daysago>"
+    echo "       Compress and archive <daysago> days ago's logs"
+d29 1
+d31 12
+a42 20
+RUNAS="logs"
+ZIP_COMMAND="bzip2"
+ZIP_EXTENSION="bz2"
+LOGDIR="/etc/httpd/logs"
+TODAY=`date +%Y.%m.%d`
+YESTERDAY=`date +%Y.%m.%d -d "yesterday"`
+LOGFILEDATE=`date +%Y.%m.%d -d "${DAYSAGO} days ago"`
+LOGDIRDATE=`date +%Y%m%d -d "${DAYSAGO} days ago"`
+SOURCEDIR=${LOGDIR}
+DESTDIR="/manhunt/www"
+REMOTEHOST="sawmill"
+
+# Zip em
+find -L ${LOGDIR} -name "*${LOGFILEDATE}.log" -exec ${ZIP_COMMAND} {} \;
+# Archive em
+su ${RUNAS} -c "ssh ${REMOTEHOST} mkdir -p ${DESTDIR}/${HOSTNAME}/${LOGDIRDATE}"
+su ${RUNAS} -c "rsync -ac --include \"*${LOGFILEDATE}*.${ZIP_EXTENSION}\" --bwlimit=500 --exclude \"*\" --partial --partial-dir=${DESTDIR}/temp ${SOURCEDIR}/ ${REMOTEHOST}:${DESTDIR}/${HOSTNAME}/${LOGDIRDATE}"
+# Delete successfully transferred files
+for logfile in `su ${RUNAS} -c "ssh ${REMOTEHOST} ls ${DESTDIR}/${HOSTNAME}/${LOGDIRDATE}"`; do rm -f ${SOURCEDIR}/${logfile}; done
+exit
+@

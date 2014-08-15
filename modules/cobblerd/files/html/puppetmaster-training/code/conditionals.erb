@@ -1,0 +1,9 @@
+# We can also use conditional expressions.
+
+<% if var != "foo" %><%= var %> is not foo! <% end %>
+
+# And we can test to see if a variable exists.
+
+<% if has_variable?("virtual") then %>
+  This is a virtual machine of type: <%= virtual %>
+<% end %>

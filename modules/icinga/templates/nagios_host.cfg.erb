@@ -1,0 +1,15 @@
+# HEADER: managed by puppet.  While it can still be managed manually, it
+# HEADER: is definitely not recommended.
+define host {
+        host_name                      <%= hostname %>
+        name                           <%= hostname %> 
+        alias                          <%= hostname %>
+        address                        <%= ipaddress %>
+        use                            server
+        check_command                  check_ping
+        register                       1
+        notes                          monit
+        notes_url                      http://<%= fqdn %>:2812
+        icon_image                     centos.png
+        icon_image_alt                 CentOS
+}

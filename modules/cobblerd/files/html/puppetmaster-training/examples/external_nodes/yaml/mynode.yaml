@@ -1,0 +1,7 @@
+--- 
+parent: middle
+classes: 
+- other
+- yay
+parameters: 
+  baz: bazmynode

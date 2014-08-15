@@ -1,0 +1,2 @@
+#automatically created by pupppet <%= fqdn %>
+command[<%= check_command_name %>_<%= service_name %>]=/usr/lib64/nagios/plugins/<%= check_command_name %> -w <%= warning_alert %>  -c <%= critical_alert %> <%= nrpe_param %>

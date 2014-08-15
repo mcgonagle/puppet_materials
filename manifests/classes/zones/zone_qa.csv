@@ -1,0 +1,8 @@
+#resin.conf.erb settings
+qa::jdbc_url_master,jdbc:mysql://dbdlqa01.qa.manhunt.net:3306/dlist_qa_1
+qa::jdbc_url_slave,jdbc:mysql://dbdlqa02.qa.manhunt.net:3306/dlist_qa_1
+qa::jdbc_url_admin,jdbc:mysql://dbdlqa01.qa.manhunt.net:3306/dlist_qa_1
+qa::main_domain,www-qa.dlist.com
+qa::media_domain,dlistqa01.qa.manhunt.net
+qa::connector_domain,connector-qa.dlist.com
+qa::main_domain,www-qa.dlist.com

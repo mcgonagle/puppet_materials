@@ -1,0 +1,10 @@
+#!/bin/bash
+# $Id: creativesync2,v 1.3 2009/04/15 16:39:39 wflynn Exp $
+
+# chmod -R g+w /mnt/manhunt/other/banners/creative
+
+#for host in 2 3 4 5 7 8 9 10 11 12 15 16 17 18 19 20 21 22 23 24 25 131 132 133 157
+for host in 4 
+do
+  rsync -a --delete-before --force --ignore-errors /mnt/manhunt/other/banners/creative/. www$host:/var/www/creative
+done

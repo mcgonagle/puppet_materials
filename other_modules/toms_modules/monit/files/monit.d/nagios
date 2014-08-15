@@ -1,0 +1,8 @@
+check process nagios
+   with pidfile "/var/run/nagios.pid"
+   start program = "/etc/init.d/nagios start"
+   stop program = "/etc/init.d/nagios stop"
+   if 2 restarts within 3 cycles then timeout
+   if totalmem > 100 Mb then alert
+   if cpu usage > 95% for 3 cycles then restart
+   #if failed port 80 protocol http then restart

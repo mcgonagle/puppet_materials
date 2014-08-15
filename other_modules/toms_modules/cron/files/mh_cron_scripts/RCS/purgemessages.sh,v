@@ -1,0 +1,281 @@
+head	1.6;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.6
+date	2008.08.06.16.51.22;	author sfrattura;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	2008.07.10.20.36.41;	author rbraun;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	2008.07.09.13.45.56;	author tmcgonagle;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2008.07.08.20.54.47;	author tmcgonagle;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2008.07.04.20.46.23;	author tmcgonagle;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2008.07.03.19.40.51;	author rbraun;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.6
+log
+@change the trash portion.  instead of truncate, it now only deletes mail over 24 hours old
+@
+text
+@#!/bin/sh
+# purgemessages.sh
+# $Id: purgemessages.sh,v 1.5 2008/07/10 20:36:41 rbraun Exp sfrattura $
+#
+. /etc/manhunt/source.sh
+
+HOSTS=$MAILDBHOSTS
+LOG=$CARE_LOG
+VERBOSITY=-vv
+UIDDB=$MANHUNTDB
+UIDHOST=$MHMASTERDBHOST
+
+# Run as care.
+if [ "$UID" -ne "$CARE_UID" ]
+then
+ echo "Must be care to run this script."
+  exit $ERROR
+fi  
+
+if [ "`touch $LOG`" != "" ]
+then
+echo "Cannot write to logfile."
+exit $ERROR
+fi
+
+echo START $APPNAME `date` >> $LOG
+if [ "`$MYSQL -u $DBUSER -h $UIDHOST -p$DBPASSWD $UIDDB -e 'show databases'`" == "" ]
+then
+echo "Cannot connect to uid database." | mail -s "purge failed, cannot connect to uid database" $MHMONITOR
+exit $ERROR
+else 
+OUT=`$MYSQL -u $DBUSER -h $UIDHOST -p$DBPASSWD $UIDDB -e "select uid from Users where type in ('org','ipn') "`
+fi
+
+fooey='$2';
+orgs=0;
+
+for l in $OUT
+do
+add=`echo $l | /bin/awk '/[0-9]/ { print $fooey } '`
+if [ "$add" != "" ]
+then
+orgs=`echo "$orgs,$add"`
+fi 
+done
+ 
+for h in $HOSTS 
+do
+if [ "`$MYSQL -u $DBUSER -h $h -p$DBPASSWD $MESSAGEDB -e 'show databases'`" == "" ]
+then
+echo "Cannot connect to database." | mail -s "purge message script cannot connect to $MESSAGEDB on $HOSTS" $MHMONITOR
+exit $ERROR
+fi
+done
+
+if [ "`touch $LOG`" != "" ]
+then 
+echo "Cannot write to logfile." | mail -s "purge message script can't write to $LOG" $MHMONITOR
+exit $ERROR
+fi
+
+echo START `date` >> $LOG
+echo ORGS=$orgs >> $LOG
+
+
+for h in $HOSTS
+do
+  # all tables that match Sent and Inbox should have old records deleted
+  for t in `$MYSQL -u $DBUSER -h $h -p$DBPASSWD $MESSAGEDB -e 'show tables'`
+  do
+    for i in `echo $t | /bin/awk '/Inbox/ {print $1}'`
+    do
+    $MYSQL -u $DBUSER -h $h -p$DBPASSWD $MESSAGEDB -vv -e "delete from $i where date < DATE_SUB(NOW(),INTERVAL ${INTERVAL_DAY} DAY) and toUid not in ($orgs);" >> $LOG
+    echo $i `date` >> $LOG
+#     # prepopulate MessageTotals 
+#     $MYSQL -u $DBUSER -h $h -p$DBPASSWD $MESSAGEDB $VERBOSITY -e "REPLACE INTO MessageTotals (uid,totalMsgs,unreadMsgs,totalSent,unreadSent,totalSaved) SELECT toUid,COUNT(msgid) as num, SUM(IF(seen,0,1)) as unread,0,0,0 FROM $i GROUP BY toUid" >> $LOG;
+#     echo "prepopulated MessageTotals for $i" >> $LOG
+#     echo `date` >> $LOG
+   done
+    for s in `echo $t | /bin/awk '/Sent/ {print $1}'`
+    do 
+    $MYSQL -u $DBUSER -h $h -p$DBPASSWD $MESSAGEDB -vv -e "delete from $s where date < DATE_SUB(NOW(),INTERVAL ${INTERVAL_DAY} DAY) and fromUid not in ($orgs);" >> $LOG
+#     $MYSQL -u $DBUSER -h $h -p$DBPASSWD $MESSAGEDB $VERBOSITY -e "REPLACE INTO counts (uid,totalSent,unreadSent) SELECT fromUid,COUNT(msgid) as num, SUM(IF(seen,0,1)) as unread FROM $s GROUP BY fromUid" >> $LOG;
+#     $MYSQL -u $DBUSER -h $h -p$DBPASSWD $MESSAGEDB $VERBOSITY -e "UPDATE MessageTotals mt INNER JOIN counts USING (uid) SET mt.totalSent=counts.totalSent, mt.unreadSent=counts.unreadSent" >> $LOG;
+    echo $s `date` >> $LOG
+    sleep 5;
+    done
+   for r in `echo $t | /bin/awk '/Trash/ {print $1}'`
+    do
+    $MYSQL -u $DBUSER -h $h -p$DBPASSWD $MESSAGEDB -vv -e "delete from $r where modified < DATE_SUB(NOW(),INTERVAL 24 HOUR);" >> $LOG
+    echo $r `date` >> $LOG
+   done
+#    for v in `echo $t | /bin/awk '/Saved/ {print $1}'`
+#    do
+#     $MYSQL -u $DBUSER -h $h -p$DBPASSWD $MESSAGEDB $VERBOSITY -e "REPLACE INTO counts (uid,totalSaved) SELECT toUid,COUNT(msgid) as num FROM $v GROUP BY toUid" >> $LOG;
+#     $MYSQL -u $DBUSER -h $h -p$DBPASSWD $MESSAGEDB $VERBOSITY -e "UPDATE MessageTotals mt INNER JOIN counts USING (uid) SET mt.totalSaved=counts.totalSaved" >> $LOG;
+#   done
+  done
+done
+echo END `date` >> $LOG
+${CRON_DIR}/recount2.py;
+
+exit 0;
+
+
+@
+
+
+1.5
+log
+@Clean up the variable names
+@
+text
+@d3 1
+a3 1
+# $Id: purgemessages.sh,v 1.4 2008/07/09 13:45:56 tmcgonagle Exp rbraun $
+d90 1
+a90 2
+    $MYSQL -u $DBUSER -h $h -p$DBPASSWD $MESSAGEDB -vv -e "truncate $r;" >> $LOG
+    ##sleep 20;
+@
+
+
+1.4
+log
+@*** empty log message ***
+@
+text
+@d3 1
+a3 1
+# $Id: purgemessages.sh,v 1.3 2008/07/08 20:54:47 tmcgonagle Exp tmcgonagle $
+d7 5
+a11 8
+PASS=${DBPASSWD}
+USER=${DBUSER}
+DB=${MESSAGEDB}
+UIDDB=${MANHUNTDB}
+UIDHOST=${MHMASTERDBHOST}
+BIN=${MYSQLDUMP}
+TESTBIN=${MYSQL}
+HOSTS=${MAILDBHOSTS}
+d20 8
+a27 2
+echo STARTgetORGS `date` >> $LOG
+if [ "`$TESTBIN -u $USER -h $UIDHOST -p$PASS $UIDDB -e 'show databases'`" == "" ]
+d32 1
+a32 1
+OUT=`$TESTBIN -u $USER -h $UIDHOST -p$PASS $UIDDB -e "select uid from Users where type in ('org','ipn') "`
+d49 1
+a49 1
+if [ "`$TESTBIN -u $USER -h $h -p$PASS $DB -e 'show databases'`" == "" ]
+d51 1
+a51 1
+echo "Cannot connect to database." | mail -s "purge message script cannot connect to $DB on $HOSTS" $MHMONITOR
+d69 1
+a69 1
+  for t in `$TESTBIN -u $USER -h $h -p$PASS $DB -e 'show tables'`
+d73 1
+a73 1
+    $TESTBIN -u $USER -h $h -p$PASS $DB -vv -e "delete from $i where date < DATE_SUB(NOW(),INTERVAL ${INTERVAL_DAY} DAY) and toUid not in ($orgs);" >> $LOG
+d76 1
+a76 1
+#     $TESTBIN -u $USER -h $h -p$PASS $DB -v -v -e "REPLACE INTO MessageTotals (uid,totalMsgs,unreadMsgs,totalSent,unreadSent,totalSaved) SELECT toUid,COUNT(msgid) as num, SUM(IF(seen,0,1)) as unread,0,0,0 FROM $i GROUP BY toUid" >> $LOG;
+d82 3
+a84 3
+    $TESTBIN -u $USER -h $h -p$PASS $DB -vv -e "delete from $s where date < DATE_SUB(NOW(),INTERVAL ${INTERVAL_DAY} DAY) and fromUid not in ($orgs);" >> $LOG
+#     $TESTBIN -u $USER -h $h -p$PASS $DB -v -v -e "REPLACE INTO counts (uid,totalSent,unreadSent) SELECT fromUid,COUNT(msgid) as num, SUM(IF(seen,0,1)) as unread FROM $s GROUP BY fromUid" >> $LOG;
+#     $TESTBIN -u $USER -h $h -p$PASS $DB -v -v -e "UPDATE MessageTotals mt INNER JOIN counts USING (uid) SET mt.totalSent=counts.totalSent, mt.unreadSent=counts.unreadSent" >> $LOG;
+d90 1
+a90 1
+    $TESTBIN -u $USER -h $h -p$PASS $DB -vv -e "truncate $r;" >> $LOG
+d96 2
+a97 2
+#     $TESTBIN -u $USER -h $h -p$PASS $DB -v -v -e "REPLACE INTO counts (uid,totalSaved) SELECT toUid,COUNT(msgid) as num FROM $v GROUP BY toUid" >> $LOG;
+#     $TESTBIN -u $USER -h $h -p$PASS $DB -v -v -e "UPDATE MessageTotals mt INNER JOIN counts USING (uid) SET mt.totalSaved=counts.totalSaved" >> $LOG;
+@
+
+
+1.3
+log
+@*** empty log message ***
+@
+text
+@d3 1
+a3 1
+# $Id: purgemessages.sh,v 1.2 2008/07/04 20:46:23 tmcgonagle Exp tmcgonagle $
+d70 1
+a70 1
+    $TESTBIN -u $USER -h $h -p$PASS $DB -vv -e "delete from $i where date < DATE_SUB(NOW(),INTERVAL 16 DAY) and toUid not in ($orgs);" >> $LOG
+d79 1
+a79 1
+    $TESTBIN -u $USER -h $h -p$PASS $DB -vv -e "delete from $s where date < DATE_SUB(NOW(),INTERVAL 16 DAY) and fromUid not in ($orgs);" >> $LOG
+@
+
+
+1.2
+log
+@*** empty log message ***
+@
+text
+@d3 1
+a3 1
+# $Id: $
+d70 1
+a70 1
+    $TESTBIN -u $USER -h $h -p$PASS $DB -vv -e "delete from $i where date < DATE_SUB(NOW(),INTERVAL 18 DAY) and toUid not in ($orgs);" >> $LOG
+d79 1
+a79 1
+    $TESTBIN -u $USER -h $h -p$PASS $DB -vv -e "delete from $s where date < DATE_SUB(NOW(),INTERVAL 18 DAY) and fromUid not in ($orgs);" >> $LOG
+d82 1
+a82 1
+#    echo `date` >> $LOG
+d85 6
+a90 5
+#    for r in `echo $t | /bin/awk '/Trash/ {print $1}'`
+#    do
+#    $TESTBIN -u $USER -h $h -p$PASS $DB -vv -e "truncate $r;" >> $LOG
+#    sleep 20;
+#   done
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d14 1
+a14 1
+HOSTS=${MAILDBHOSTS_S}
+d98 1
+a98 1
+/usr/local/bin/recount.py;
+@

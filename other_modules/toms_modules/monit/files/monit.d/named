@@ -1,0 +1,8 @@
+check process named
+   with pidfile "/var/run/named.pid"
+   start program = "/etc/init.d/named start"
+   stop program = "/etc/init.d/named stop"
+   if 2 restarts within 3 cycles then timeout
+   if totalmem > 100 Mb then alert
+   if cpu usage > 95% for 3 cycles then restart
+   if failed port 53 use type udp protocol dns then restart

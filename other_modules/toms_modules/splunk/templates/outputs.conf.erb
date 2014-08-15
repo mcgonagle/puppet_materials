@@ -1,0 +1,6 @@
+[tcpout]
+defaultGroup = <%= scope.lookupvar("splunk_indexer") %>_9998
+disabled = false
+
+[tcpout:<%= scope.lookupvar("splunk_indexer") %>_9998]
+server = <%= scope.lookupvar("splunk_indexer") %>:9998

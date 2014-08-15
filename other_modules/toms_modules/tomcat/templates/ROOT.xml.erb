@@ -1,0 +1,20 @@
+##############################################################################
+# This file is mananged by puppet.  Do NOT edit on the server, your changes  #
+# will be blown away on the next puppet run.                                 #
+##############################################################################
+<Context path="/" privileged="true">
+
+    <Resource name="jdbc/LiveSolidDataSource"
+       type="javax.sql.DataSource"
+       url="jdbc:mysql://<%= scope.lookupvar(role_dbserver) %>:3306/zimmer_prod?zeroDateTimeBehavior=convertToNull"
+       username="<%= scope.lookupvar(db_username) %> "
+       password="<%= scope.lookupvar(db_password) %>"
+       auth="Container"
+       driverClassName="com.mysql.jdbc.Driver"
+       logAbandoned="false"
+       maxActive="20"
+       maxIdle="3"
+       maxWait="10000"
+       removeAbandoned="false"
+       validationQuery = "SELECT 1" />
+</Context>

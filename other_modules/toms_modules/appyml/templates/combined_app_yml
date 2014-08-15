@@ -1,0 +1,12 @@
+#start of app.yml.mh.erb
+<%= scope.function_template("appyml/app.yml.mh.erb") %>
+#end of app.yml.mh.erb
+#start of app.yml.mo.erb
+<%= scope.function_template("appyml/app.yml.mo.erb") %>
+#end of app.yml.mo.erb
+#start of app.yml.gps.erb
+<%= scope.function_template("appyml/app.yml.gps.erb") %>
+#end of app.yml.gps.erb
+#start of app.yml.gps.erb
+<%= scope.function_template("appyml/app.yml.xml.erb") %>
+#end of app.yml.xml.erb

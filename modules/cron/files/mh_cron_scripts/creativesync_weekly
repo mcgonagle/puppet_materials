@@ -1,0 +1,50 @@
+#!/bin/bash
+# $Id: creativesync,v 1.25 2010/07/07 20:26:32 dcote Exp wflynn $
+MH_CRON_HOME=/usr/local/manhunt/cron/
+
+if [ -e ${MH_CRON_HOME}/hostchecker.pl ]
+then
+    if ! /usr/local/manhunt/cron/hostchecker.pl --domain v4.waltham.manhunt.net --hostname_contains www --hostlistfile www_hosts.txt
+    then
+	echo "Couldn't Run WWW HTTP Check"
+	exit 1
+    fi
+    if ! /usr/local/manhunt/cron/hostchecker.pl --domain waltham.manhunt.net --hostname_contains mhads --hostlistfile ad_hosts.txt
+    then
+	echo "Couldn't Run MHADS HTTP Check"
+	exit 1
+    fi
+    if ! /usr/local/manhunt/cron/hostchecker.pl --domain waltham.manhunt.net --hostname_contains dlads --hostlistfile dl_hosts.txt
+    then
+	echo "Couldn't Run DLADS HTTP Check"
+	exit 1
+    fi
+fi
+
+# http_check.sh is busted no v4 support yet - rbraun 24-Jul-09
+
+WWW_HOSTS=/home/deploy/www_hosts.txt
+AD_HOSTS=/home/deploy/ad_hosts.txt
+DL_HOSTS=/home/deploy/dl_hosts.txt
+#chmod -R g+w /mnt/manhunt/other/creative
+#
+
+for host in $(cat $WWW_HOSTS);
+do
+    ( rsync -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" -a --partial --delete-before --force --ignore-errors /mnt/manhunt/other/creative/. $host:/var/www/html/mh ) &
+done
+
+#
+for adhost in $(cat $AD_HOSTS);
+do
+    ( rsync -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" -a --partial --delete-before --force --ignore-errors /mnt/manhunt/other/creative/V4 $adhost:/var/www/html/mh ) &
+done
+
+#
+for dlhost in $(cat $DL_HOSTS);
+do
+    ( rsync -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" -a --partial --delete-before --force --ignore-errors /mnt/manhunt/other/creative/V4 $dlhost:/var/www/html/mh ) &
+done
+
+date >> /tmp/creativesync_runtimes
+

@@ -1,0 +1,5 @@
+#!/bin/sh
+#
+TERM=linux
+#
+links -source 'http://www.manhunt.jp/mail/send_email_notices.php?check=p4Spe7uY'

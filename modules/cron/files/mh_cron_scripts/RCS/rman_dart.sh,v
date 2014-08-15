@@ -1,0 +1,81 @@
+head	1.1;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.1
+date	2009.09.30.14.00.35;	author hschmidt;	state Exp;
+branches;
+next	;
+
+
+desc
+@This script is in place as of Sept 2009 to backup the dart Oracle databases regardless of OEM being available.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@set -vx
+
+#
+# These need to be set in cron to actively prune so that the mount point is kept low
+# 15 22 * * 7 find /u01/app/oracle/flash_recovery_area/*/archivelog -name "*" -mtime +7 -print -exec rm -rf {} \; > /tmp/prune_archivelog_dir_see_crontab.log 2>&1
+# 15 22 * * 7 find /u01/app/oracle/flash_recovery_area/*/backupset -name "*" -mtime +7 -print -exec rm -rf {} \; > /tmp/prune_backupset_dir_see_crontab.log 2>&1
+# 20 */4 * * * /u01/app/oracle/admin/${ORACLE_SID}/scripts/rman_dart.sh  > /tmp/rman_backup_run_see_crontab.log 2>&1
+#
+
+# Set environment variables
+export ORACLE_SID=`cat /etc/oratab | grep Y | grep -v "^#" | awk -F ":" '{print $1}'`
+export ORACLE_BASE=/u01/app/oracle
+export ORACLE_HOME=$ORACLE_BASE/product/10.2.0/db
+export LD_LIBRARY_PATH=$ORACLE_HOME/lib:/usr/dt/lib:/usr/openwin/lib
+export TMPDIR=/tmp
+export TMP=/tmp
+export PATH=.:/usr/bin:/usr/ucb:/etc:/usr/openwin/bin:$ORACLE_HOME/bin:/usr/ccs/bin:/usr/sbin:/usr/local/bin:/opt/bin:$PATH
+export NLS_LANG=AMERICAN_AMERICA.UTF8
+export NLS_DATE_FORMAT="DD-MON-YYYY HH24:MI:SS"
+export START=`date +"%m-%d-%y-%HH-%MM"`
+export END=`date +"%m-%d-%y-%HH-%MM"`
+export RMANLOG=/u01/app/oracle/admin/${ORACLE_SID}/logs/rman_${ORACLE_SID}_${START}_backup_compressed.log
+export MAILME='hschmidt@@online-buddies.com'
+export SUCCESS='hschmidt@@online-buddies.com'
+
+echo "start time = $START" > /u01/app/oracle/admin/${ORACLE_SID}/logs/start_time
+
+# Run the body of the RMAN backup compressed to save space and incl archived redo logs.
+#  NEVER touch the /u01/app/oracle/flash_recovery_area/*/onlinelog directory. Those are live REDO logs created by Oracle Managed File manager 
+rman log $RMANLOG <<EOF
+connect target / ;
+crosscheck backup;
+crosscheck archivelog all;
+delete noprompt force expired archivelog all;
+delete noprompt force obsolete;
+backup as compressed backupset database plus archivelog;
+report obsolete;
+delete noprompt force obsolete;
+restore database preview;
+report schema;
+exit;
+EOF
+
+
+if [ `grep -ic RMAN-00571 $RMANLOG` -gt 0 ]
+ then
+   /bin/mail -s "RMAN error occured.  Please check backup report for: $ORACLE_SID " $MAILME < $RMANLOG
+   exit 1
+else
+
+echo "end time = $END" > /u01/app/oracle/admin/${ORACLE_SID}/logs/end_time
+
+   /bin/mail -s "RMAN was successful. $ORACLE_SID $START $END" $SUCCESS < $RMANLOG
+   /usr/bin/find /u01/app/oracle/admin/${ORACLE_SID}/ -name "*_backup_compressed.log" -mtime +7 -print -exec rm {} \;
+exit 0
+fi
+
+@

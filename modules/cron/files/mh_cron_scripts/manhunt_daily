@@ -1,0 +1,5 @@
+#!/bin/sh
+#
+TERM=linux
+links -source 'http://japan01.waltham.manhunt.net/Daily.php?check=p4Spe7uY&debug=0'
+

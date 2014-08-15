@@ -1,0 +1,8 @@
+#resin.conf.erb settings
+st::jdbc_url_master,jdbc:mysql://stg-dlist.waltham.manhunt.net:3306/dlist
+st::jdbc_url_slave,jdbc:mysql://stg-dlistro.waltham.manhunt.net:3306/dlist
+st::jdbc_url_admin,jdbc:mysql://stg-dlist.waltham.manhunt.net:3306/dlist
+st::main_domain,www-staging.dlist.com
+st::media_domain,www-staging.dlist.com
+st::connector_domain,connector-staging.dlist.com
+st::main_domain,www-staging.dlist.com

@@ -1,0 +1,279 @@
+head	1.12;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.12
+date	2009.10.21.13.59.08;	author hschmidt;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	2009.10.21.13.39.22;	author hschmidt;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	2009.10.19.20.56.29;	author hschmidt;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	2009.10.19.17.05.22;	author hschmidt;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	2009.06.30.15.47.30;	author rbraun;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	2009.05.18.16.00.59;	author hschmidt;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	2009.05.15.21.53.59;	author hschmidt;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	2009.05.15.21.48.02;	author hschmidt;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	2009.05.15.20.12.07;	author hschmidt;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2009.05.15.19.27.30;	author hschmidt;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2009.04.13.14.39.02;	author hschmidt;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2009.03.27.19.55.52;	author hschmidt;	state Exp;
+branches;
+next	;
+
+
+desc
+@seperating out the V4 slaves from the other databases (mainro01 through mainro03)
+@
+
+
+1.12
+log
+@fixed schema with --all-databases
+@
+text
+@#!/bin/bash
+# $Id: backup_mysql_V4_slaves
+#
+# Cloned 03/09 by hschmidt
+#
+# This will keep daily dumps of each production database in subdirectories
+# of /var/backup/v4/mysql, by hostname and day of week.
+
+USER=bkp
+PSWD=807d854bq
+## MySQL command syntax for creating this user:
+## Tera-Bactyl02:
+# GRANT SELECT,RELOAD,SUPER,REPLICATION CLIENT ON *.* TO '$USER'@@'192.168.1.228' IDENTIFIED BY '$PSWD';
+## Tera-Bactyl03:
+# GRANT SELECT,RELOAD,SUPER,REPLICATION CLIENT ON *.* TO '$USER'@@'192.168.1.194' IDENTIFIED BY '$PSWD';
+## Tera-Bactyl01:
+# GRANT SELECT,RELOAD,SUPER,REPLICATION CLIENT ON *.* TO '$USER'@@'192.168.218.105' IDENTIFIED BY '$PSWD';
+
+# The --master-data option is also useful but only when taking a dump
+# directly from a master server.
+####  BUT IS NEVER USEFUL 
+####  WHEN DUMPING A SLAVE.
+#
+####  AND THIS SCRIPT IS USED TO DUMP SLAVES.
+#
+####  THIS SAME SCRIPT IS USED FOR SLAVES THAT HAVE BINLOG DISABLED.  IT BREAKS.
+#
+# DON'T USE --master-data HERE!
+#
+# The flush logs is important to release locks on tables so the schema and data dump will run successfully
+
+DUMPOPTS="--flush-logs --all-databases --force -R --skip-opt --quick --single-transaction --add-drop-table --set-charset --create-options --no-autocommit --extended-insert"
+SCHEMA_DUMP_OPTS=" --flush-logs --force --no-data -R --triggers --events --all-databases"
+
+## Did I remind you not to use --master-data?
+
+DESTDIR=/var/backup/v4/mysql
+DAY=`date +%a`
+COMPRESS="bzip2 -f"
+COMPRESS_EXT="bz2"
+OLD_EXT="gz"
+
+for HOST in $@@
+do
+    [ -d $DESTDIR/$HOST/$DAY ] || mkdir -p $DESTDIR/$HOST/$DAY
+ # Delete any lingering files that are over 7 days old:
+    /usr/bin/find $DESTDIR/$HOST/$DAY -name "*.*" -ls -mtime +7 -exec rm {} \;
+ # Schema only
+ # Delete any lingering files from a previous incarnation (or incantation) of this script, compressed or otherwise:
+    rm -f $DESTDIR/$HOST/$DAY/$HOST-schema.sql.$OLD_EXT
+    rm -f $DESTDIR/$HOST/$DAY/$HOST-schema.sql
+    SCHEMA_TARGET=$DESTDIR/$HOST/$DAY/$HOST-schema.sql
+    ( mysqldump -u $USER -p$PSWD $SCHEMA_DUMP_OPTS -h $HOST >$SCHEMA_TARGET && $COMPRESS $SCHEMA_TARGET & )
+ # Data
+ # Delete any lingering files from a previous incarnation (or incantation) of this script, compressed or otherwise:
+    rm -f $DESTDIR/$HOST/$DAY/$HOST-backup.sql.$OLD_EXT
+    rm -f $DESTDIR/$HOST/$DAY/$HOST-backup.sql
+    BACKUP_TARGET=$DESTDIR/$HOST/$DAY/$HOST-backup.sql
+    MASTER_STATUS=$DESTDIR/$HOST/$DAY/$HOST-master-status.txt
+    ( mysql -u $USER -p$PSWD -h $HOST -t -vvv -se "stop slave; show slave status\G" >$MASTER_STATUS  )
+    ( mysqldump -u $USER -p$PSWD $DUMPOPTS -h $HOST >$BACKUP_TARGET ;  $COMPRESS $BACKUP_TARGET & )
+    ( sleep 10; mysql -u $USER -p$PSWD -h $HOST -t -vvv -se "start slave" >>$MASTER_STATUS & )
+done
+@
+
+
+1.11
+log
+@removed --no-data flag and replaced with -d flag for schema backups
+@
+text
+@d33 1
+a33 1
+SCHEMA_DUMP_OPTS=" -d --flush-logs --force --no-data -R --triggers --events"
+@
+
+
+1.10
+log
+@fixed my --no-data
+@
+text
+@d33 1
+a33 1
+SCHEMA_DUMP_OPTS=" --no-data --flush-logs --force --no-data -R --triggers --events"
+@
+
+
+1.9
+log
+@the schema only opts were removed and need to be with --no-data for schema only
+@
+text
+@d33 1
+a33 1
+SCHEMA_DUMP_OPTS=" --flush-logs --force --no-data -R --triggers --events"
+@
+
+
+1.8
+log
+@The 'stop slave' and 'start slave' commands near bottom of this script were often
+getting executed in reverse order (they were backgrounded).  This is first attempt
+at fixing this.
+@
+text
+@d33 1
+d53 1
+a53 1
+    ( mysqldump -u $USER -p$PSWD -d $DUMPOPTS -h $HOST >$SCHEMA_TARGET && $COMPRESS $SCHEMA_TARGET & )
+@
+
+
+1.7
+log
+@made sure the ; was used because the federated tables throw an error and then the compression does not always occur.
+@
+text
+@d59 1
+a59 2
+    ( mysql -u $USER -p$PSWD -h $HOST -t -vvv -se "stop slave" >$MASTER_STATUS & )
+    ( mysql -u $USER -p$PSWD -h $HOST -t -vvv -se "show slave status\G" >>$MASTER_STATUS & )
+d61 1
+a61 1
+    ( mysql -u $USER -p$PSWD -h $HOST -t -vvv -se "start slave" >>$MASTER_STATUS & )
+@
+
+
+1.6
+log
+@fixed the syntax to make the compress conditional on the success of the backup... hope that helps compress... testing on dw04 offsight db clone
+@
+text
+@d59 4
+a62 4
+    ( mysql -u $USER -p$PSWD -h $HOST -se "stop slave" >$MASTER_STATUS & )
+    ( mysql -u $USER -p$PSWD -h $HOST -se "show slave status\G" >>$MASTER_STATUS & )
+    ( mysqldump -u $USER -p$PSWD $DUMPOPTS -h $HOST >$BACKUP_TARGET && { $COMPRESS $BACKUP_TARGET & })
+    ( mysql -u $USER -p$PSWD -h $HOST -se "start slave" >>$MASTER_STATUS & )
+@
+
+
+1.5
+log
+@changing the logic so that if the main command works then the compression and start slave will follow.
+@
+text
+@d61 2
+a62 1
+    ( mysqldump -u $USER -p$PSWD $DUMPOPTS -h $HOST >$BACKUP_TARGET && { $COMPRESS $BACKUP_TARGET & ; mysql -u $USER -p$PSWD -h $HOST -se "start slave" >>$MASTER_STATUS & ; })
+@
+
+
+1.4
+log
+@added the admindb01 and maindb02 into the slave backup file script for tera-bactyl02 and will switch dw03/dw04 next ; addded stop and start slave syntax as well.
+@
+text
+@d61 1
+a61 2
+    ( mysqldump -u $USER -p$PSWD $DUMPOPTS -h $HOST >$BACKUP_TARGET && $COMPRESS $BACKUP_TARGET & )
+    ( mysql -u $USER -p$PSWD -h $HOST -se "start slave" >>$MASTER_STATUS & )
+@
+
+
+1.3
+log
+@adding grabbing the master status to file for the main v4 slaves we back up to /var/backup/v4/mysql
+@
+text
+@d59 2
+a60 1
+    ( mysql -u $USER -p$PSWD -h $HOST -se "show slave status\G" >$MASTER_STATUS & )
+d62 1
+@
+
+
+1.2
+log
+@added in a few things from backup_mysql_all
+@
+text
+@d21 9
+d31 5
+a35 3
+# original DUMPOPTS="--flush-logs --all-databases --skip-opt --quick --single-transaction --add-drop-table --set-charset --create-options --no-autocommit --extended-insert"
+#  improved line for read only slaves 
+DUMPOPTS="--flush-logs --all-databases --force -R --skip-opt --quick --single-transaction --master-data --add-drop-table --set-charset --create-options --no-autocommit --extended-insert"
+d58 2
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d22 3
+a24 1
+DUMPOPTS="--flush-logs --all-databases --skip-opt --quick --single-transaction --add-drop-table --set-charset --create-options --no-autocommit --extended-insert"
+@

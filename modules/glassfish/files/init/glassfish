@@ -1,0 +1,78 @@
+##############################################################################
+# This file is mananged by puppet.  Do NOT edit on the server, your changes  #
+# will be blown away on the next puppet run.                                 #
+##############################################################################
+#!/bin/bash
+#
+# /etc/rc.d/init.d/atd
+#
+# Starts the at daemon
+#
+# chkconfig: 345 95 5
+# description: Runs commands scheduled by the at command at the time \
+#    specified when at was run, and runs batch commands when the load \
+#    average is low enough.
+# processname: atd
+
+# Source function library.
+. /etc/init.d/functions
+
+test -x /usr/sbin/atd || exit 0
+
+GLASSPATH="/opt/glassfish3"
+GLASSBIN="$GLASSPATH/bin/asadmin"
+
+RETVAL=0
+
+#
+# See how we were called.
+#
+
+prog="GlassFish"
+
+start() {
+  echo -n $"Starting $prog: "
+  $GLASSBIN start-domain domain1
+  RETVAL=$?
+  echo
+  return $RETVAL
+}
+
+stop() {
+  echo -n $"Stopping $prog: "
+  $GLASSBIN stop-domain domain1
+  RETVAL=$?
+  echo
+        return $RETVAL
+}
+
+
+restart() {
+  stop
+  start
+} 
+
+reload() {
+  restart
+} 
+
+case "$1" in
+start)
+  start
+  ;;
+stop)
+  stop
+  ;;
+reload|restart)
+  restart
+  ;;
+condrestart)
+      restart
+  ;;
+*)
+  echo $"Usage: $0 {start|stop|restart|condrestart}"
+  exit 1
+esac
+
+exit $?
+exit $RETVAL

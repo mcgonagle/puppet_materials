@@ -1,0 +1,22 @@
+Puppet module: skel
+
+# Written by Tom McGonagle #
+# mcgonagle@gmail.com
+# Google Voice (617)229-5185
+# http://www.puppetll.com
+
+
+DESCRIPTION:
+This module installs and manages skel software
+Standard and extended classes are available.
+Decide and customize how you want to define configation files: static files, templates, infile modifications...
+
+
+USAGE:
+# Standard Classes 
+include skel              # Install and run skel with standard configurations.
+include skel::disable     # Disable skel service.
+include skel::disableboot # Disable skel service at boot time, but don't stop if it's running.
+include skel::absent      # Remove skel package.
+
+DEPENDENCIES:

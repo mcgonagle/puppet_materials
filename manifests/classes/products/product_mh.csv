@@ -1,0 +1,26 @@
+mh::php::version,5.3.5-1.el5.remi.1
+mh::php-cli::version,5.3.5-1.el5.remi.1
+mh::php-common::version,5.3.5-1.el5.remi.1
+mh::php-devel::version,5.3.5-1.el5.remi.1
+mh::php-gd::version,5.3.5-1.el5.remi.1
+mh::php-mbstring::version,5.3.5-1.el5.remi.1
+mh::php-mcrypt::version,5.3.5-1.el5.remi.1
+mh::php-xml::version,5.3.5-1.el5.remi.1
+mh::php-pear::version,1.9.1-6.el5.remi
+mh::php-pdo::version,5.3.5-1.el5.remi.1
+mh::php-mysql::version,5.3.5-1.el5.remi.1
+mh::php-pecl-imagick::version,3.0.1-1.el5.remi.1
+mh::php-pecl-json::version,1.2.1-4.el5.remi
+mh::php-pear-Cache-Lite::version,1.7.8-1.el5.remi
+mh::php-mbstring::version,5.3.3-1.el5.remi
+mh::php-pecl-memcache::version,3.0.5-1.el5.remi
+mh::php-pecl-apc::version,3.1.6-1.el5.remi
+mh::php-pear-xml-rpc2::version,1.0.6-1.el5.remi
+#symfony version
+mh::symfony::version,1.4.8-2.el5.remi
+mh::php-swift-Swift,4.0.6-1.el5.remi
+#billing specific packages
+mh::php-pecl-http::version,1.6.5-2.el5.rf
+mh::php-pecl-xdebug::version,2.1.0-1.el5.remi
+mh::php-pecl-ssh2::version,0.11.0-3.el5.remi.1
+

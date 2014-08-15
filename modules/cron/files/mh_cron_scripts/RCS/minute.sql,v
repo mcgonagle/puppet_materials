@@ -1,0 +1,24 @@
+head	1.1;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.1
+date	2008.02.06.19.56.38;	author rbraun;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@DELETE FROM manhunt_jp.Sessions WHERE lastAccess <  NOW() - INTERVAL 40 MINUTE and uid!=0;
+@

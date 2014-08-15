@@ -1,0 +1,2708 @@
+company: Puppet Labs 
+title: Puppet Training 
+footer: Copyright Puppet Labs 2010
+
+h1. Introduction to Puppet
+
+<%= insert_img('puppetlabs.png') %>
+
+h1. Introduction to Puppet
+
+h2. Puppet:
+
+* Open Source model-driven framework that centrally manages IT Systems
+* Policy enforced consistency and auditing
+* Modular solution allowing for work-load distribution and collaboration
+
+h1. Introduction to Puppet
+
+h2. Benefits:
+
+h3. Scalability:
+* Manage thousands of systems from a central point 
+* Reliably distribute system administrative tasks to staff
+
+h3. Consistency
+
+* Ensure that systems are in the intended state
+* Eliminate inconsistency - QA/Staging/Production
+* Improve velocity of new service delivery
+* Security & Regulation Compliance
+
+h3. Operational efficiency
+
+* Less time spent tracking system drift.
+
+h1. Introduction to Puppet
+
+h2. Community:
+
+h2. Distribution:
+** Redhat (epel)
+** Debian (stable)
+** Ubuntu (main)
+** Solaris (opencsw)
+** Mac OSX (macports)
+
+h3. Activity:
+* active 3000 person mailing list
+** puppet-users@googlegroups.com
+* regularily ~350 people in IRC
+** #puppet on freenet.net
+
+h3. contributions:
+* 100+ community members involved in project.
+* 100+ modules committed to module forge.
+
+
+h1. Introduction to Puppet
+
+h2. Pervasive:
+
+* Redhat
+* Rackspace hosting
+* Ebay
+* NYSE
+* Twitter
+* Digg
+* Zynga
+* match.com
+* citrix online
+* ...
+
+h1. Introduction to Puppet
+
+h3. Puppet Assigns and Maintains a Machine's Desired Role 
+
+<%= insert_img('provision_configure_puppet.png') %>
+
+h1. Introduction to Puppet
+
+h3. Managing Configuration Drift
+
+<%= insert_img('config_drift.png') %>
+
+h1. Course Overview
+
+
+* The Resource Model
+* Language and Expression
+* Architecture and Installation
+* Customization
+
+h1. Course Overview
+
+h3. Goals:
+
+*  Understand how to model systems configurations as resources using the Puppet language.
+*  Learn some common patterns of expression using the Puppet language.
+*  Practice debugging issues within your Puppet code.
+*  Develop an understanding of the architecture of the Puppet framework.
+*  Install and configure a working Puppet client/server environment.
+
+h1. Course Overview
+
+h3. Puppet Executables that we will employ:
+
+* @facter@ - Executable and library that discovers facts about client systems.
+* @puppet resource@ @{ralsh}@ - The Resource Abstraction Layer Shell.
+* @puppet apply@ @{puppet}@ - Executable that interprets Puppet manifests, compiles the catalog, and applies the catalog locally.
+* @puppet master@ @{puppetmasterd}@ - Centralized daemon that authenticates client connections, serves files, compiles templates, and provides puppet clients with a catalog.
+* @puppet agent@ @{puppetd}@ - Puppet daemon that runs on client machines, makes connections to the puppetmaster, retrieves the catalog, and applies that catalog locally.
+* @puppet cert@ @{puppetca}@ - Puppet's built-in certificate authority.
+* @puppet filebucket@ @{filebucket}@ - Puppet utility for sending files to a local or central filebucket.
+* @puppet kick@ @{puppetrun}@ - Puppet utility for remote contact of puppet agent to trigger puppet execution.
+* @puppet doc@ @{puppetdoc}@ - Command line tool for printing Puppet reference documentation.
+
+h1. Resources
+
+h1. Resources
+
+h3. Resources are the building blocks Puppet uses to model system configurations. 
+
+h3. Simple @user@ resource declaration.
+
+{{{
+<%= insert_code("elvis_user.pp") %>
+}}}
+
+h1. Resource Abstraction Layer
+
+h4. The Resource Abstration Layer (RAL) provides a consistent model for resources across supported platforms.
+
+<%= insert_img("resource_abstraction_layer.png") %>
+
+
+h1. Resource Abstraction Layer
+
+h3. Resource types depend on providers to translate specification into implementation.
+
+{{{
+<%= insert_code('httpd.pp') %>
+}}}
+
+h3. @Package@ is just one of the many native Puppet resource types.
+
+h1. Resource Abstraction Layer
+
+h4. Each resource type has one or more providers.
+
+<%= insert_img("RAL_resource-types.png") %>
+
+h1. Resource Abstraction Layer
+
+h4. Providers are the interface between the underlying OS and the resource types.
+
+<%= insert_img("RAL_providers.png") %>
+
+h1. Resource Abstraction Layer
+
+h3. The package resource type has 29 providers:
+
+{{{
+ls -1 /usr/lib/ruby/site_ruby/1.8/puppet/provider/package
+}}}
+
+{{{
+aix.rb      blastwave.rb  hpux.rb     ports.rb        up2date.rb
+appdmg.rb   darwinport.rb nim.rb      portupgrade.rb  urpmi.rb
+apple.rb    dpkg.rb       openbsd.rb  rpm.rb          yum.rb
+apt.rb      fink.rb       pkg.rb      rug.rb          yumhelper.py
+aptitude.rb freebsd.rb    pkgdmg.rb   sun.rb          zypper.rb
+aptrpm.rb   gem.rb        portage.rb  sunfreeware.rb
+}}}
+
+
+h1. The User Resource
+
+h3. Some basic attributes for the user resource type:
+
+* @name@: OS specified limits apply. (@namevar@)
+* @ensure@:  Sets the basic state of the user resource.  Valid values are @absent@, @present@.
+* @uid@: Explicitly set the user's uid number.
+* @gid@: The user's primary group.  Can be specified numerically or by name.
+* @groups@: The secondary group or groups to which the user is assigned.  The primary group should not be listed.  Multiple groups should be specified as an array.
+* @home@: The users home directory.
+* @managehome@: Whether to manage the home directory when managing the user.  Valid values are @true@, @false@.
+
+h1. Namevar
+
+h3. Each resource has a special attribute called a @namevar@.
+
+{{{
+<%= insert_code("elvis_user_name.pp") %>
+}}}
+
+h3. The @namevar@ for the user resource is the @name@ attribute.
+
+h1. Namevar
+
+h3. The @namevar@ is the unique identifier for a resource.
+
+{{{
+<%= insert_code("elvis_user.pp") %>
+}}}
+
+h3. When omitted the @namevar@ is set to the @title@.
+
+h1. The Group Resource
+
+h3. Basic Attributes for the @group@ resource type:
+
+* @name@: The group name. (@namevar@)
+* @ensure@: Ensures that the group is present or absent. Valid values are @present@, @absent@.
+* @gid@: The numerical group ID.
+
+h1. The Group Resource
+
+h3. A simple group resource declaration
+
+{{{
+<%= insert_code('sysadmin_group.pp') %>
+}}}
+
+
+h1. Puppet Resource
+
+h1. Puppet Resource
+
+Puppet resource is an executable that interacts directly with the Resource Abstraction Layer (RAL).
+
+h1. Puppet Resource
+
+h3. Executing @puppet resource@ and providing a resource and a title returns the state of a resource.
+
+{{{
+root@puppetclient:~$ puppet resource user elvis
+}}}
+
+{{{
+<%= insert_code("ralsh_user_elvis.pp") %>
+}}}
+
+h1. Puppet Resource
+
+h3. Executing @puppet resource@ and providing a resource, a title, and specifying an attribute alters the resource.
+
+{{{
+root@puppetclient:~$ puppet resource user elvis ensure=present
+}}}
+
+{{{
+notice: /User[elvis]/ensure: created
+user { 'elvis':
+    ensure => 'present',
+}
+}}}
+
+{{{
+root@puppetclient:~$ puppet resource user elvis
+}}}
+
+{{{
+user { 'elvis':
+    home => '/home/elvis',
+    uid => '501',
+    gid => '501',
+    shell => '/bin/bash',
+    ensure => 'present',
+    password => '!!'
+}
+}}}
+
+h1. Puppet Resource
+
+h3. Executing @puppet resource@ with the -e flag allows you to edit the resource declaration.
+
+{{{
+root@puppetclient:~$ puppet resource -e user elvis
+}}}
+
+{{{
+user { 'elvis':
+  home => '/home/elvis',
+  uid => '501',
+  gid => '501',
+  shell => '/bin/sh',
+  ensure => 'present',
+  password => '!!'
+}
+}}}
+
+h3. Edit the generated Puppet code and save the file to make changes to a resource.
+
+h1. Parade of Resources
+
+h1. Native Resource Types
+
+h3. Core Resource types:
+
+* user
+* group
+* host
+* cron
+* exec
+* file
+* package
+* service
+* mount
+* tidy
+
+
+h1. Native Resource Types
+
+h3. Meta Resource Types:
+
+* filebucket
+* notify
+* resources
+* schedule
+
+
+h1. Native Resource Types
+
+h3. Component specific Resource types:
+
+* augeas
+* k5login
+* selboolean
+* selmodule
+* mailalias
+* maillist
+* sshkey
+* ssh_authorized_key
+
+h1. Native Resource Types
+
+h3. Platform specific Resource types:
+
+* component
+* macauthorization
+* mcx
+* yumrepo
+* zfs
+* zone
+* zpool
+
+h1. Native Resource Types
+
+h3.  Resources are limited by the features available in their providers
+
+|_.Provider | |_.duplicates |_.homedir |_.passwords |_.solaris_rbac |
+| directoryservice | | n | n | y | n |
+| hpuxuseradd | | y | y | n | n |
+| ldap | | n | n | y | n |
+| netinfo | | n | n | y | n |
+| pw | | y | y | n | n |
+| user_role_add | | y | y | y | y |
+| useradd | | y | y | y | n |
+
+h1. Native Resource Types
+
+h3. Documentation can be generated:
+
+{{{
+puppet describe <type> -s
+}}}
+{{{
+puppet doc -r type
+}}}
+
+h3. The type reference documentation can also be found on the Puppet Labs website.
+
+http://docs.puppetlabs.com/guides/types/index.html
+
+
+h1. The Host Resource
+
+h3. Attributes:
+
+* @name@: The host name (@namevar@).
+* @host_aliases@: Sets host alias(es) (array).
+* @ensure@: Can be @present@ or @absent@.
+* @ip@: Sets the ip address for the host entry.
+
+h1. The Host Resource
+
+h3. Simple host resource declaration example.
+
+{{{
+<%= insert_code('training_host.pp') %>
+}}}
+
+
+h1. The Host Resource
+
+h3. Exercise: Using The Host Resource Type
+
+Use puppet resource to:
+
+* Inspect the host entries in @/etc/hosts@.
+* Add an entry to the host file.
+* Delete an entry from @/etc/hosts@.
+
+h1. The Package Resource
+
+h3. Attributes:
+
+* @name@: The package name. (@namevar@)
+* @ensure@: Valid values are @present@, @absent@, @latest@, @purge@, version
+* @provider@: Override the default package provider for your platform.
+* @source@: Mounted filesystem or source that a particular package system understands.
+
+h1. The Package Resource
+
+h3. Simple package resource declaration.
+
+{{{
+<%= insert_code('package_ssh.pp') %>
+}}}
+
+
+h1. The Package Resource
+
+h3. Exercise: The Package Resource Type
+
+* Use @puppet resource@ to inspect all packages installed on the system.
+* Use @puppet resource@ to install apache.
+
+
+h1. The Package Resource
+
+h3. How does @puppet resource@ know implicitly which provider to use for the package resource type?
+
+h1. Puppet client
+
+h1. Client Side Abstraction Layer
+
+<%= insert_img('ral_facter.png') %>
+
+h1. Facter
+
+h3. Puppet uses @facter@ to gather information about the host system.
+
+h1. Facter
+
+h3. Executing the @facter@ command returns a list of key value pairs.
+
+{{{
+root@puppetclient:~$ facter
+architecture => x86_64
+domain => puppetlabs.com
+facterversion => 1.5.2
+fqdn => puppetclient.puppetlabs.com
+hardwaremodel => x86_64
+hostname => aku
+interfaces => eth0
+ipaddress => 172.16.10.1
+kernel => Linux
+operatingsystem => Ubuntu
+...
+}}}
+
+h3. The returned  key value pairs are @facts@.
+
+h1. Facter
+
+h3. Exercise: Execute @facter@ from the command line and examine the facts that are returned on your platform.
+
+* Execute @facter ipaddress@
+* What is returned?
+* Execute @facter ipaddress_eth0@
+* What is returned?
+
+h1. Files
+
+h1. The File Resource
+
+h3. Basic Attributes:
+
+* @path@: Specifies the target location for file. (@namevar@)
+* @ensure@: Accepts absent, present, file, and directory.  Any other value will be treated as a symlink.
+* @owner@: Owner of file.
+* @group@: Group of file.
+* @mode@: Mode of file
+* @content@: Specifies the content of file as a string.
+* @source@: Specifies the source of file.
+* @force@: Force replacement of directories with a link.  Valid values (@true@, @false@).
+* @ignore@: Omits files matching specified patterns during recursion (Ex: .svn, .git).
+* @recurse@: Whether or not directories should be managed recursively. Valid values (@true@, @false@)
+* @purge@: Whether or not to purge unmanaged file resources within a directory. Valid values (@true@, @false@)
+
+
+h1. The File Resource
+
+h3. Simple file resource declaration with a local source.
+
+{{{
+<%= insert_code("sudoers.pp") %>
+}}}
+
+
+h1. The File Resource
+
+h3. Directory example.
+
+{{{
+<%= insert_code("directory.pp") %>
+}}}
+
+h1. The File Resource
+
+h3. Symlink examples.
+
+* Example use of a managed file that also has a symlink associated with it.
+
+{{{
+<%= insert_code("symlink_with_file.pp") %>
+}}}
+
+h1. Puppet Apply
+
+h1. Puppet Apply
+
+h3. The @puppet apply@ executable:
+
+* interprets puppet code
+* compiles a catalog
+* uses the RAL to apply the catalog locally.
+
+h1. Puppet Apply
+
+<%= insert_img('puppet-executable.png') %>
+
+h1. Puppet Apply
+
+h3. Files containing Puppet code are known as manifests and by convention have a .pp suffix.
+
+h3. Example Puppet Manifest:
+
+{{{
+<%= insert_code('example_manifest.pp') %>
+}}}
+
+h1. Puppet Apply
+
+h3. Options:
+
+* @--debug@: {-d} Enables detailed debugging information.
+* @--verbose@: {-v} Enables verbose logging.
+* @--noop@: Puppet code is interpreted but no changes occur.
+* @--parseonly@: Only checks the manifest syntax.
+* @--modulepath@: Colon separated list of paths to modules.
+* @--configprint@: Prints out configuration options. Accepts @all@ or just one named parameter.
+* @--detailed-exitcode@: Provide transaction information via exit code. 2= resource changes, 4 = transaction failures.
+* @--apply@: applies a pre-compiled catalog (as of .25.2).
+
+h1. Puppet Apply
+
+h3. Exercise: Managing @/etc/sudoers@
+
+* Create a @/etc/puppet/manifests@ directory.
+* Create a @/etc/puppet/files@ directory.
+* Create a manifest, @/etc/puppet/manifests/sudoers.pp@.
+* In your manifest, use a file resource to manage @/etc/sudoers@ from a source file @/etc/puppet/files/sudoers@.
+* Run the puppet executable with the @--noop@ and @--verbose@ options to interpret the manifest.
+{{{
+puppet apply @--noop@ @--verbose@ /etc/puppet/manifests/sudoers.pp
+}}}
+* Run the puppet executable with the @--verbose@ option to interpret the file.
+* Manually edit the @/etc/sudoers@ file and use your manifest to restore it.
+* Edit your manifest file to manage the owner, group, and mode of @/etc/sudoers@.
+
+h1. More Resources
+
+h1. The Resources Resource
+
+h3. Using the @host@ resource type we can specify specific host entries.
+
+{{{
+<%= insert_code('muppet_hosts.pp') %>
+}}}
+
+h1. The Resources Resource
+
+h3.  What if we only want to have explicitly declared entries in the @/etc/hosts@ file?
+
+h1. The Resources Resource
+
+h3.  If a resource is @ensurable@ then the @resources@ resource type can be used to enable purging of unmanaged resources.
+
+h1. The Resources Resource
+
+h3.  This will purge all unspecified host resources.
+
+{{{
+<%= insert_code('resources_host_purge.pp') %>
+}}}
+
+h1. The Resources Resource
+
+h3. Attributes:
+
+* @name@: the name of the resource type that is to be managed. (@namevar@)
+* @purge@: @true@ or @false@
+* @unless_system_user@: @true@, @false@, or some upper uid limit specified as an integer.
+
+h1. The Resources Resource
+
+h3. Exercise: Purging unmanage resources.
+
+* Use @puppet resource@ to generate a manifest named hosts.pp in /etc/puppet/manifests.
+* Edit hosts.pp to include a @resources@ type that enables purging for the @host@ resource type.
+* Manually add a host entry to /etc/hosts.
+* Use @puppet apply@ to interpret the hosts.pp manifest and ensure that the unmanaged resource is purged.
+
+h1. The Service Resource
+
+h3. Attributes:
+
+* @name@: The name of the service as understood on the underlying services subsystem. (@namevar@)
+* @enable@: If a service should be started at boot. Can be @true@ or @false@.
+* @ensure@: If the resource should currently be running. Can be @true@, @false@, @running@, or @stopped@.
+* @hasrestart@: Specifies that your service has a restart command. Can be @true@ or @false@.
+* @hasstatus@:  Specifies that your service has a status command. Can be @true@ or @false@.
+* @pattern@:  The pattern to search for in the process table.
+* @restart@: Specify a restart command.
+* @start@: Specify a start command.
+* @status@: Specify a status command.
+* @stop@: Specify a stop command.
+
+h1. The Service Resource
+
+h3. Example of a @service@ resource type:
+
+{{{
+<%= insert_code("service_sshd.pp") %>
+}}}
+
+h1. The Service Resource
+
+h3. Exercise:
+
+* Use @puppet resource@ to stop the sshd service.
+* What happens if you execute the same puppet resource command again?
+* Set the parameter @hasstatus=true@ and use puppet resource to start the sshd service.
+* Use @puppet resource@ to start the sshd service. Be sure to use @hasstatus=true@.
+
+h1. Puppet Language
+
+h1. Puppet Language
+
+h3. Resource Declarations:
+
+* Each resource declaration is made up of a type and title.
+* Resources have attributes.
+* By default the title sets the value for the namevar attributes.
+* Resource type and title pairs must be unique within a compiled catalog.
+* Resource type and namevar pairs must be unique within a compiled catalog.
+
+h1. Puppet Language
+
+h3. Basic syntax
+
+* Resource names are lowercase when declaring a resource.
+* Curly braces are used to declare a resource block.
+* The title of the resource comes after the opening brace and before a colon.
+* Attributes and title values containing only alphanumerics and @-@ do not need to be quoted (although it's a best practice to quote all strings).
+* Attributes are assigned values using the @=>@ operator.
+* Attributes are separated by a comma.
+* The comma is not required for the last attributes in a block (although it's a best practice to include it).
+
+h1. Puppet Language
+
+h3. Example:
+
+{{{
+<%= insert_code("package_openssh.pp") %>
+}}}
+
+h1. Puppet Language
+
+h3. The title of a resource can be different than the (namevar) of the resource.
+
+{{{
+<%= insert_code("package_ssh.pp") %>
+}}}
+
+h1. Puppet Language
+
+h3. The attribute of the resource that the namevar refers to varies by resource type.
+
+h3. For the package resource type, name is the namevar.
+
+{{{
+<%= insert_code("package_ssh.pp") %>
+}}}
+
+h3. For the @file@ resource type, path is the @namevar@.
+
+{{{
+<%= insert_code("file_sudoers_path.pp") %>
+}}}
+
+
+h1. Puppet Language
+
+h3. Puppet resources are declaritive.  There is no implicit top-down ordering of resource execution.
+
+<%= insert_img('puppet-executable.png') %>
+
+
+h1. Dependencies
+
+h1. Resource Relationships
+
+h3. How does Puppet handle relationships between resources?
+
+h1. Resource Relationships
+
+h3. Metaparameters
+
+* Resource relationships are explicitly defined using metaparameters.
+* Metaparameters work with all resource types.
+* There are four metaparameters that establish relationships between resources.
+
+h1. Resource Relationships
+
+h3. Resources can depend on other resources.
+
+h3. The @require@ and @before@ metaparameters establish dependencies between resources.
+
+h1. Resource Relationships
+
+h3. The @require@ metaparameter establishes a dependency from the containing resource to the referenced resource.
+
+<%= insert_img('require.png') %>
+
+h1. Resource Relationships
+
+h3. This ensures that the ssh service is started after the ssh package is installed.
+
+{{{
+<%= insert_code("require_openssh.pp") %>
+}}}
+
+h1. Resource Relationships
+
+h3. The @before@ metaparameter establishes a dependency from the referenced resource to the containing resource.
+
+<%= insert_img('before.png') %>
+
+h1. Resource Relationships
+
+h3. This also ensures that the sshd service is started after the ssh package is installed.
+
+{{{
+<%= insert_code("before_sshd.pp") %>
+}}}
+
+h1. Resource Relationships
+
+h3. Resources can be refresh by other resources.
+
+h3. The @subscribe@ and @notify@ metaparameters establish refreshed relationships between resources.
+
+
+h1. Resource Relationships
+
+h3. The @subscribe@ metaparameter establishes a refresh relationship from the containing resource to a change in the referenced resource.
+
+<%= insert_img('subscribe.png') %>
+
+h1. Resource Relationships
+
+h3. This manifest ensures that the ssh service is restarted if @/etc/ssh/sshd_config@ changes.
+
+{{{
+<%= insert_code("subscribe_sshd_config.pp") %>
+}}}
+
+h3. The @subscribe@ metaparameter implies @require@.
+
+h1. Resource Relationships
+
+h3. The @notify@ metaparameter establishes a refresh relationship from the referenced resource to a change in the containing resource.
+
+<%= insert_img('notify.png') %>
+
+
+h1. Resource Relationships
+
+h3. This manifest ensures that the ssh service is restarted if @/etc/ssh/sshd_config@ changes.
+
+{{{
+<%= insert_code("notify_sshd.pp") %>
+}}}
+
+h3. The metaparameter @notify@ implies @before@.
+
+h1. Package-File-Service
+
+h3. We commonly specify several resources that together model a configuration.
+
+h1. Package-File-Service
+
+h3. The file /etc/ntp.conf needs to be edited after the package is installed.
+
+{{{
+<%= insert_code("require_ntp.pp") %>
+}}}
+
+<%= insert_img('fileservice.png') %>
+
+
+h1. Package-File-Service
+
+h3. What if you want the ntpd daemon to restart when a change is made to the configuration file?
+
+<%= insert_img('packagefileservice.png') %>
+
+h1. Package-File-Service
+
+h3. The ntp service resource is subscribing to the @/etc/ntp.conf@ file resource.
+
+{{{
+<%= insert_code("subscribe_ntp_conf.pp") %>
+}}}
+
+h1. Package-File-Service
+
+h3. Exercise: Securing SSH
+
+h3. Create:
+
+* A manifest @/etc/puppet/manifests/sshd.pp@ to manage sshd.
+
+h3. Ensure:
+
+* The ssh package (openssh-server) is installed,
+* The ssh service (sshd) is started,
+* The @/etc/ssh/sshd_config@ file does not allow root passworded logins. (Be sure you can login with another user account).
+
+h3. Use:
+
+* File resource to manage the @/etc/ssh/sshd_config@ file.
+* A @source@ parameter and source the file from @/etc/puppet/files/sshd_config@.
+* A metaparameter to make sure that sshd is restarted when a change is made to the @/etc/ssh/sshd_config@ file.
+
+Hint: To disable root password logins set @PermitRootLogin no@
+
+h1. Implicit Dependencies
+
+h3. For some related resources Puppet creates implicit dependencies.
+
+h1. Implicit Dependencies
+
+h3. Users and Groups have an implicit dependency.
+
+h3. Explicitly assigned dependency.
+
+{{{
+<%= insert_code("explicit_user_group.pp") %>
+}}}
+
+h1. Implicit Dependencies
+
+h3. The explicit dependency is not necessary, because Puppet implicitly orders users and groups.
+
+{{{
+<%= insert_code("implicit_user_group.pp") %>
+}}}
+
+h1. Implicit Dependencies
+
+h3. Files and directories have an implicit relationship. 
+
+h3. The foo directory must exist before bar.conf can be created.
+
+{{{
+<%= insert_code("explicit_file.pp") %>
+}}}
+
+h1. Implicit Dependencies
+
+h3. Puppet implicitly recognizes file hierarchy so the @requires@ are unneccessary.
+
+{{{
+<%= insert_code("implicit_file.pp") %>
+}}}
+
+
+h1. Implicit Dependencies
+
+h3. There is also an implicit relationship between file ownership and user resources.
+
+{{{
+<%= insert_code("implicit_file_user.pp") %>
+}}}
+
+
+h1. Code Compression
+
+h1. Resource Defaults
+
+h3. Puppet allows you to declare resource defaults.
+
+{{{
+<%= insert_code("resource_defaults.pp") %>
+}}}
+
+h1. Resource Defaults
+
+h3. Example: The code for the previous file hierarchy example can be compressed.
+
+{{{
+<%= insert_code("resource_defaults_example.pp") %>
+}}}
+
+h1. Resource Defaults
+
+h3. Exercise: Using Resource Defaults
+
+* Create a manifest, @/etc/puppet/manifests/resource_defaults.pp@ that manages a directory @/tmp/defaults@.
+* Specify the owner, group and mode in a resource default.
+* Set the mode to "644".
+* Extend the manifest to create two files, @/tmp/defaults/hello@ and @/tmp/defaults/goodbye@.
+* Use @puppet apply@ to interpret the manifest.
+* What is the mode of the @/tmp/defaults@ directory?
+
+h1. Multiple Resource Declarations in a Single Block
+
+h3. We can compress the previous example by declaring multiple file resources in a single block.
+
+h3. Example:
+
+{{{
+<%= insert_code("multiple_resources_one_block.pp") %>
+}}}
+
+
+h1. Multiple Resource Declarations in a Single Block
+
+h3. Exercise:  Refactor the previous exercise to specify the file resources in a single block.
+
+h1. More Language Constructs
+
+h1. Variables
+
+h3. Puppet supports variables:
+
+h3. Variables are prefixed with '$'
+
+{{{
+<%= insert_code("variables.pp") %>
+}}}
+
+
+h1. Variables
+
+h3. Facts are available as global variables.
+
+h3. Use the @$hostname@ fact as a variable in file content.
+
+{{{
+<%= insert_code("variables_facts.pp") %>
+}}}
+
+
+h1. Variables
+
+h3. Quoting
+
+* Single-quoted strings disallow variable interpolation.
+* Double-quoted strings allows variable interpolation.
+* Variables in strings can be bracketed with {} for clarity.
+
+h1. Variables
+
+h3. For clarity interpolated variables should be bracketed.
+
+{{{
+<%= insert_code("variables_facts_bracketed.pp") %>
+}}}
+
+
+h1. Variables
+
+h3. Can't reassign variables.
+
+{{{
+<%= insert_code("variables_facts_reassignment.pp") %>
+}}}
+
+h1. Arrays
+
+h3. The Puppet Language also supports simple Arrays
+
+h3. Example
+
+{{{
+<%= insert_code("somearray.pp") %>
+}}}
+
+h1. Arrays
+
+h3. Arrays can be used as an argument to some resource parameters.
+
+h3. The @user@ resource's groups parameters accepts an array as an argument.
+
+{{{
+<%= insert_code("elvis_user_groups.pp") %>
+}}}
+
+h1. Arrays
+
+h3. Arrays can also be arguments to metaparameters:
+
+{{{
+<%= insert_code("metaparameter_arrays.pp") %>
+}}}
+
+
+h1. Arrays
+
+h3. Arrays can also be used as the title for resources:
+
+{{{
+<%= insert_code('array_title.pp') %>
+}}}
+
+h1. Conditionals
+
+h3. Puppet supports three conditional expressions:
+
+* the selector
+* case statements
+* if/else/elsif statements
+
+h3. These conditionals can be divided into two types, in-statement and around statement.
+
+h1. Conditionals
+
+h3. The selector can be used as an in-statement conditional.
+
+{{{
+<%= insert_code("selector.pp") %>
+}}}
+
+h1. Conditionals
+
+h3. Exercise: Using Selectors
+
+h3. Create:
+* A manifest, @/etc/puppet/manifests/in_selector.pp@
+
+h3. Use:
+
+* A file resource to set the content parameter of the file @/tmp/os@.
+* A selector inside the file resource to set the content parameter based on the value of the @$operatingsystem@ fact.
+* @puppet apply@ to verify that your manifests sets the appropriate content for @/tmp/os@.
+
+h1. Conditionals
+
+h3. Selectors can also be used to assign variables:
+
+{{{
+<%= insert_code("selector_variables.pp") %>
+}}}
+
+h3. Selectors are case insensitive.
+
+h1. Conditionals
+
+h3. Exercise:  Using The Selector outside a resource.
+
+h3. Create:
+
+* A manifest, @/etc/puppet/manifests/out_selector.pp@
+
+h3. Use:
+
+* A file resource to set the content parameter of the file @/tmp/os@.
+* A selector to set a variable to be used inside file resource.
+* The @$operatingsystem@ fact to set the content parameter.
+* @puppet apply@ to verify that your manifests sets the appropriate content for @/tmp/os@.
+
+h1. Conditionals
+
+h3. The case statements can be used around resources or collections of resources.
+
+{{{
+<%= insert_code("case_collections.pp") %>
+}}}
+
+h3. Case statements are case insensitive.
+
+h1. Conditionals
+
+h3. Case statements can be used to set variables as well.
+
+{{{
+<%= insert_code("case_variables.pp") %>
+}}}
+
+
+h1. Conditionals
+
+h3. Exercise:  Using the case conditional to assign variables.
+
+h3. Create:
+
+* A manifest, @/etc/puppet/manifests/case.pp@
+
+h3. Use:
+
+* A file resource to set the content parameter of the file @/tmp/os@.
+* The case conditional to set a variable to be used inside file resource based on the @$operatingsystem@ fact.
+* The variable as the value for the content parameter.
+* @puppet apply@ verify that your manifests sets the appropriate content for in @/tmp/os@.
+
+h1. Conditionals
+
+h3. If/else/elsif conditionals can treat variables as boolean expressions.
+
+h3. The following values return false:
+
+* @undef@
+* @''@
+* @false@
+
+{{{
+<%= insert_code("if_simple.pp") %>
+}}}
+
+h3. If/else/elsif conditionals are case senstive.
+
+h1. Conditionals
+
+h3.  If/else/elsif can also be used with more complicated boolean expressions
+
+{{{
+<%= insert_code("if_expression.pp") %>
+}}}
+
+h3. If/elsif conditionals also support regular expressions.
+
+{{{
+<%= insert_code("regex_expression.pp") %>
+}}}
+
+
+h1. Conditionals
+
+h3. Puppet now supports a more complete set of conditional expressions.
+
+h3. Puppet expressions can be composed of:
+
+* boolean expressions (@and@, @or@, and @not@)
+* comparison expression ( ==, !=, =~, <, >, <=, >= )
+* arithmetic expressions ( +, -, /, *, <<, >> )
+
+
+h1. Conditionals
+
+h3. Operator precedence
+
+* !  (not)
+* * / (times and divide)
+* - +  (minus, plus)
+* << >>  (left shift and right shift)
+* == !=  (equal, not equal)
+* >= <= > < (greater or equal, less or equal, greater than, less than)
+* and
+* or
+
+h3. Parenthesis can be used to group expressions and explicitly set precendence.
+
+h1. Lab
+
+h3. Lab: Manage User Environment
+
+h3. Create:
+
+* A manifest @/etc/puppet/manifests/myenv.pp@.
+
+h3. Use:
+
+* A variable $username to specify the user.
+* A file resource to manage the user's @.vimrc@ file and @.vim@ directories within their home directory.
+* A conditional statement and variable interpolation to manage @.ssh/authorized_keys@.
+**  Root should not have an @authorized_keys@ file.
+**  Other users should have individual @authorized_keys@ files.
+* Test this manifest as two different users (@root@, your account) by changing the $username variable.
+
+Hint: Use @ssh-keygen -t rsa -b 2048@ to create your ssh keys.  You will probably want to do this on your host machine. Copy the generated id_rsa.pub to the users authorized keys file.
+
+h1. Templates
+
+h1. Templates
+
+h3. Puppet uses Ruby's builtin templating, ERB.
+
+http://www.ruby-doc.org/stdlib/libdoc/erb/rdoc/classes/ERB.html
+
+h1. Templates
+
+h3. Basic ERB syntax: Variables
+
+{{{
+<%= insert_code('variables.erb') %>
+}}}
+
+
+h1. Templates
+
+h3. Basic ERB syntax: Iteration
+
+{{{
+<%= insert_code('iteration.erb') %>
+}}}
+
+
+h1. Templates
+
+h3. Basic ERB syntax: Conditionals
+
+{{{
+<%= insert_code('conditionals.erb') %>
+}}}
+
+
+h1. Templates
+
+h3. Templates are implemented using the template function.
+
+{{{
+<%= insert_code("template_variable.pp") %>
+}}}
+
+h1. Templates
+
+h3. The template function can be used to set the value of content in a file resource.
+
+{{{
+<%= insert_code("template_content.pp") %>
+}}}
+
+
+h1. Templates
+
+h3. The template function will concatenate multiple templates.
+
+{{{
+<%= insert_code("template_multi.pp") %>
+}}}
+
+h1. Templates
+
+h3. Puppet variables and arrays are passed into templates as ruby variables and arrays.
+
+h3. For example the @$ipaddress@ fact would be available as the @ipaddress@ variable within a template.
+
+
+h1. Templates
+
+h3. Exercise: Motd Template
+
+h3. Create:
+
+* An @/etc/puppet/templates@ directory.
+* An @motd.erb@ file within the templates directory.
+
+h3. Use:
+
+* Use the @operatingsystem@, @memoryfree@, and @domain@ facts in your template.
+* Create an @/etc/puppet/manifests/motd.pp@ manifest.
+* Use the template function to set the content value for @/etc/motd@.
+* Use the @puppet apply@ executable to test your manifest.
+
+h1. Modules
+
+h1. Puppet Modules
+
+h3. Modules are not language constructions but rather a convention for encapsulating configurations.
+
+* autoloading of classes 
+
+* configuration of fileserving for templates and files.
+
+h1. Puppet Modules
+
+h3. Puppet modules must be located in the modulepath.
+
+{{{
+# puppet.conf on puppet master
+
+[master]
+  modulepath=/etc/puppet/modules
+}}}
+
+h1. Puppet Modules
+
+h3. Puppet modules are contained in a directory named after the module. The module's directory contains five special sub directories.
+
+* manifests
+* templates
+* files
+* tests
+* lib
+
+h1. Puppet Modules
+
+h3. Example: ssh module structure.
+
+{{{
+/etc/puppet/modules/ssh
+                   ├── files
+                   ├── lib
+                   ├── manifests
+                   │   └── init.pp
+                   ├── templates
+                   └── tests
+                       └── init.pp
+}}}
+
+h1. Puppet Modules
+
+h3. By convention these directories enable autoloading of classes
+
+h3. Autoloading convention:
+
+* Classes and definitions in @init.pp@ are always imported as long as they are prefixed with the modulename.
+* Classes and definitions not in @init.pp@ named @modulename::name@ can be placed in a file @name.pp@.
+* Classes and definitions not in @init.pp@ named @modulename::name::foo@ can be placed in @name/foo.pp@.
+* Additional namespaced classes and definitions repeat the directory and name pattern.
+
+h1. Puppet Modules
+
+h3. Auto-importing: By convention modules allow you to import files within the manifests directory automatically.
+
+* The URI convention is @puppet:///modules/${module_name}/filename@
+* The template path is automatically set up: @template("${module_name}/template.erb")@
+
+h1. Puppet Modules
+
+h3. Example: init.pp
+
+{{{
+<%= insert_code('class_ssh.pp') %>
+}}}
+
+h1. Puppet Modules
+
+h3. Example: server.pp
+
+{{{
+<%= insert_code('class_ssh_server.pp') %>
+}}}
+
+h1. Puppet Modules
+
+h3. Recommended Practices with tests
+
+* Should have one class or define per file in the manifests directory.
+* Create a @tests@ directory for each module.
+* Mirror the file structure of the manifests directory within the @tests@ directory.
+* Use the include function to include each class in its corresponding @tests/*.pp@ file.
+* For defined resources, declare the resource in its corresponding @tests/*.pp@ file.
+
+h1. Puppet Modules
+
+h3. Recommended Practices
+
+* Should have one class or define per file
+
+{{{
+/etc/puppet/modules/ssh/manifests/init.pp
+/etc/puppet/modules/ssh/manifests/server.pp
+/etc/puppet/modules/ssh/tests/init.pp
+/etc/puppet/modules/ssh/tests/server.pp
+}}}
+
+h1. Puppet Modules
+
+h3. Testing
+
+{{{
+cd /etc/puppet/modules/ssh
+puppet apply -v --modulepath=/etc/puppet/modules tests/server.pp
+}}}
+
+h1. Puppet Modules
+
+h3. Recommended Practices
+
+h3. Use multiple module paths.
+
+* Create at least one modulepath for small reuseable modules (dist).
+* Create another modulepath for composite modules that model larger services that you are delivering (site).
+* Allow modules in dist to depend only on other modules in dist.
+* Allow modules in site to depend on modules in dist and site.
+
+{{{
+/etc/puppet/modules/site
+/etc/puppet/modules/dist
+}}}
+
+h1. Classes
+
+h3. Classes in Puppet are used to model fundamental aspects of nodes.
+
+* Classes are declarative
+* Classes are singleton
+
+h1. Classes
+
+h3. Example: ssh client class.
+
+{{{
+<%= insert_code("ssh_class.pp") %>
+}}}
+
+
+h1. Classes
+
+h3. Classes also support single inheritance in which you can override resource parameters.
+
+h1. Classes
+
+h3. Example: ssh::server class
+
+{{{
+<%= insert_code("ssh_server_class.pp") %>
+}}}
+
+h1. Classes
+
+h3. You can also undef resource parameters.
+
+{{{
+<%= insert_code("undef.pp") %>
+}}}
+
+
+h1. Classes
+
+h3. You can also append values to a resource parameter.
+
+{{{
+<%= insert_code("plusignment.pp") %>
+}}}
+
+
+h1. Classes
+
+h3. You can also create relationships to classes using @require@ and @before@.
+
+{{{
+<%= insert_code("require_class.pp") %>
+}}}
+
+h1. Classes
+
+h3. Classes can be composed from other classes using the include function.
+
+{{{
+<%= insert_code("composite_class.pp") %>
+}}}
+
+h1. Puppet Modules
+
+h3. Exercise:  Convert our existing manifests into modules.
+
+h3. Create:
+* A @/etc/puppet/modules@ directory
+
+h3. Do:
+
+* Convert our ssh, sudoers and motd manifests to modules.
+* Use the @puppet apply@ executable with the @--modulepath@ argument to test the new modules.
+
+h1. Lab
+
+h3. Lab: bluetooth and bluetooth::disable classes.
+
+h3. Create:
+* A bluetooth module, @/etc/puppet/modules/bluetooth/@
+* A testing manifest, @/etc/puppet/modules/bluetooth/tests/init.pp@
+
+h3. Part 1:
+
+* Use a class bluetooth that ensures:
+** the package @bluez-libs@ and @bluez-utils@ are installed,
+** the service @hidd@ is running.
+* Edit @/etc/puppet/modules/bluetooth/tests/init.pp@ to include the bluetooth class, then use @puppet apply@ to test it.
+
+h3. Part 2:
+* Use a subclass called @bluetooth::disable@ that ensures that the @bluez-libs@ and @bluez-utils@ package are not installed, and that the @hidd@ service is disabled.
+* Edit @/etc/puppet/modules/bluetooth/tests/disable.pp@ to include the @bluetooth::disable@ class and use @puppet apply@ to test it.
+
+h1. Classes
+
+h3. Classes can be parameterised.
+
+* Parameterised classes can accept default values.
+* Parameterised classes can be included multiple times.
+* Parameterised classes can only be declared once.
+
+{{{
+<%= insert_code("parameterised_class.pp") %>
+}}}
+
+h1. Classes
+
+h3. Resource relationship abbreviation
+
+* Require and Before are expressed using @<-@ and @->@.
+* Subscribe and Notify are expressed using @<~@ and @~>@.
+
+{{{
+<%= insert_code("class_abbr_relationship.pp") %>
+}}}
+
+h1. Classes
+
+h3. Exercise: Bluetooth Class Parameterised
+
+h3. Update Bluetooth Class:
+
+* Modify bluetooth class to accept a parameter which specifies if the service should be enabled or disabled.
+* Modify bluetooth class to describe resource dependency using the abbreviated @->@ and @<-@ syntax.
+* Modify existing test, @tests/init.pp@, and verify new bluetooth class works as expected.
+
+h1. Defined Resource Types
+
+h3. Defined resource types behave like custom resource types.
+
+* Accepts Metaparameters
+* Can be used multiple times
+
+
+h1. Defined Resource Types
+
+h3. Vhost example
+
+{{{
+<%= insert_code("vhost.pp") %>
+}}}
+
+h1. Defined Resource Types
+
+h3. Using a defined resource example.
+
+{{{
+<%= insert_code("vhost_implemented.pp") %>
+}}}
+
+h1. Defined Resource Types
+
+h3. Exercise: User and group defined resource type.
+
+* Create a module, @/etc/puppet/modules/usermanagement/@
+* Use a defined resource type to parameterize user management.
+* Include management of home directories and group in the define.
+
+h1. Defined Resource Types
+
+h3. Defined resource types can take advantage of class inheritance and parameter overriding.
+
+{{{
+<%= insert_code("define_overide.pp") %>
+}}}
+
+h1. Defined Resource Types
+
+h3. We can use namespaces to refer to definitions in other classes.
+
+h3. Example:
+
+{{{
+<%= insert_code('qualified_definitions.pp') %>
+}}}
+
+h1. Scope
+
+h1. Variable Scope
+
+h3. Every class, definition, or node introduces a new scope.
+
+h1. Variable Scope
+
+h3. We can use namespaces to refer to variables in other classes.
+
+{{{
+<%= insert_code("qualified_variables.pp") %>
+}}}
+
+h1. Variable Scope
+
+h3. There is a top scope for variables declared outside of classes, defines, or nodes.
+
+h1. Variable Scope
+
+h3. Facts are set at top scope.
+
+{{{
+<%= insert_code('fact_topscope.pp') %>
+}}}
+
+h1. Variable Scope
+
+h3. Within a single scope variables cannot be re-declared.
+
+{{{
+<%= insert_code('scope_class.pp') %>
+}}}
+
+h1. Variable Scope
+
+h3. In non-overlapping scopes variables can be redeclared.
+
+{{{
+<%= insert_code('scope_inherits.pp') %>
+}}}
+
+h1. Variable Scope
+
+h3. Variables declared in scope are implicitly namespaced.
+
+{{{
+<%= insert_code('scope_var_namespace.pp') %>
+}}}
+
+h1. Variable Scope
+
+h3. Variables as resource parameters can be overridden to take advantage of qualified variable scopes.
+
+{{{
+<%= insert_code('scope_var_namespace_inherits.pp') %>
+}}}
+
+h1. Variable Scope
+
+h3. Include work around.
+
+h3. Use a variable assigned in the top scope and a include to reassign the value of @content@.
+
+{{{
+<%= insert_code('scope_include_workaround.pp') %>
+}}}
+
+h1. Variable Scope
+
+h3. But Order Matters!
+
+h3. Example: This is why I avoid this hack..
+
+{{{
+<%= insert_code('scope_avoid_hack.pp') %>
+}}}
+
+h1. Run Stages
+
+h3. Overview
+
+* Augments the already learned dependency structure by giving you an alternate facility for creating order.
+* You must understand parameterized classes to take advantage of run stages.
+* Currently intentionally limited.
+* Only entire classes can be put in a run stage.
+* Must declare run stage before you can use them.
+* "before" in previous bullet is meant to be taken in a literal sense. Run stages are affected by the same scoping issues as variables.
+
+h1. Run Stages
+
+h3. Declaring the run stages resource
+
+* You declare them like any other resource.
+* There is always an implied stage called main.
+* Stage main is the default stage for all classes.
+* Can use the @before@ and @require@ metaparamters to create stage ordering.  Their values are references to other stages.
+
+{{{
+<%= insert_code("declaring_stages.pp") %>
+}}}
+
+h1. Run Stages
+
+h3. Alternate way to create stage ordering
+
+* Instead of using the metaparameters @before@ and @require@ you can use the alternate dependency syntax.
+
+{{{
+<%= insert_code("alt_declaring_stages.pp") %>
+}}}
+
+h1. Run Stages
+
+h3. Run Stages in action
+
+* You must use parameterized classes
+
+{{{
+<%= insert_code("using_stages.pp") %>
+}}}
+
+h1. Lab
+
+h3. Lab: Run stages
+
+h3. Create:
+
+* A module @/etc/puppet/modules/stages/@
+
+h3. Use:
+
+* A class called @stages@ that contains a stage resource titled @first@ that will run before the @main@ stage.
+* Refactor your Securing SSH exercise into two parameterized classes.
+** Anything that needs to happen first needs be in a separate class than what runs second.
+* Add an include line for your @stages@ class in your @tests/init.pp@
+* Include your refactored class that contains resources that must run first using parameterized class syntax.
+** The parameter you will pass to the class will be @stage => 'first'@.
+* Add an include line for your class that contains resources that must run second.
+
+h1. More Resources
+
+h1. The Cron Resource
+
+h3. Attributes for the Cron Resource Type
+
+* @command@: The command executed in the cron job. (@namevar@)
+* @ensure@: absent, present
+* @minute@: The minute at which to run the cron job.
+* @hour@: The hour at which to run the cron job.
+* @monthday@: Day of month at which to run the cron job.
+* @month@: The month in which to run the cron job.
+* @weekday@: The weekday in which to run the cron job.
+* @user@: Set the user.
+
+
+h1. The Cron Resource
+
+{{{
+<%= insert_code('cron.pp') %>
+}}}
+
+
+h1. The Exec Resource
+
+h3. The @exec@ resource type executes external commands on the client.
+
+h1. The Exec Resource
+
+h3. Command is not required to be unique.
+
+{{{
+<%= insert_code('exec_updatedb.pp') %>
+}}}
+
+
+h1. The Exec Resource
+
+h3. Attributes:
+
+* @name@: (namevar)
+* @command@: Command to execute.
+* @user@: Sets the user for the command to run as.
+* @group@: Sets the group for the command to run as.
+* @creates@: Specifies a file that if exists the command does not run.
+* @onlyif@: A shell command that is run as a test to determine if the command should run.
+* @unless@: A shell command that is run as a test to determine if the command should not run.
+* @refresh@: Command to execute if the resource is refreshed due to a notify or subscribe metaparameter.
+* @refreshonly@: Only run the command if the resource is refreshed due to a notify or subscribe metaparameter
+* @cwd@: Sets the working directory.
+* @environment@: Sets other environment variables
+* @path@: Sets the path.
+* @returns@: Sets the expected return code.
+* @timeouts@: Sets the maximum time the command should take.
+* @logoutput@: Rather output should be logged. Default is @false@. Can also be @true@ or @on_failure@.
+* @retries@: number of retries. Default 0.
+* @sleep@: number of sec to sleep between retries.
+
+h1. The Exec Resource
+
+h3. Exercise: Create a simple exec that creates a new file. Ensure that the exec only runs if the file is not present.
+
+h1. Lab
+
+h3. Lab: Manage and Validate @/etc/sudoers@
+
+h3. Create:
+
+* A module, @/etc/puppet/modules/sudo/@
+* copy @/etc/sudoers@ to @/etc/puppet/modules/sudo/files/@ and remove some of the commented lines
+
+h3. Use:
+
+* A file resource to manage @/etc/sudoers@
+* An exec resource type to validate the sudo syntax using @visudo -c -f@.
+
+h1. Virtual Resources
+
+h3. Virtual Resources can be declared once but used throughout your configuration.
+
+h1. Virtual Resources
+
+h3. Creating a Virtual Resource
+
+{{{
+<%= insert_code('virtual_user.pp') %>
+}}}
+
+h1. Virtual Resources
+
+h3. Realizing a Virtual Resource
+
+{{{
+<%= insert_code('realize_user.pp') %>
+}}}
+
+h1. Virtual Resources
+
+h3. Using the spaceship operator
+
+{{{
+<%= insert_code('virtual_realize_by_title.pp') %>
+}}}
+
+h3. We realize all virtual resources of type @user@ and title foo.  In utility realizing by title is equivalent to the realize function.
+
+{{{
+<%= insert_code('virtual_realize_by_group.pp') %>
+}}}
+
+h3. We can also realize on any resource type attribute parameter. Here we realize all virtual resources of type @user@ and member of group wheel.
+
+h1. Virtual Resources
+
+h3. Exercise: Virtual Cron
+
+* Create a virtual_cron module with a virtual cron resource named logrotate.
+* Create a test, @tests/init.pp@, file that includes the virtual_cron class, and realizes the virtual cron.
+* Use @puppet apply@ to test your manifest.
+
+h1. File Fragment Pattern
+
+h1. File Fragment Pattern
+
+h3. Pattern is used to model individual lines of a file as distinct resources.
+
+h1. File Fragment Pattern
+
+h3. Here we use the file fragment pattern to break up inetd into separate resources.
+
+{{{
+<%= insert_code('class_inet.pp') %>
+}}}
+
+h1. File Fragment Pattern
+
+h3. A defined resource to create the file fragments we wish to model as a resource.
+
+{{{
+<%= insert_code('define_inet.pp') %>
+}}}
+
+h1. File Fragment Pattern
+
+h3. Now the new fragment creating resource can be used.
+
+{{{
+<%= insert_code('inet_fragment.pp') %>
+}}}
+
+h1. Lab
+
+h3. Lab: Modeling @/etc/services@
+
+h3. Create:
+
+* A services module: @/etc/puppet/modules/services/@
+
+h3. Use:
+
+* A define that creates a file fragment for each service.
+* A service class that manages the fragment and concatenates them into one file.
+* Run @puppet apply@ and create a test manifest, @tests/init.pp@, to test the services.
+
+h1. Functions
+
+h3. Functions are executed on the puppetmaster.
+
+<%= insert_img('puppet-functions-facts.png') %>
+
+h1. Functions
+
+h3. Puppet has two types of functions statements and rvalues.
+
+h1. Functions
+
+h3. Statements take actions without returning a value.
+
+h3. Example:
+
+{{{
+<%= insert_code('notice_function.pp') %>
+}}}
+
+h1. Functions
+
+h3. Some statement functions
+
+* tag: sets a tag for all resources contained in the current scope.
+* include: evaluate a class.
+* realize: makes a virtual resource real.
+* require: Evaluate one or more classes, adding the required class as a dependency.
+* fail: Fail with a parse error.
+
+h1. Functions
+
+h3. Rvalues are only used when a return value is required.
+
+h3. Example:
+
+{{{
+<%= insert_code('sha1.pp') %>
+}}}
+
+h1. Functions
+
+h3. Some rvalue functions
+
+* defined: returns a boolean value dependent on whether a class or resource is declared.
+* file: returns the contents of a file from the server.
+* generate: returns the results of an shell command.
+* tagged: returns true if the current container is tagged with specified tag or tags.
+* regsubst: regex string replacement.
+* sha1: returns a SHA1 hash value from a string.
+
+h1. Functions
+
+h3. Documentation
+
+http://docs.puppetlabs.com/references/latest/function.html
+
+h1. More Metaparameters
+
+* alias: creates an alias for a resource name.
+* audit: audit resource attributes.
+* noop: tells the resource to take no action. Can be true or false.
+* loglevel: sets loglevel value. Values can be debug, info, notice, warning, err, alert, emerg, crit, verbose.
+* schedule: sets a schedule for an resource to be managed.
+* tag: sets a tag.
+
+h1. More Metaparameters
+
+h3. Example of using schedule.
+
+{{{
+<%= insert_code('schedule.pp') %>
+}}}
+
+h1. More Metaparameters
+
+h3. Reference Documentation
+
+http://docs.puppetlabs.com/references/latest/metaparameter.html
+
+h1. Tags
+
+h3. Arbitrary tags can be applied to resources or collections of resources.
+
+h1. Tags
+
+h3. Using the tag metaparameter.
+
+{{{
+<%= insert_code("elvis_user_tag.pp") %>
+}}}
+
+h1. Tags
+
+h3. Using the tag function.
+
+{{{
+<%= insert_code("elvis_user_tag_function.pp") %>
+}}}
+
+{{{
+puppet apply -v --tags hounddog elvis_tags_function.pp
+}}}
+
+h1. Tags
+
+h3. Implicit tags
+
+{{{
+<%= insert_code("elvis_user_tag_implicit.pp") %>
+}}}
+
+{{{
+puppet apply -v --tags clowns elvis_tags_function.pp
+}}}
+
+h1. Nodes
+
+h3. Puppet node declarations look just like classes.
+
+h3. Example
+
+{{{
+<%= insert_code('node_foo.pp') %>
+}}}
+
+h1. Nodes
+
+h3. When the node foo.puppetlabs.com connects to the puppetmaster, it will be assigned the ssh class.
+
+h1. Nodes
+
+h3. They support inheritance.
+
+{{{
+<%= insert_code('node_base.pp') %>
+}}}
+
+
+h1. Nodes
+
+h3. You can also specify a node named default, which will be used if no directly matching node is found.
+
+{{{
+<%= insert_code('node_default.pp') %>
+}}}
+
+h1. Client Server Executables
+
+h1. Puppet Agent
+
+h3. The puppet agent daemon runs on all of your Puppet managed nodes.
+
+h3. It is responsible for:
+
+* sending facts to the puppetmaster
+* executing the returned catalog
+
+h1. Puppet Agent
+
+<%= insert_img('puppet-client-server.png') %>
+
+h1. Puppet Agent
+
+h3. The main configuration file for Puppet is @/etc/puppet/puppet.conf@.
+
+h3. It supports per executable and global configuration sections.
+
+* [main]
+* [agent]
+* [master]
+
+h1. Puppet Agent
+
+h3. Puppet Agent configuration options
+
+* vardir: location where Puppet stores dynamically growing information.
+* rundir: location where Puppet PID files are stored.
+* ssldir: location where SSL certificates are stored.
+* ca_server: the server to use for certificate authority requests.
+* server: the host name of the puppetmaster.
+
+h1. Puppet Agent
+
+h3. Example: @/etc/puppet/puppet.conf@
+
+{{{
+[main]
+  vardir = /var/lib/puppet
+  rundir = /var/run/puppet
+  ssldir = $vardir/ssl
+
+[agent]
+  ca_server = puppetca.puppetlabs.com
+  server = puppet.puppetlabs.com
+}}}
+
+h1. Puppet Agent
+
+h3. Some useful commandline arguments
+
+* @--no-daemonize@
+* @--debug@
+* @--configprint@
+* @--test@
+* @--tags@
+* @--waitforcert@
+
+h1. Puppet Master
+
+h3. Puppetmasterd is responsible for:
+
+* authenticating client connections
+* compiling manifests and templates
+* returning catalog to client
+* serving files
+
+h1. Puppet Master
+
+<%= insert_img('puppet-client-server.png') %>
+
+h1. Puppet Master
+
+h3. Some configuration options
+
+* modulepath: location of module directories.
+* manifest: path for site.pp.
+* manifestdir: path to the manifest directory.
+* certdnsnames: colon separated list of dns names to be added as aliases in the certs.
+* autosign: enables or disables autosigning or sets the path to the autosign.conf file.
+* ca: specifes whether or not to serve as a ca.
+
+h1. Puppet Master
+
+h3. Useful commandline options
+
+* @--no-daemonize@
+* @--debug@
+* @--verbose@
+* @--configprint@
+
+h1. Puppet Cert
+
+h3. The @puppet cert@ command is responsible for managing the client and server certificates.
+
+h1. Puppet Cert
+
+h3. When puppet agent runs for the first time, it:
+
+* generates a new certificate
+* sends a CSR to the server to be signed
+* by default checks for a signed cert every two minutes.
+
+h3. Unless autosigning is enabled, the certificates must be signed manually using puppet cert.
+
+h1. Puppet Cert
+
+h3. Listing the certificates that need to be signed.
+
+{{{
+puppet cert --list
+foo.puppetlabs.com
+}}}
+
+h1. Puppet Cert
+
+h3. Listing all the certificates.
+
+{{{
+puppet cert --list --all
++ betty.puppetlabs.com
+ foo.puppetlabs.com
++ test.puppetlabs.com
++ puppet.puppetlabs.com
++ andres.puppetlabs.com
+}}}
+
+h1. Puppet Cert
+
+h3. Signing the certificates.
+
+{{{
+puppet cert --sign foo.puppetlabs.com
+}}}
+
+h1. Puppet Cert
+
+h3. Revoking a certificate
+
+{{{
+puppet cert --revoke foo.puppetlabs.com
+Revoked certificate with serial 8
+}}}
+
+h1. Puppet Cert
+
+h3. Remove a certificate
+
+{{{
+puppet cert --clean foo.puppetlabs.com
+Removing /var/lib/puppet/ssl/ca/signed/foo.puppetlabs.com.pem
+Removing /var/lib/puppet/ssl/private_keys/foo.puppetlabs.com.pem
+Removing /var/lib/puppet/ssl/certs/foo.puppetlabs.com.pem
+}}}
+
+h1. Bootstrapping
+
+h3. Installing Puppet.
+
+* Automated provisioning of your systems is still necessary.
+* Your image should be the minimalized install that is required to bootstrap Puppet.
+* You should include the requirements for any resource types that you intend to use.
+ 
+
+h1. Lab
+
+h3. Lab: Bootstrapping Puppet
+
+h3. Create:
+
+* An @/etc/puppet/manifests/site.pp@ file.
+
+h3. Do:
+
+* Edit the @/etc/puppet/manifests/site.pp@ to include a @default@ node declaration and a @notice@ function.
+* Manually setup your Puppet master and client and verify that they can communicate.
+* Examine the certificates that need to be signed on the puppet master using the command @puppet cert@.
+* Create a node declaration for you Puppet client in @site.pp@ and include a module class.
+
+h1. Puppet Filebucket
+
+h3. Puppet can be configured to use a local or network filebucket.
+
+h3. Files that are modified/removed as part of a catalog execution are stored in the filebucket.
+
+h1. Puppet Filebucket
+
+h3. There is also @puppet filebucket@ executable that can be used to retrieve files from the filebucket.
+
+{{{
+puppet filebucket restore -l /tmp/passwd 429b225650b912a2ee067b0a4cf1e949
+}}}
+
+
+h1. Puppet Filebucket
+
+h3. The puppet filebucket executable can backup files.
+
+{{{
+puppet filebucket backup -l /etc/passwd
+}}}
+
+h1. Environments
+
+h3. Environments allow you to specify separate manifests, files, and templates on a single puppetmaster per environment.
+
+* Environment naming is arbitrary.
+* Default environment is called Production.
+
+h1. Environments
+
+h3. Configuring environments on your Puppetmaster.
+
+{{{
+#/etc/puppet/puppet.conf
+[production]
+  manifest = /etc/puppet/production/site.pp
+  modulepath = /etc/puppet/production/modules
+[development]
+  manifest = /etc/puppet/development/site.pp
+  modulepath = /etc/puppet/development/modules
+[test]
+  manifest = /etc/puppet/test/site.pp
+  modulepath = /etc/puppet/test/modules
+
+}}}
+
+h1. Environments
+
+h3. Puppet agent must know their environment.
+
+{{{
+[agent]
+  environment = development
+}}}
+
+h1. Environments
+
+<%= insert_img('environments.png') %>
+
+h1. Custom Facts
+
+h3. Puppet provides an api for developing custom facts.
+
+<%= insert_img('puppet-functions-facts.png') %>
+
+h1. Custom Facts
+
+h3. Example: simple fact to determine the role of a server.
+
+{{{
+# role.rb
+require 'facter'
+Facter.add("role") do
+  setcode do
+     Facter::Util::Resolution.exec("cat /etc/role")
+  end
+end
+}}}
+
+h1. Custom Facts
+
+h3. Create a @lib/facter@ directory inside a module called myfacts
+
+{{{
+mkdir -p /etc/puppet/modules/myfacts/lib/facter
+}}}
+
+h3. Export this path as ruby lib for testing.
+
+{{{
+export RUBYLIB=/etc/puppet/modules/myfacts/lib
+}}}
+
+h3. Place your custom fact inside of the @myfacts/lib/facter@ directory
+
+{{{
+cp role.rb $RUBYLIB/facter/.
+}}}
+
+h3. Execute facter
+
+{{{
+facter role
+}}}
+
+h1. Custom Facts
+
+h3. In order to distribute facts:
+
+* Place the facts in a @MODULEPATH/MODULENAME/lib/facter@ directory
+* Enable pluginsync in @/etc/puppet/puppet.conf@.
+
+{{{
+[main]
+pluginsync = true
+}}}
+
+h1. Lab
+
+h3. Lab: Create Custom @home@ fact
+
+h3. Create:
+
+* A @myfacts@ puppet module in @/etc/puppet/modules/@
+* A @/etc/puppet/modules/myfacts/lib/facter/@ sub directory
+* A file @/etc/puppet/modules/myfacts/lib/facter/home.rb@ for your fact
+
+h3. Do:
+
+* Write a custom fact @home@ that returns the user's home directory from the @$HOME@ environment variable.
+
+h3. More info:
+* Hint: Ruby hash ENV['HOME'] returns the $HOME environment variable.
+* Extra Credit: Develop a fact that returns all of your environment variables as facts.
+
+h1. Custom Functions
+
+h3. Puppet provides an api for developing custom Functions.
+
+h1. Custom Functions
+
+h3. Example:  Simple Function that returns the hostname of the Puppetmaster.
+
+{{{
+# mastername.rb
+require 'socket'
+module Puppet::Parser::Functions
+  newfunction(:mastername, :type => :rvalue ) do
+    Socket.gethostname.chomp
+  end
+end
+}}}
+
+h1. Custom Functions
+
+<%= insert_img('puppet-functions-facts.png') %>
+
+h1. Custom Functions
+
+h3. Create a @lib/puppet/parser/functions@ directory inside a module called myfunctions
+
+{{{
+mkdir -p /etc/puppet/modules/myfunctions/lib/puppet/parser/functions
+}}}
+
+h3. Because functions are part of the puppet language, they must be tested inside of a manifest as puppet code.
+
+{{{
+$mastername = mastername()
+notice("This server is managed by the $mastername puppetmaster")
+}}}
+
+h3. This function will now be available to puppet agent and puppet master as long as modulepath is set correctly.
+
+h1. Lab
+
+h3. Lab: Custom Encryption Function
+
+h3. Create:
+
+* On your puppetmaster: a @myfunctions@ puppet module in @/etc/puppet/modules/@
+* An @/etc/puppet/modules/myfunctions/lib/puppet/parser/functions/@ subdirectory
+* A file @/etc/puppet/modules/myfunctions/lib/puppet/parser/functions/mycrypt.rb@
+
+h3. Do:
+
+* Write a custom function called @mycrypt@ that returns an encrypted string when given a string as an argument.
+
+h3. Hint: Ruby encryption Example
+{{{
+require "digest/sha1"
+module Puppet::Parser::Functions
+  newfunction(:mycrypt, :type => :rvalue ) do |args|
+    Digest::SHA1.hexdigest(args[0])
+  end
+end
+}}}
+
+h1. Reporting
+
+h3. It is possible to configure puppet agent to generate and send a report to the puppet master after every Puppet run.
+
+h1. Reporting
+
+h3. Available Reports Handlers
+
+* http
+* log
+* rrdgraph
+* store
+* tagmail
+
+h1. Reporting
+
+h3. Log
+
+* Contains every log message in a transaction.
+* Can be used to centralize client logs into syslog.
+
+h1. Reporting
+
+h3. RRD Graph
+
+* Generates RRD graphs from transaction report data.
+* Requires Ruby's rrdtool library and the rrd binary.
+
+h1. Reporting
+
+h3. Store
+
+* Stores report data on puppetmaster as YAML.
+
+h1. Reporting
+
+h3. Tagmail
+
+* Delivers log reports via email for messages of notice or above.
+
+{{{
+#
+# /etc/puppet/tagmap.conf
+#
+
+all: fng@puppetlabs.com
+webserver: webadmin@puppetlabs.com
+}}}
+
+h1. Reporting
+
+h3. Processing reports
+
+The following methods from Puppet::Transaction::Report are available to your reports.
+
+* host - certificate name of reporting host
+* time - time when the report was generated
+* logs - list of log messages associated with report
+* metrics - metrics for report
+* resource_statuses - mapping of resource status for a run to events.
+
+h1. Reporting
+
+h3. Report Logs: Information about messages logged during a run.
+
+* level: loglevel
+* message:
+* source: resource that generated message.
+** @Puppet@ indicates the message was not generated by a resource.
+* tags: All tags associated with resource.
+* time: Time message was generated.
+* version: Version associated with message source.
+** config_version configuration parameter.
+** puppet version
+
+h1. Reporting
+
+h3. Report Metrics
+
+* time
+** schedule
+** Config retrieval
+** filebucket
+** resource times
+* resources
+** total, out of sync, failed, changed, skipped, failed to restart
+* events
+** totals, successful, failures
+
+h1. Reporting
+
+h3. Report resource status
+
+* Hashes resource id => Puppet::Resource::Status
+** Puppet::Resource::Status
+*** evaluation_time: resource evaluation time.
+*** events: events that have been triggered by resoureces.
+*** file: source file containing resource declaration
+*** line: line of the source file where resource is declared
+*** resource: resource id - Type['title']
+*** source_description: Fully qualified resource id
+*** tags: list of tags applied the resource
+*** time: when resource was evaluated
+*** version: version for certain configuration
+
+h1. Reporting
+
+h3. Events
+
+* When resources need to be synchronized, they create events.
+
+* Puppet::Transaction::Event
+** name:
+** desired_value: 
+** previous_value: !ruby/sym absent
+** message:
+** property:
+** resource:
+** status: success
+** tags:
+
+h1. Reporting
+
+h3. Puppet Agent
+
+{{{
+#
+# /etc/puppet/puppet.conf
+#
+[agent]
+    report = true
+
+}}}
+
+h1. Reporting
+
+h3. Puppet Master
+
+{{{
+#
+# /etc/puppet/puppet.conf
+#
+[master]
+    reports = tagmail,store,log
+}}}
+
+h1. Lab
+
+h1. Lab: Reporting with the Puppet Dashboard
+
+h3. Create:
+
+* Puppet Dashboard instance
+** @yum install puppet-dashboard mysql mysql-server@
+** @service mysqld start && chkconfig mysqld on@
+** @cd /usr/share/puppet-dashboard@
+** @rake RAILS_ENV=production db:create@
+** @rake RAILS_ENV=production db:migrate@
+** @service puppet-dashboard start && chkconfig puppet-dashboard on@
+
+h3. Do:
+
+* Point web browser at VM's ipaddress, port 3000. eg. @http://192.168.135.131:3000@
+* Verify that no nodes are in Dashboard yet.
+* Create directory: @mkdir -p /var/lib/puppet/lib/puppet/reports@
+* Copy report processor: @cp /usr/share/puppet-dashboard/ext/puppet/puppet_dashboard.rb /var/lib/puppet/lib/puppet/reports/@
+* Add @puppet_dashboard@ to the @reports=@ line in @puppet.conf@
+* Do a @puppet agent@ run to submit a report.
+* Verify that the agent's report appeared in the Dashboard.
+
+h1. External Nodes
+
+h3. Puppet allows you to specify an external nodes classification tool.
+
+* Replaces node declarations in @/etc/puppet/manifests/site.pp@.
+* Allows specification of a @list@ of classes and a @hash@ of parameters.
+* Variables are set at top scope.
+
+h1. External Nodes
+
+h3. Configuring
+
+{{{
+# /etc/puppet/puppet.conf on the puppetmaster
+[master]
+  node_terminus = exec
+  external_nodes = /usr/bin/puppet_external_node.rb
+}}}
+
+h1. External Nodes
+
+h3. When executed with @$certname@ as an argument, External Nodes scripts output YAML to STDOUT.:
+
+{{{
+classes:
+ - common
+ - puppet
+ - dns
+ - ntp
+parameters:
+ puppet_server: puppet.puppetlabs.net
+ dns_server: ns.puppetlabs.net
+ datacenter: slicehost
+}}}
+
+h1. External Nodes
+
+h3. Which is equivalent to
+
+{{{
+node "somenode.puppetlabs.net" {
+  $puppet_server = "puppet.puppetlabs.net"
+  $dns_server    = "ns.puppetlabs.net"
+  $datacenter    = "slicehost"
+  include common, puppet, dns, ntp
+}
+}}}
+
+h1. External Nodes
+
+<%= insert_img('NodeClassifier.png') %>
+
+h1. External Nodes
+
+h3. Exercise: External Nodes with the Puppet Dashboard
+
+* Modify @puppet.conf@ to use the Dashboard external_node script
+{{{
+[master]
+  node_terminus = exec
+  external_nodes = /usr/share/puppet-dashboard/bin/external_node
+}}}
+* @service puppet-dashboard restart@
+* Add your available classes to the dashboard by selecting @Add Class@
+* If a node is not already present in the dashboard, add a node with the client's $certname using the @Add node@ button.
+* Set parameters for that node and include some classes.
+* Verify that classes and parameters were assigned to nodes by doing a @puppet agent@ run.
+
+h3. Extra:
+
+* Create a group with parameters and classes
+* Assign nodes to the group
+
+h1. Exported Resources
+
+h3. Puppet has the ability to export resources to a database so that they can be collected and used on other hosts.
+
+{{{
+<%= insert_code('exported_resources.pp') %>
+}}}
+
+h1. Exported Resources
+
+h3. Allows nodes to collectively share information
+* requires configuration of storeconfigs.
+
+<%= insert_img('ExportedResources.png') %>
+
+h1. Exported Resources
+
+h3. But what if there is a host entry that we don't want to have in the @/etc/host@ files.
+
+* We can use the @resources@ resource to purge rogue entries.
+* Exported resources for decommissioned servers must be purged from the database using a script.
+
+h1. Lab
+
+h1. Lab: Configuring storeconfigs, exporting and collecting resources.
+
+h3. Create:
+
+* Storeconfigs database on your Puppet server
+** @yum install sqlite rubygem-sqlite3-ruby rubygem-rails@
+
+{{{
+# /etc/puppet/puppet.conf
+[master]
+  storeconfigs = true
+  dbadapter = sqlite3
+  dblocation = /var/lib/puppet/storeconfigs.sqlite
+}}}
+* You must restart puppet master to initialize the storeconfigs db.
+** @service puppetmaster restart@
+
+h3. Use:
+
+* The @resources@ resource to setup purging for invalid keys.
+* Using the ssh module, export all host sshkeys and collect them on all servers.
+
+h1. Future Architecture
+
+<%= insert_img('PuppetWorld.png') %>

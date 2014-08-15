@@ -1,0 +1,30 @@
+# .bashrc
+#bash variables
+export CDPATH=.:/etc/puppet/modules:/etc/puppet/manifests/extdata
+export EDITOR=/bin/vi
+export GIT_EDITOR=/bin/vi
+export PROMPT_COMMAND=$(history -a)
+#automatically logout any root user accounts that are inactive for more
+#than 30 min
+export TMOUT=1800
+
+set -o vi
+shopt -s cdspell
+shopt -s histappend
+
+# User specific aliases and functions
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
+fi
+
+if [ -e "/etc/puppet/modules" ]; then
+function pfind ()
+{
+  find /etc/puppet/modules /etc/puppet/manifests -type f -exec grep $1 {} /dev/null \; | grep -v ",v"|grep -v "JOE"|grep -v "Permission"|grep -v "~"
+}
+fi

@@ -1,0 +1,76 @@
+#!/bin/bash
+# $Id: backup_mysql_all,v 1.44 2010/09/01 21:22:30 kpanacy Exp $
+#
+# Created 2/08 by rbraun
+#
+# This will keep daily dumps of each production database in subdirectories
+# of /var/backup/mysql, by hostname and day of week.
+
+. /etc/manhunt/source.sh
+LOG=${CARE_LOG}
+
+echo START $APPNAME `date` >> $LOG
+
+USER=bkp
+PSWD=807d854bq
+## MySQL command syntax for creating bkp user:
+## Tera-Bactyl02:
+# GRANT SELECT,RELOAD,SUPER,REPLICATION CLIENT ON *.* TO '$USER'@'192.168.1.228' IDENTIFIED BY '$PSWD';
+## Tera-Bactyl03:
+# GRANT SELECT,RELOAD,SUPER,REPLICATION CLIENT ON *.* TO '$USER'@'192.168.1.194' IDENTIFIED BY '$PSWD';
+## Tera-Bactyl01:
+# GRANT SELECT,RELOAD,SUPER,REPLICATION CLIENT ON *.* TO '$USER'@'192.168.218.105' IDENTIFIED BY '$PSWD';
+
+# The --master-data option can be useful when taking a dump directly from a master server
+#
+####  BUT IS NEVER USEFUL 
+####  WHEN DUMPING A SLAVE.
+#
+####  AND THIS SCRIPT IS USED TO DUMP SLAVES.
+#
+####  THIS SAME SCRIPT IS USED FOR SLAVES THAT HAVE BINLOG DISABLED.  IT BREAKS.
+#
+# DON'T USE --master-data HERE!
+#
+
+DUMPOPTS="--flush-logs --all-databases --force -R --skip-opt --quick --single-transaction --add-drop-table --set-charset --create-options --no-autocommit --extended-insert"
+SCHEMA_DUMP_OPTS=" --flush-logs --force --no-data -R --triggers --events --all-databases" 
+
+## Did I remind you not to use --master-data?
+
+DESTDIR=/var/backup/mysql
+DAY=`date +%a`
+COMPRESS="bzip2 -f"
+COMPRESS_EXT="bz2"
+OLD_EXT="gz"
+
+if [ "$#" -eq "0" ]; then
+    echo "Usage: backup_mysql_all <days to keep> <list: instances>"
+    exit
+fi
+
+FREQUENCY=$1
+shift;
+
+for HOST in $@
+do
+    [ -d $DESTDIR/$HOST/$DAY ] || mkdir -p $DESTDIR/$HOST/$DAY
+ # Delete any lingering files that are over FREQUENCY days old:
+    /usr/bin/find $DESTDIR/$HOST/* -type f -mtime +$FREQUENCY -exec rm {} \; 2>&1 > /dev/null
+ # Schema only
+ # Delete any lingering files from a previous incarnation (or incantation) of this script, compressed or otherwise:
+    rm -f $DESTDIR/$HOST/$DAY/$HOST-schema.sql.$OLD_EXT
+    rm -f $DESTDIR/$HOST/$DAY/$HOST-schema.sql
+    SCHEMA_TARGET=$DESTDIR/$HOST/$DAY/$HOST-schema.sql
+    ( mysqldump -u $USER -p$PSWD $SCHEMA_DUMP_OPTS -h $HOST >$SCHEMA_TARGET ;  $COMPRESS $SCHEMA_TARGET & )
+ # Data
+ # Delete any lingering files from a previous incarnation (or incantation) of this script, compressed or otherwise:
+    rm -f $DESTDIR/$HOST/$DAY/$HOST-backup.sql.$OLD_EXT
+    rm -f $DESTDIR/$HOST/$DAY/$HOST-backup.sql
+    BACKUP_TARGET=$DESTDIR/$HOST/$DAY/$HOST-backup.sql
+    MASTER_STATUS=$DESTDIR/$HOST/$DAY/$HOST-master-status.txt
+    ( mysql -u $USER -p$PSWD -h $HOST -se "show slave status\G" >$MASTER_STATUS & )
+    ( mysqldump -u $USER -p$PSWD $DUMPOPTS -h $HOST >$BACKUP_TARGET ;  $COMPRESS $BACKUP_TARGET & )
+done
+
+echo FINISHED $APPNAME `date` >> $LOG 

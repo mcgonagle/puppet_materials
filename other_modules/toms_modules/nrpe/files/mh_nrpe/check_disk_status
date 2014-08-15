@@ -1,0 +1,35 @@
+#!/bin/sh
+# $Id: check_disk_status,v 1.5 2010/01/08 21:44:02 rbraun Exp $
+
+WARN=90
+CRIT=95
+
+MAX_USE=0
+
+# Note:  the programs 'cut' and 'awk' are in:
+#  /usr/bin on OpenSUSE
+#  /bin on RHEL
+# hence we do not specify the full path for those
+
+for disk in `/bin/egrep ":|^/dev" /etc/mtab |egrep -v "^/dev/loop" | cut -f2 -d\  `
+do
+  output=`/bin/df -H $disk | /bin/egrep -v "^Filesystem|tmpfs|cdrom"`
+  partition=$(/bin/echo $output | awk '{ print $1}' )
+  usep=$(/bin/echo $output | awk '{ print $5}' | cut -d'%' -f1  )
+  if [ $usep -gt $MAX_USE ]
+  then
+    MAX_USE=$usep
+    BIGGEST_PART=$partition
+  fi
+  if [ \! $usep ]; then
+    # probably stale file handle
+    exit 1;
+  fi
+done
+echo $BIGGEST_PART at $MAX_USE%
+if [ $MAX_USE -ge $CRIT ]; then
+  exit 2;
+elif [ $MAX_USE -ge $WARN ]; then
+  exit 1;
+fi
+exit 0;

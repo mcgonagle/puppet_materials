@@ -1,0 +1,124 @@
+#!/bin/bash
+# v4_media_backup
+#
+# $Id: v4_media_backup,v 1.3 2009/03/23 20:19:10 wflynn Exp $
+#
+# Created 03/2009 by wflynn
+#
+# Script to manange rsync of v4 media to backup
+#
+HOST=$1
+SHARE=$2
+ERROR=1
+FLAGFILE=/var/tmp/v4media_backup_${1}_${2}
+DESTDIR=/var/backup/v4media
+LOG=${FLAGFILE}.log
+VERBOSITY=-v
+DRYRUN=""
+#BWLIMIT="--bwlimit=500"
+BWLIMIT=""
+
+# Run as care.
+if [ "$USER" != "care" ]
+then
+    echo "Must be care to run this script."
+    exit $ERROR
+fi
+
+if [ "`touch $LOG`" != "" ]
+then
+    echo "Cannot write to logfile."
+    exit $ERROR
+fi
+
+# Interlock - check to see if script still running from previous instance
+
+[ -e ${FLAGFILE}.pid ] && [ -e /proc/`cat ${FLAGFILE}.pid` ] && exit 0
+
+echo $$ > ${FLAGFILE}.pid
+
+[ "$VERBOSITY" = "" ] || echo START v4media_backup_${1}_${2} `date` > $LOG
+
+[ -d ${DESTDIR}/${HOST}/temp ] || mkdir -p ${DESTDIR}/${HOST}/temp
+
+case "$SHARE" in
+    data1)
+# EVEN SYSTEM /data1:
+	for i in 0 1 2 3; do
+	    for j in 0 2 4 6 8 A C E; do
+		[ "$VERBOSITY" = "" ] || echo Synching /data1/$i$j EVEN `date` >> $LOG
+		rsync --partial --partial-dir=${DESTDIR}/${HOST}/temp ${BWLIMIT} ${DRYRUN} -a ${HOST}:/data1/$i$j ${DESTDIR}/${HOST} 2>&1 >> $LOG
+	    done;
+	done
+
+# ODD SYSTEM /data1:
+	for i in 0 1 2 3; do
+	    for j in 1 3 5 7 9 B D F; do
+		[ "$VERBOSITY" = "" ] || echo Synching /data1/$i$j ODD `date` >> $LOG
+		rsync --partial --partial-dir=${DESTDIR}/${HOST}/temp ${BWLIMIT} ${DRYRUN} -a ${HOST}:/data1/$i$j ${DESTDIR}/${HOST} 2>&1 >> $LOG
+	    done;
+	done
+	;;
+
+    data2)
+# EVEN SYSTEM /data2:
+	for i in 4 5 6 7; do
+	    for j in 0 2 4 6 8 A C E; do
+		[ "$VERBOSITY" = "" ] || echo Synching /data2/$i$j EVEN `date` >> $LOG
+		rsync --partial --partial-dir=${DESTDIR}/${HOST}/temp ${BWLIMIT} ${DRYRUN} -a ${HOST}:/data2/$i$j ${DESTDIR}/${HOST} 2>&1 >> $LOG
+	    done;
+	done
+
+# ODD SYSTEM /data2:
+	for i in 4 5 6 7; do
+	    for j in 1 3 5 7 9 B D F; do
+		[ "$VERBOSITY" = "" ] || echo Synching /data2/$i$j ODD `date` >> $LOG
+		rsync --partial --partial-dir=${DESTDIR}/${HOST}/temp ${BWLIMIT} ${DRYRUN} -a ${HOST}:/data2/$i$j ${DESTDIR}/${HOST} 2>&1 >> $LOG
+	    done;
+	done
+	;;
+
+    data3)
+# EVEN SYSTEM /data3:
+	for i in 8 9 A B; do
+	    for j in 0 2 4 6 8 A C E; do
+		[ "$VERBOSITY" = "" ] || echo Synching /data3/$i$j EVEN `date` >> $LOG
+		rsync --partial --partial-dir=${DESTDIR}/${HOST}/temp ${BWLIMIT} ${DRYRUN} -a ${HOST}:/data3/$i$j ${DESTDIR}/${HOST} 2>&1 >> $LOG
+	    done;
+	done
+
+# ODD SYSTEM /data3:
+	for i in 8 9 A B; do
+	    for j in 1 3 5 7 9 B D F; do
+		[ "$VERBOSITY" = "" ] || echo Synching /data3/$i$j ODD `date` >> $LOG
+		rsync --partial --partial-dir=${DESTDIR}/${HOST}/temp ${BWLIMIT} ${DRYRUN} -a ${HOST}:/data3/$i$j ${DESTDIR}/${HOST} 2>&1 >> $LOG
+	    done;
+	done
+	;;
+
+    data4)
+# EVEN SYSTEM /data4:
+	for i in C D E F; do
+	    for j in 0 2 4 6 8 A C E; do
+		[ "$VERBOSITY" = "" ] || echo Synching /data4/$i$j EVEN `date` >> $LOG
+		rsync --partial --partial-dir=${DESTDIR}/${HOST}/temp ${BWLIMIT} ${DRYRUN} -a ${HOST}:/data4/$i$j ${DESTDIR}/${HOST} 2>&1 >> $LOG
+	    done;
+	done
+
+# ODD SYSTEM /data4:
+	for i in C D E F; do
+	    for j in 1 3 5 7 9 B D F; do
+		[ "$VERBOSITY" = "" ] || echo Synching /data4/$i$j ODD `date` >> $LOG
+		rsync --partial --partial-dir=${DESTDIR}/${HOST}/temp ${BWLIMIT} ${DRYRUN} -a ${HOST}:/data4/$i$j ${DESTDIR}/${HOST} 2>&1 >> $LOG
+	    done;
+	done
+	;;
+    *)
+	echo "Unknown argument: $SHARE"
+	;;
+esac
+rm ${FLAGFILE}.pid
+[ "$VERBOSITY" = "" ] || echo FINISH v4media_backup_${1}_${2} `date` >> $LOG
+
+exit 0
+

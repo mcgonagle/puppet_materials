@@ -1,0 +1,75 @@
+# WARNING - The UUID defined below must be unique for each agent.
+#
+# To use this INI file as a template for configuring additional
+# agents, do not simply copy and start a new agent without first
+# modifying the UUID and adjusting other parameters as necessary.
+#
+# WARNING - If you are upgrading from a previous 1.x release, please
+# note that we have changed the contents of the agent INI file and
+# split the contents across two files:
+#
+#   <installdir>/etc/mysql-monitor-agent.ini              - this file
+#   <installdir>/etc/instances/mysql/agent-instance.ini   - new file
+#
+# Refer to the documentation for more detailed information and
+# instructions.
+# 
+# NOTE - This Enterprise Service Agent is not configured to enable
+# Query Analyzer for the MySQL servers it is monitoring.  To enable
+# Query Analyzer:
+#
+#   1) Change plugins=agent to plugins=proxy,agent
+#   2) Remove the # character from the beginning of all the proxy-xxx lines
+#   3) Add the following to the end of agent-item-files:
+#        ,share/mysql-monitor-agent/items/quan.lua
+# 
+# Version: 2.3.1.2044
+
+[mysql-proxy]
+
+# Common Parameters
+<% if has_variable?("agent_query_analyzer") then %>
+plugins=proxy,agent
+<% else %>
+plugins=agent
+<% end %>
+keepalive = true
+
+log-file = mysql-monitor-agent.log
+pid-file=/opt/mysql/enterprise/agent/mysql-monitor-agent.pid
+
+
+
+
+# Agent Parameters
+agent-mgmt-hostname = http://<%= agent_mgmt_hostname %>:18080/heartbeat
+agent-mgmt-username = <%= agent_mgmt_username %>
+agent-mgmt-password = <%= agent_mgmt_password %>
+mysqld-instance-dir= etc/instances
+<% if has_variable?("agent_query_analyzer") then %>
+agent-item-files = share/mysql-monitor-agent/items/items-mysql-monitor.xml,share/mysql-monitor-agent/items/items-mysql-cluster.xml,share/mysql-monitor-agent/items/custom.xml,share/mysql-monitor-agent/items/quan.lua
+<% else %>
+agent-item-files = share/mysql-monitor-agent/items/items-mysql-monitor.xml,share/mysql-monitor-agent/items/items-mysql-cluster.xml,share/mysql-monitor-agent/items/custom.xml
+<% end %>
+agent-uuid = <%= `if test -f /var/lib/puppet/firstrun/agent-uuid; then cat /var/lib/puppet/firstrun/agent-uuid; else /opt/mysql/enterprise/agent/bin/mysql-monitor-agent --agent-generate-uuid > /var/lib/puppet/firstrun/agent-uuid && cat /var/lib/puppet/firstrun/agent-uuid; fi` %>
+user = root
+
+# Aggregator Parameters
+#aggr-address=:14000
+#aggr-lua-script=lib/mysql-aggregator/lua/aggr.lua
+#aggr-mem-baseurl=http://127.0.0.1:18080/v2/rest
+#aggr-ssl-address=:14443
+#aggr-ssl-cert-file=
+#aggr-ssl-ca-file=
+
+<% if has_variable?("agent_query_analyzer") then %>
+# Proxy Parameters
+proxy-address=:6446
+proxy-backend-addresses = 127.0.0.1:3306
+proxy-lua-script = lib/mysql-monitor-agent/lua/quan.lua
+<% end %>
+
+
+
+
+

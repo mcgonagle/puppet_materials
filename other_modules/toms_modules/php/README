@@ -1,0 +1,40 @@
+Puppet module: php
+
+# Written by Lab42 extended by tmcgonagle
+# http://www.example42.com
+
+Licence: GPLv3
+
+
+DESCRIPTION:
+This module installs and manages php.
+Standard and extended classes are available.
+Decide and customize how you want to define configation files: static files, templates, infile modifications...
+
+
+USAGE:
+# Standard Classes 
+include php              # Install and run php with standard configurations.
+include php::disable     # Disable php service.
+include php::disableboot # Disable php service at boot time, but don't stop if it's running.
+include php::absent      # Remove php package.
+
+# Extended Classes (require storeconfings)
+
+# Extra Classes
+include php::pecl         # Install php pecl with default settings
+include php::pear         # Install php pear with default settings
+
+# Generic main configuration infile modification Define
+php::conf { "ParameterName": value="YourValue"} 
+
+# Extra Defines
+
+# php::module, php::pecl and php::pear manage installation of php and pear modules
+php::module { mysql: }     # Installs mysql module for php
+php::pecl { Crypt-CHAP: }  # Installs pecl component
+php::pear { Crypt-CHAP: }  # Installs pear component
+
+
+DEPENDENCIES:
+apache

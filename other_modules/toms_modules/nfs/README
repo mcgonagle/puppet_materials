@@ -1,0 +1,22 @@
+Puppet module: nfs
+
+# Written by Tom McGonagle #
+# mcgonagle@gmail.com
+# Google Voice (617)229-5185
+# http://www.puppetll.com
+
+
+DESCRIPTION:
+This module installs and manages nfs software
+Standard and extended classes are available.
+Decide and customize how you want to define configation files: static files, templates, infile modifications...
+
+
+USAGE:
+# Standard Classes 
+include nfs              # Install and run nfs with standard configurations.
+include nfs::disable     # Disable nfs service.
+include nfs::disableboot # Disable nfs service at boot time, but don't stop if it's running.
+include nfs::absent      # Remove nfs package.
+
+DEPENDENCIES:

@@ -1,0 +1,7 @@
+* Install the required sqlite packages.
+* Append the content of puppet.conf to /etc/puppet/puppet.conf on your puppetmaster.
+* Copy the ssh module provided into your modulepath.
+* Restart you puppet master.
+* Run puppet agent on the server and client.
+* Notice that both the client and server keys are in /etc/ssh/ssh_known_hosts on both machines.
+* Add a fake entry and notice that the entry is purged. 

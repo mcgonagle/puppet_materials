@@ -1,0 +1,196 @@
+head	1.7;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.7
+date	2008.09.10.12.31.55;	author rbraun;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	2008.09.10.12.19.20;	author rbraun;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	2008.09.10.12.13.50;	author rbraun;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	2008.09.10.11.59.18;	author rbraun;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2008.09.09.20.17.35;	author rbraun;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2008.03.12.19.17.55;	author rbraun;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2008.02.27.01.32.29;	author rbraun;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.7
+log
+@*** empty log message ***
+@
+text
+@#!/bin/bash
+# $Id: backup_photos,v 1.6 2008/09/10 12:19:20 rbraun Exp rbraun $
+
+# Created by rbraun 2/08
+#  Run this from the backup server as user care
+#  Files will be sync'ed to /var/backup/photos/{hostname}/[0-9]
+
+#  Maximum data rate is 7 Mbytes/sec
+
+DESTDIR=/var/backup/photos
+LOG=/var/tmp/backup_photos.log
+RATE=7000
+VERBOSITY=-v
+
+if [ "$1" = "" ]
+then
+  echo Usage: backup_photos host1 [ host2 host3 etc ]
+  exit 1
+fi
+
+if [ "`touch $LOG`" != "" ]
+then
+  echo "Cannot write to logfile."
+  exit $ERROR
+fi
+
+# Interlock - check to see if script still running from previous instance
+
+[ -e /var/tmp/backup_photos.pid ] && [ -e /proc/`cat /var/tmp/backup_photos.pid` ] && exit 0
+echo $$ > /var/tmp/backup_photos.pid
+
+[ "$VERBOSITY" = "" ] || echo START backup_photos `date` >> $LOG
+
+for HOST in $@@
+do
+  [ -d $DESTDIR/$HOST ] || mkdir -p $DESTDIR/$HOST
+  [ "$VERBOSITY" = "" ] || echo " -- starting $HOST at `date +%H:%M:%S`" >> $LOG
+  rsync -a --delete --bwlimit=$RATE $HOST:/var/manhunt/photos/[0-9] $DESTDIR/$HOST 2>&1 >> $LOG
+done
+
+rm /var/tmp/backup_photos.pid
+[ "$VERBOSITY" = "" ] || echo FINISH backup_photos `date` >> $LOG
+
+exit 0
+@
+
+
+1.6
+log
+@*** empty log message ***
+@
+text
+@d2 1
+a2 1
+# $Id: backup_photos,v 1.5 2008/09/10 12:13:50 rbraun Exp rbraun $
+d5 1
+a5 1
+#  Run this from the backup server as user apache
+d21 6
+@
+
+
+1.5
+log
+@*** empty log message ***
+@
+text
+@d2 1
+a2 1
+# $Id: backup_photos,v 1.4 2008/09/10 11:59:18 rbraun Exp rbraun $
+d15 6
+@
+
+
+1.4
+log
+@Logging
+@
+text
+@d2 1
+a2 1
+# $Id: backup_photos,v 1.3 2008/09/09 20:17:35 rbraun Exp rbraun $
+d30 2
+a31 1
+[ "$VERBOSITY" = "" ] || echo FINISH backup_photos `date`
+@
+
+
+1.3
+log
+@added PID interlock
+@
+text
+@d2 1
+a2 1
+# $Id: backup_photos,v 1.2 2008/03/12 19:17:55 rbraun Exp rbraun $
+d13 1
+d20 1
+a20 1
+echo START backup_photos `date`
+d25 2
+a26 1
+  rsync -a --delete --bwlimit=$RATE $HOST:/var/manhunt/photos/[0-9] $DESTDIR/$HOST
+d30 1
+a30 1
+echo FINISH backup_photos `date`
+@
+
+
+1.2
+log
+@minor cleanup
+@
+text
+@d2 1
+a2 1
+# $Id: backup_photos,v 1.1 2008/02/27 01:32:29 rbraun Exp rbraun $
+d8 2
+d11 7
+d19 3
+a21 1
+for HOST in nfs01 nfs02 nfs04 nfs05 nfs06 nfs07 
+d24 1
+a24 1
+  rsync -a --delete --bwlimit=7000 $HOST:/var/manhunt/photos/[0-9] $DESTDIR/$HOST
+d26 4
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 1
+a2 1
+# $Id: creativesync,v 1.2 2008/02/12 19:52:03 rbraun Exp $
+d8 3
+a10 1
+for host in nfs01 nfs02 nfs04 nfs05 nfs06 nfs07 
+d12 2
+a13 1
+  rsync -a --delete --bwlimit=7000 $host:/var/manhunt/photos/[0-9] /var/backup/photos/$host
+@

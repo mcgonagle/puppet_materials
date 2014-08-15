@@ -1,0 +1,188 @@
+head	1.2;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.2
+date	2008.07.03.21.00.15;	author wflynn;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2008.07.03.19.40.51;	author rbraun;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.2
+log
+@New paradigm for this, moving writes off of db06.  JIRA: SYS-738
+@
+text
+@#!/bin/sh
+# dailyclean.sh
+# $Id: $
+#
+. /etc/manhunt/source.sh
+
+APASS=${ARCH_PASSWD}
+AUSER=${ARCH_USER}
+PASS=${DBPASSWD}
+USER=${DBUSER}
+DB=${MANHUNTDB}
+HOST=${MHDBMASTERHOST}
+LOG=${CARE_LOG}
+
+# Run as care.
+if [ "$UID" -ne "$CARE_UID" ]
+then
+  echo "Must be care to run this script."
+  exit $ERROR
+fi  
+
+if [ "`$MYSQL -u $USER -h $HOST -p$PASS $DB -e 'show databases'`" == "" ]
+then
+ echo "Cannot connect to database: $TESTHOST."
+ exit $ERROR
+fi
+ 
+if [ "`touch $LOG`" != "" ]
+then 
+ echo "Cannot write to logfile."
+ exit $ERROR
+fi
+
+rm -f ${LOG}
+TABLE="PreviewLimits"
+CSVFILE="${TEMP}/${TABLE}.csv"
+# Archive, zero and e-mail PreviewLimits
+$MYSQL -u $USER -h $HOST --password=$PASS $DB -e "SELECT uid,messagesSent,messagesRead,profilesViewed,NOW() FROM ${TABLE}" --skip-column-names | 's/[^tab]NULL[^tab]/ \\N /g' > ${CSVFILE}
+ONE=`$MYSQL -u $USER -h $DWHOST --password=$PASS $ARCHDB -e "SELECT COUNT(*) as PreviewLimitRowBefore FROM ${TABLE}"`
+$MYSQLIMPORT -v -u $AUSER -h $DWHOST --password=$APASS $ARCHDB ${CSVFILE} >> ${LOG}
+TWO=`$MYSQL -u $USER -h $DWHOST --password=$PASS $ARCHDB -e "SELECT COUNT(*) as PreviewLimitRowAfter FROM ${TABLE}"`
+THREE=`$MYSQL -u $USER -h $HOST --password=$PASS $DB -e "TRUNCATE ${TABLE}" `
+echo $ONE $TWO $THREE |  /bin/mail -s "preview limits dailyproddb" ${MHMONITOR}
+
+TABLE="Bones"
+CSVFILE="${TEMP}/${TABLE}.csv"
+# Archive, zero and e-mail Winks
+$MYSQL -u $USER -h $HOST --password=$PASS $DB -e "SELECT * FROM ${TABLE}" --skip-column-names | 's/[^tab]NULL[^tab]/ \\N /g' > ${CSVFILE}
+ONE=`$MYSQL -u $USER -h $DWHOST --password=$PASS $ARCHDB -e "SELECT COUNT(*) as ${TABLE}Before FROM ${TABLE}"`
+$MYSQLIMPORT -v -u $AUSER -h $DWHOST --password=$APASS $ARCHDB ${CSVFILE} >> ${LOG}
+TWO=`$MYSQL -u $USER -h $DWHOST --password=$PASS $ARCHDB -e "SELECT COUNT(*) as ${TABLE}After FROM ${TABLE}"`
+THREE=`$MYSQL -u $USER -h $HOST --password=$PASS $DB -e "TRUNCATE ${TABLE}" `
+echo $ONE $TWO $THREE |  /bin/mail -s "winks dailyproddb" ${MHMONITOR}
+
+TABLE="PaidUsers"
+CSVFILE="${TEMP}/${TABLE}.csv"
+# Archive and e-mail count of ${TABLE}
+$MYSQL -u $USER -h $HOST --password=$PASS $DB -e "SELECT uid, CURRENT_DATE(),state_code,city_id,state,country,county_code,city,zip,zipCan,neighborhood FROM Users WHERE type='paid'" --skip-column-names | 's/[^tab]NULL[^tab]/ \\N /g' > ${CSVFILE}
+ONE=`$MYSQL -u $USER -h $DWHOST --password=$PASS $ARCHDB -e "SELECT COUNT(*) as ${TABLE}Before FROM ${TABLE}"`
+$MYSQLIMPORT -v -u $AUSER -h $DWHOST --password=$APASS $ARCHDB ${CSVFILE} >> ${LOG}
+THREE=`$MYSQL -u $USER -h $DWHOST --password=$PASS $ARCHDB -e "SELECT COUNT(*) as ${TABLE}After FROM ${TABLE}"`
+echo $ONE $THREE |  /bin/mail -s "paid users dailyproddb" ${MHMONITOR}
+
+TABLE="TypeStatus"
+CSVFILE="${TEMP}/${TABLE}.csv"
+# Archive and e-mail all status * type.
+$MYSQL -u $USER -h $HOST --password=$PASS $DB -e "SELECT COUNT(*),type,status,current_date(),state_code FROM Users group by type,status,state_code"  --skip-column-names | 's/[^tab]NULL[^tab]/ \\N /g' > ${CSVFILE}
+$MYSQLIMPORT -v -u $AUSER -h $DWHOST --password=$APASS $ARCHDB ${CSVFILE} >> ${LOG}
+ONE=`$MYSQL -u $USER -h $HOST --password=$PASS $DB -e "SELECT COUNT(*),type,status,current_date(),state_code FROM Users group by status,type,state_code with rollup"`
+echo $ONE |  /bin/mail -s "all statuses dailyproddb" ${MHMONITOR}
+
+TABLE="HighScores"
+CSVFILE="${TEMP}/${TABLE}.csv"
+# update ${TABLE}
+# UPDATE HIGHSCORE BY HIGHTODAY IF TODAY'S SCORE IS A RECORD SCORE
+ONE=`$MYSQL -u $USER -h $HOST --password=$PASS $DB -vv -e "SELECT * from ${TABLE} ORDER BY state_code"`;
+TWO=`$MYSQL -u $USER -h $HOST --password=$PASS $DB -vv -e "UPDATE ${TABLE} SET highScore=highToday, currentDay=now() WHERE highToday > highScore"`;
+
+# SET TODAY'S SCORE TO YESTERDAY'S SCORE AND INITIAL TODAY'S SCORE
+THREE=`$MYSQL -u $USER -h $HOST --password=$PASS $DB -vv -e "UPDATE ${TABLE} SET highYesterday=highToday, highToday=0"`;
+
+# SHOW ME THE SCORES
+echo $ONE $TWO $THREE |  /bin/mail -s "high scores dailyproddb" ${MHMONITOR}
+
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 12
+a13 9
+
+PASS="LQSyM"
+USER="apache"
+DB="manhunt"
+CARE_UID=500
+BIN=/usr/bin/mysql
+HOST=192.168.1.184
+LOG=/home/care/dailyclean.log
+ERROR=1
+d18 1
+a18 1
+ echo "Must be care to run this script."
+d22 1
+a22 1
+if [ "`$BIN -u $USER -h $HOST -p$PASS $DB -e 'show databases'`" == "" ]
+d24 2
+a25 2
+echo "Cannot connect to database."
+exit $ERROR
+d27 1
+a27 1
+
+d30 2
+a31 2
+echo "Cannot write to logfile."
+exit $ERROR
+d34 3
+d38 6
+a43 5
+$BIN -u $USER -h $HOST --password=$PASS $DB -e "INSERT INTO Archives.PreviewLimits (uid,messagesSent,messagesRead,profilesViewed,onDate) SELECT uid,messagesSent,messagesRead,profilesViewed,NOW() FROM PreviewLimits"
+ONE=`$BIN -u $USER -h $HOST --password=$PASS $DB -e "SELECT COUNT(*) as PreviewLimitRowBefore FROM PreviewLimits"`
+TWO=`$BIN -u $USER -h $HOST --password=$PASS $DB -e "TRUNCATE PreviewLimits" `
+THREE=`$BIN -u $USER -h $HOST --password=$PASS $DB -e "SELECT COUNT(*) as PreviewLimitRowAfter FROM PreviewLimits"`
+echo $ONE $TWO $THREE |  /bin/mail -s "preview limits dailyproddb" monitor@@manhunt.net
+d45 2
+d48 15
+a62 11
+$BIN -u $USER -h $HOST --password=$PASS $DB -e "INSERT INTO Archives.Bones SELECT * FROM Bones"
+ONE=`$BIN -u $USER -h $HOST --password=$PASS $DB -e "SELECT COUNT(*) as BonesBefore FROM Bones"`
+TWO=`$BIN -u $USER -h $HOST --password=$PASS $DB -e "TRUNCATE Bones" `
+THREE=`$BIN -u $USER -h $HOST --password=$PASS $DB -e "SELECT COUNT(*) as BonesAfter FROM Bones"`
+echo $ONE $TWO $THREE |  /bin/mail -s "winks dailyproddb" monitor@@manhunt.net
+
+# Archive and e-mail count of PaidUsers
+#ONE=`$BIN -u $USER -h $HOST --password=$PASS $DB -e "SELECT COUNT(*) as PaidUsersBefore FROM Archives.PaidUsers"`
+#$BIN -u $USER -h $HOST --password=$PASS $DB -e "INSERT INTO Archives.PaidUsers (uid,whn,state_code,city_id,state,country,county_code,city,zip,zipCan,neighborhood) SELECT uid, CURRENT_DATE(),state_code,city_id,state,country,county_code,city,zip,zipCan,neighborhood FROM Users WHERE type='paid'"
+#THREE=`$BIN -u $USER -h $HOST --password=$PASS $DB -e "SELECT COUNT(*) as PaidUsersAfter FROM Archives.PaidUsers"`
+#echo $ONE $THREE |  /bin/mail -s "paid users dailyproddb" monitor@@manhunt.net
+d64 2
+d67 8
+a74 5
+ONE=`$BIN -u $USER -h $HOST --password=$PASS $DB -e "SELECT COUNT(*),type,status,current_date(),state_code FROM Users group by status,type,state_code with rollup"`
+$BIN -u $USER -h $HOST --password=$PASS $DB -e "INSERT INTO Archives.TypeStatus (num,type,status,whn,state_code) SELECT COUNT(*),type,status,current_date(),state_code FROM Users group by type,status,state_code"
+echo $ONE $TWO |  /bin/mail -s "all statuses dailyproddb" monitor@@manhunt.net
+
+# update HighScores
+d76 2
+a77 2
+ONE=`$BIN -u $USER -h $HOST --password=$PASS $DB -vv -e "SELECT * from HighScores ORDER BY state_code"`;
+TWO=`$BIN -u $USER -h $HOST --password=$PASS $DB -vv -e "UPDATE HighScores SET highScore=highToday, currentDay=now() WHERE highToday > highScore"`;
+d80 1
+a80 1
+THREE=`$BIN -u $USER -h $HOST --password=$PASS $DB -vv -e "UPDATE HighScores SET highYesterday=highToday, highToday=0"`;
+d83 1
+a83 1
+echo $ONE $TWO $THREE |  /bin/mail -s "high scores dailyproddb" monitor@@manhunt.net
+@

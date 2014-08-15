@@ -1,0 +1,12 @@
+Puppet module: cron
+
+Licence: GPLv3
+
+DESCRIPTION:
+This module manages installation of cron on different OS
+
+
+USER VARIABLES:
+
+USAGE:
+include cron              # Install cron package

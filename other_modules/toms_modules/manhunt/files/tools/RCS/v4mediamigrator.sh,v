@@ -1,0 +1,51 @@
+head	1.2;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.2
+date	2009.06.29.15.42.30;	author wflynn;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2009.06.29.15.34.47;	author wflynn;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.2
+log
+@Just starting
+@
+text
+@#!/bin/bash
+#
+# v4mediamigrator.sh
+#
+# $Id: $
+#
+# WFlynn 06/09
+#
+# Stupid script for copying and listing v4 media files for migration from one volume to another
+#
+
+
+INFILE=${1}
+
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 14
+@

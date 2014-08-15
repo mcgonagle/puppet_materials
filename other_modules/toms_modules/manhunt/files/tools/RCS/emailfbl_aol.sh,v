@@ -1,0 +1,546 @@
+head	1.16;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.16
+date	2009.09.25.16.06.43;	author rbraun;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	2009.09.25.15.36.28;	author rbraun;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	2009.09.25.13.09.17;	author rbraun;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	2009.03.31.19.11.25;	author wflynn;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	2009.03.27.20.44.19;	author wflynn;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	2008.10.28.20.56.49;	author rbraun;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	2008.10.28.20.03.30;	author rbraun;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	2008.10.28.19.32.17;	author sfrattura;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	2008.10.28.16.14.37;	author rbraun;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	2008.10.28.16.08.01;	author rbraun;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	2008.10.28.15.49.40;	author rbraun;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	2008.10.23.16.44.46;	author sfrattura;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	2008.10.23.16.22.04;	author rbraun;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2008.10.23.16.17.01;	author rbraun;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2008.10.23.14.17.02;	author rbraun;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2008.10.23.14.16.10;	author rbraun;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.16
+log
+@the "User not found" warning was spurious, just scrapped it
+@
+text
+@#!/bin/bash
+# $Id: emailfbl_aol.sh,v 1.15 2009/09/25 15:36:28 rbraun Exp rbraun $
+#
+# Created 10/08 by sfrattura
+
+. /etc/manhunt/source.sh
+
+VERBOSITY=-vv
+LOG=/var/tmp/fbl-`whoami`.log
+
+
+if [ "`$MYSQL -u $V4_USER -h $V4_USERSERVER -p$V4_PW $V4_USERDB -e 'show databases'`" == "" ]
+then
+    echo "Cannot connect to database."
+    exit $ERROR
+fi
+
+if [ "`touch $LOG 2>&1`" != "" ]
+then
+    echo "Cannot write to logfile."
+    exit $ERROR
+fi
+
+
+echo "START $APPNAME `date`" >> $LOG
+
+stringToSeek=X-MH-UID:
+strFound=0
+exitCode=0
+
+while read line
+do
+    temp=`echo $line | awk ' { printf $1 } '`
+    if [ "$temp" = "$stringToSeek" ]
+    then
+	FinalUID=`echo $line | awk ' { printf $2} '`
+	strFound=1
+
+	QueryResult=`$MYSQL -s --skip-column-names -u $V4_USER -h $V4_USERSERVER -p$V4_PW $V4_USERDB -e "SELECT emailFrequency FROM as_search WHERE uid='$FinalUID'"`
+	if [ -z "$QueryResult" ] || ["$QueryResult" = "Never"]
+        then
+	    [ "$VERBOSITY" = "" ] || echo "-- Notifications already disabled for $FinalUID" >> $LOG
+	    echo "FINISH $APPNAME `date`" >> $LOG
+	    exit 1;   ## the uid is not going to get updated: notify is not set
+        else
+	    $MYSQL -u $V4_USER -h $V4_USERSERVER -p$V4_PW $VERBOSITY $V4_USERDB -e \
+	    "UPDATE as_search set emailFrequency = 0 where uid = '$FinalUID'" >> $LOG
+	    [ "$VERBOSITY" = "" ] || echo "-- Notifications disabled for $FinalUID" >> $LOG
+        fi
+    fi
+done
+
+if [ "$strFound" = "0" ]
+then
+    echo "-- $stringToSeek header not found" >> $LOG
+    exitCode=2;    ## i.e. the stringToSeek was not found
+fi
+
+#if [ "$strFound" != "0" ]
+#then
+#    echo "User not found or otherwise returned something weird" >> $LOG
+#    exitCode=2;    ## i.e. the stringToSeek was not found
+#fi
+
+echo "FINISH $APPNAME `date`" >> $LOG
+echo >> $LOG
+exit $exitCode;
+
+@
+
+
+1.15
+log
+@fixed
+@
+text
+@d2 1
+a2 1
+# $Id: emailfbl_aol.sh,v 1.14 2009/09/25 13:09:17 rbraun Exp rbraun $
+d59 5
+a63 5
+if [ "$strFound" != "0" ]
+then
+    echo "User not found or otherwise returned something weird" >> $LOG
+    exitCode=2;    ## i.e. the stringToSeek was not found
+fi
+@
+
+
+1.14
+log
+@ripped out Janus logic, we're all-V4 now
+@
+text
+@d2 1
+a2 1
+# $Id: emailfbl_aol.sh,v 1.13 2009/03/31 19:11:25 wflynn Exp rbraun $
+d12 1
+a12 1
+if [ "`$MYSQL -u $DBUSER -h $HOST -p$DBPASSWD $MANHUNTDB -e 'show databases'`" == "" ]
+d39 1
+a39 1
+	QueryResult=`$MYSQL -s --skip-column-names -u $V4_USER -h $V4_USERSERVER -p$V4_PW $V4_USERDB -e "SELECT value from account_settings where accSettingName='emailFrequency' and uid=$FinalUID"`
+d47 1
+a47 1
+	    "UPDATE account_settings set email_frequency = 0 where uid = '$FinalUID'" >> $LOG
+@
+
+
+1.13
+log
+@Tweak to logic and logggin SYS-1464
+@
+text
+@d2 1
+a2 1
+# $Id: emailfbl_aol.sh,v 1.12 2009/03/27 20:44:19 wflynn Exp wflynn $
+a7 1
+HOST=${MHMASTERDBHOST}
+a29 15
+janusFound=0
+
+getJanus() {
+    JanusResult=`$MYSQL -s --skip-column-names -u $JANUSUSER -h $JANUSHOST --password=$JANUSPASSWD $JANUSDB -e "select concat(janusV2Active, janusV4Active) from janus where uid=$1"`
+    if [ "$JanusResult" = "YN" ]
+    then
+	echo "v2"
+    elif [ "$JanusResult" = "NY" ]
+    then
+	echo "v4"
+    else
+	echo "-- Janus lookup returns: $JanusResult for $1" >> $LOG
+	echo "JANUS_LOOKUP_FAILED"
+    fi
+}
+a37 1
+	JANUSNESS=`getJanus "$FinalUID"`
+d39 11
+a49 32
+	if [ "$JANUSNESS" = "v2" ]
+	then
+	    janusFound=1
+	    QueryResult=`$MYSQL -s --skip-column-names -u $DBUSER -h $HOST --password=$DBPASSWD manhunt -e "SELECT uid, username FROM Users WHERE uid = $FinalUID AND notify = 1"`
+	    if [ -z "$QueryResult" ]
+            then
+		[ "$VERBOSITY" = "" ] || echo "-- $JANUSNESS Notifications already disabled for $FinalUID" >> $LOG
+		echo "FINISH $APPNAME `date`" >> $LOG
+		exit 1;   ## the uid is not going to get updated: notify is not set
+            else
+		$MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD $VERBOSITY manhunt -e \
+		    "UPDATE Users SET notify=0, emailErrorMsg = CONCAT(email,' EMAIL abuse report ', now()) WHERE uid = '$FinalUID'" >> $LOG
+		[ "$VERBOSITY" = "" ] || echo "-- $JANUSNESS Notifications disabled for $FinalUID" >> $LOG
+            fi
+	elif [ "$JANUSNESS" = "v4" ]
+	then
+	    janusFound=1
+	    QueryResult=`$MYSQL -s --skip-column-names -u $V4_USER -h $V4_USERSERVER -p$V4_PW $V4_USERDB -e "SELECT value from account_settings where accSettingName='emailFrequency' and uid=$FinalUID"`
+	    if [ -z "$QueryResult" ] || ["$QueryResult" = "Never"]
+            then
+		[ "$VERBOSITY" = "" ] || echo "-- $JANUSNESS Notifications already disabled for $FinalUID" >> $LOG
+		echo "FINISH $APPNAME `date`" >> $LOG
+		exit 1;   ## the uid is not going to get updated: notify is not set
+            else
+		$MYSQL -u $V4_USER -h $V4_USERSERVER -p$V4_PW $VERBOSITY $V4_USERDB -e \
+		    "UPDATE account_settings set email_frequency = 0 where uid = '$FinalUID'" >> $LOG
+		[ "$VERBOSITY" = "" ] || echo "-- $JANUSNESS Notifications disabled for $FinalUID" >> $LOG
+            fi
+	else
+	    echo " -- Janus Status: $JANUSNESS - No Action Taken." >> $LOG
+	    exitCode=2;
+	fi
+d59 1
+a59 1
+if [ "$janusFound" = "0" ] && [ "$strFound" != "0" ]
+d61 1
+a61 1
+    echo "-- Janus sez $janusFound : User not found or otherwise returned something weird" >> $LOG
+@
+
+
+1.12
+log
+@Janusd Changes for V2/V4  SYS-1464
+@
+text
+@d2 1
+a2 1
+# $Id: emailfbl_aol.sh,v 1.11 2008/10/28 20:56:49 rbraun Exp $
+d42 2
+a43 1
+	echo "-- Janus sez: $JanusResult for $1" >> $LOG
+d85 1
+a85 1
+	    echo " -- We Shouldn't get here" >> $LOG
+d97 1
+a97 1
+if [ "$janusFound" = "0" ]
+@
+
+
+1.11
+log
+@Tweaking log
+@
+text
+@d2 1
+a2 1
+# $Id: emailfbl_aol.sh,v 1.10 2008/10/28 20:03:30 rbraun Exp rbraun $
+d15 2
+a16 2
+echo "Cannot connect to database."
+exit $ERROR
+d20 3
+a22 3
+then 
+echo "Cannot write to logfile."
+exit $ERROR
+d28 1
+a28 1
+stringToSeek=X-MH-UID: 
+d31 14
+d48 2
+a49 2
+  temp=`echo $line | awk ' { printf $1 } '`
+  if [ "$temp" = "$stringToSeek" ]
+d51 36
+a86 15
+      FinalUID=`echo $line | awk ' { printf $2} '`
+      strFound=1
+      QueryResult=`$MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD manhunt -e \
+	"SELECT uid, username FROM Users WHERE uid = $FinalUID AND notify = 1"`
+
+      if [ -z "$QueryResult" ]
+        then
+	  [ "$VERBOSITY" = "" ] || echo "-- Notifications already disabled for $FinalUID" >> $LOG
+	   echo "FINISH $APPNAME `date`" >> $LOG
+           exit 1;   ## the uid is not going to get updated: notify is not set
+        else
+           $MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD $VERBOSITY manhunt -e \
+	     "UPDATE Users SET notify=0, emailErrorMsg = CONCAT(email,' EMAIL abuse report ', now()) WHERE uid = '$FinalUID'" >> $LOG                          
+	   [ "$VERBOSITY" = "" ] || echo "-- Notifications disabled for $FinalUID" >> $LOG
+        fi
+d89 1
+d92 2
+a93 2
+  echo "-- $stringToSeek header not found" >> $LOG
+  exitCode=2;    ## i.e. the stringToSeek was not found
+d96 5
+@
+
+
+1.10
+log
+@enhanced logging
+@
+text
+@d2 1
+a2 1
+# $Id: emailfbl_aol.sh,v 1.9 2008/10/28 19:32:17 sfrattura Exp rbraun $
+d29 2
+a36 1
+
+d38 3
+d42 2
+a43 4
+       QueryResult=`$MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD manhunt -e  "SELECT uid, username FROM Users WHERE uid = $FinalUID AND notify = 1"`
+
+     if [ -z "$QueryResult" ]
+       then
+d45 5
+a49 3
+          exit 1;   ## i.e. the uid is not going to get updated, most likely because his notify is not set to 1(true)
+       else
+           $MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD $VERBOSITY manhunt -e  "UPDATE Users SET notify=0, emailErrorMsg = CONCAT(email,' EMAIL abuse report ', now()) WHERE uid = '$FinalUID'" >> $LOG                          
+d51 1
+a51 4
+     fi
+    else
+      [ "$VERBOSITY" = "" ] || echo "-- $stringToSeek header not found" >> $LOG
+      exit 2;    ## i.e. the stringToSeek was not found
+d54 5
+d63 1
+a63 1
+exit 0;
+@
+
+
+1.9
+log
+@changed the guts of the script.  3 exit codes now.   Looks for X-MH-UID:  instead of "hi"  etc
+@
+text
+@d2 1
+a2 1
+# $Id: emailfbl_aol.sh,v 1.8 2008/10/28 16:14:37 rbraun Exp sfrattura $
+d38 1
+a38 1
+       QueryResult=`$MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD manhunt -e  "select uid, username from Users WHERE uid = $FinalUID AND notify = 1"`
+d42 1
+d46 1
+d49 1
+@
+
+
+1.8
+log
+@*** empty log message ***
+@
+text
+@d2 1
+a2 1
+# $Id: emailfbl_aol.sh,v 1.7 2008/10/28 16:08:01 rbraun Exp rbraun $
+a11 7
+# Run as care.
+#   (commented out, this runs under one of the abuse user IDs)
+#if [ "$UID" -ne "$CARE_UID" ]
+#then
+# echo "Must be care to run this script."
+#  exit $ERROR
+#fi  
+d28 1
+a28 2
+stringToSeek=Hi 
+### #note: the is a space next to the "Hi" above 
+d32 1
+a32 1
+  temp=`echo $line | awk ' { printf $1 } '` 
+a34 2
+      TempUsername=`echo $line | awk ' { printf $2} '`
+      FinalUsername=`echo $TempUsername | cut -d"," -f1`
+d36 13
+a48 7
+      echo -- Removing $FinalUsername `date` >> $LOG
+###   $MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD $VERBOSITY manhunt -e \
+###   "UPDATE Users SET email='', emailErrors=emailErrors+1, emailErrorMsg = CONCAT(email,'AOL abuse report ', now()) WHERE username = '$FinalUsername' AND email <> ''" >> $LOG
+      $MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD $VERBOSITY manhunt -e \
+      "UPDATE Users SET notify=0, emailErrorMsg = CONCAT(email,' AOL abuse report ', now()) WHERE username = '$FinalUsername' AND email <> ''" >> $LOG
+     
+    fi 
+d51 1
+@
+
+
+1.7
+log
+@$USER is not defined, had to invoke 'whoami'
+@
+text
+@d2 1
+a2 1
+# $Id: emailfbl_aol.sh,v 1.6 2008/10/28 15:49:40 rbraun Exp rbraun $
+d26 1
+a26 1
+if [ "`touch $LOG` 2>&1" != "" ]
+@
+
+
+1.6
+log
+@log to fbl-$USER so we have separate logs per provider
+@
+text
+@d2 1
+a2 1
+# $Id: emailfbl_aol.sh,v 1.5 2008/10/23 16:44:46 sfrattura Exp rbraun $
+d10 1
+a10 1
+LOG=/var/tmp/fbl-$USER.log
+@
+
+
+1.5
+log
+@added s space before AOL
+@
+text
+@d2 1
+a2 1
+# $Id: emailfbl_aol.sh,v 1.4 2008/10/23 16:22:04 rbraun Exp sfrattura $
+d10 1
+a10 1
+LOG=/var/tmp/$APPNAME.log
+d26 1
+a26 1
+if [ "`touch $LOG`" != "" ]
+d46 1
+a46 1
+      echo $FinalUsername `date` >> $LOG
+@
+
+
+1.4
+log
+@noticed that this was removing the user's email address-we want to shut
+off notify, not remove the address (at least for now)
+@
+text
+@d2 1
+a2 1
+# $Id: emailfbl_aol.sh,v 1.3 2008/10/23 16:17:01 rbraun Exp rbraun $
+d50 1
+a50 1
+      "UPDATE Users SET notify=0, emailErrorMsg = CONCAT(email,'AOL abuse report ', now()) WHERE username = '$FinalUsername' AND email <> ''" >> $LOG
+@
+
+
+1.3
+log
+@only perform the update if email hasn't already been blanked out
+@
+text
+@d2 1
+a2 1
+# $Id: emailfbl_aol.sh,v 1.2 2008/10/23 14:17:02 rbraun Exp rbraun $
+d47 2
+d50 2
+a51 1
+      "UPDATE Users SET email='', emailErrors=emailErrors+1, emailErrorMsg = CONCAT(email,'AOL abuse report ', now()) WHERE username = '$FinalUsername' AND email <> ''" >> $LOG
+@
+
+
+1.2
+log
+@*** empty log message ***
+@
+text
+@d2 1
+a2 1
+# $Id$
+d41 9
+a49 8
+      if [ "$temp" = "$stringToSeek" ]
+      then
+            TempUsername=`echo $line | awk ' { printf $2} '`
+            FinalUsername=`echo $TempUsername | cut -d"," -f1`
+
+echo $FinalUsername `date` >> $LOG
+            $MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD $VERBOSITY manhunt -e "update Users set email='', emailErrors=emailErrors+1, emailErrorMsg = concat(email,'-reported for abuse on AOL: ', now()) where username = '$FinalUsername'" >> $LOG
+      fi 
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 3
+@

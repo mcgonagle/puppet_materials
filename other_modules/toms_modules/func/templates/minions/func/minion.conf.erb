@@ -1,0 +1,14 @@
+#/etc/func/minion.conf
+# configuration for minions
+
+[main]
+log_level = DEBUG
+acl_dir = /etc/func/minion-acl.d
+
+listen_addr =
+listen_port = 51234
+
+use_certmaster = 0
+cert_file = /var/lib/puppet/ssl/certs/<%= fqdn %>.pem
+key_file = /var/lib/puppet/ssl/private_keys/<%= fqdn %>.pem
+ca_file = /var/lib/puppet/ssl/certs/ca.pem

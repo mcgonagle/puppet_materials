@@ -1,0 +1,622 @@
+head	1.17;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.17
+date	2010.03.25.17.23.55;	author kpanacy;	state Exp;
+branches;
+next	1.16;
+
+1.16
+date	2009.04.03.22.58.48;	author rbraun;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	2009.04.03.22.42.12;	author rbraun;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	2009.04.03.22.03.21;	author rbraun;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	2009.02.17.22.52.18;	author rbraun;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	2009.02.17.22.50.11;	author rbraun;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	2009.02.17.22.40.30;	author rbraun;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	2009.02.12.18.34.06;	author hschmidt;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	2009.02.12.18.22.24;	author hschmidt;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	2009.02.08.23.19.58;	author hschmidt;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	2009.02.08.22.40.28;	author hschmidt;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	2009.02.08.22.16.44;	author hschmidt;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	2009.02.08.21.55.58;	author hschmidt;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	2009.02.08.20.25.12;	author hschmidt;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2009.02.08.20.14.24;	author hschmidt;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2009.02.08.00.28.16;	author hschmidt;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2009.02.06.19.35.07;	author hschmidt;	state Exp;
+branches;
+next	;
+
+
+desc
+@Added for ticket SYS-690 Innodb replacement of mysqlinnodbfree.sh -- heidi
+@
+
+
+1.17
+log
+@modified to remove duplicate lines and relaxed thresholds for warn and critical sys-2819
+@
+text
+@#!/bin/bash 
+# $Id: innodb_space_utilization.sh,v 1.16 2009/04/03 22:58:48 rbraun Exp kpanacy $
+#
+# Created by hschmidt 2/09
+
+##############
+#
+#  Nagios Alert instructions below 
+#
+##############
+
+STATE_OK=0
+STATE_WARNING=1
+STATE_CRITICAL=2
+STATE_UNKNOWN=3
+STATE_DEPENDENT=4
+
+###############
+# Defaults that don't get set below
+###############
+host="localhost"
+user="nagmon"
+pass="m0n1t0rM3"
+warn=2
+crit=1
+db=mysql
+altdb=manhunt_v4
+null="NULL"
+export exit_string=""
+export exit_state=0
+
+##############
+#
+#  Usage instructions below 
+#
+##############
+
+usage1="Usage: $0 -u user -p password [-w <warn>] [-c <crit>]"
+usage2="<warn> is GB to warn at.  Default is $warn"
+usage3="<crit> is GB to be critical at.  Default is $crit"
+
+exitstatus=$STATE_WARNING #default
+while test -n "$1"; do
+    case "$1" in
+        -c)
+            export crit=$2
+            shift
+            ;;
+        -w)
+            export warn=$2
+            shift
+            ;;
+        -u)
+            export user=$2
+            shift
+            ;;
+        -p)
+            export pass=$2
+            shift
+            ;;
+#        -h)
+#            echo $usage1;
+#	    echo 
+#            echo $usage2;
+#            echo $usage3;
+#            exit $STATE_UNKNOWN
+#	    ;;
+#	-H)
+#            export host=$2
+#            shift
+#            ;;
+        *)
+            echo "Unknown argument: $1"
+            echo $usage1;
+	    echo 
+            echo $usage2;
+            echo $usage3;
+            exit $STATE_CRITICAL
+            ;;
+    esac
+    shift
+done
+
+count=0
+for homedir in `grep "MYSQL_HOME" /etc/init.d/mysql_* | /bin/egrep -v -e '#' -e 'server' | /bin/awk -F"=" '{print $2}'`
+do
+if [ ! -S $homedir/mysql.sock ]; then
+	exit_string=`echo "$exit_string" "UNK Instance " $homedir " mysql.sock is missing. "`
+# ignore instances that are shut down
+# 	export exit_state=$STATE_UNKNOWN
+	continue		
+fi
+count+=1
+total_ibdata_space=`perl -ne 'if (/innodb_data_file_path/) {$total_G+=$1 while(/([0-9]+)[GM];*/g); pos()-1; print $total_G}' $homedir/my.cnf` 
+# echo $total_ibdata_space
+###############
+#
+# Debugging 
+# echo "$homedir/bin/mysql -u $user -p$pass $db -S $homedir/mysql.sock -e 'select distinct(round((data_free/1024)/1024)/1024) GbytesFree from INFORMATION_SCHEMA.TABLES where engine ="InnoDB"\G' | awk '/GbytesFree:/ {print $2}'"
+#
+###############
+
+# Any/all SELECT references to INFORMATION_SCHEMA.TABLES could fail with the following
+# if any are federated:
+#
+# ERROR 1431 (HY000) at line 1: The foreign data source you are trying to reference does not
+#  exist. Data source error:  error: 1146  'Table 'manhunt.v4_profile_entries' doesn't exist'
+#
+# So if the first query fails we look for a table named manhunt_v4.u%
+
+dbfreespace=`$homedir/bin/mysql -u $user -p$pass $db -S $homedir/mysql.sock -e 'select distinct(round((data_free/1024)/1024)/1024) GbytesFree from INFORMATION_SCHEMA.TABLES where engine ="InnoDB"\G' | awk '/GbytesFree:/ {print $2}'`
+[ "$dbfreespace" = "" ] && dbfreespace=`expr \`$homedir/bin/mysql -u $user -p$pass -S $homedir/mysql.sock -e "use $altdb;show table status like 'u%'\G"|grep Data_free|head -1|cut -d: -f2\` / 1024 / 1024 / 1024`
+
+# echo "dbfreespace : " $dbfreespace
+#inuse=${dbusedspace:-0}
+notinuse=${dbfreespace}
+
+#warn_alert_level=$( echo |  awk '{ print "'"$total_ibdata_space"'" - "'"$inuse"'" }' | cut -d. -f1 )
+#crit_alert_level=$( echo |  awk '{ print "'"$total_ibdata_space"'" - "'"$inuse"'" }' | cut -d. -f1 )
+warn_alert_level=$( echo |  awk '{ print "'"$dbfreespace"'" }' | cut -d. -f1 )
+crit_alert_level=$( echo |  awk '{ print "'"$dbfreespace"'" }' | cut -d. -f1 )
+
+# echo "crit alert level (total minus inuse) : $crit_alert_level"
+# echo "warn alert level (total minus inuse) : $warn_alert_level"
+
+# echo "Default warn value: $warn"
+# echo "Default crit value: $crit"
+
+
+################
+#  This is a extended test condition for alerting per item in loop that there is a problem 
+################
+
+# If critical level  which is total - inuse then compared to the crit level. If remainder is less than crit then state it as Critical.
+
+if [   "$crit_alert_level" -le "$crit" ]; then 
+	export exit_state=$STATE_CRITICAL
+#	echo "Setting CRIT exit_state to $STATE_CRITICAL"
+	exit_string=`echo "$exit_string" "CRITICAL Instance " $homedir " " $notinuse "GB out of $total_ibdata_space GB. "`
+
+# If warning level  which is total - inuse then compared to the warn level and crit level. If remainder is above "less than warn" value but above crit then Warn folks.
+
+elif [ \( $warn_alert_level -le $warn \) -o \( $crit -ge $crit_alert_level \) ]; then 
+	if [ $exit_state -eq 0 ]; then 
+		export exit_state=$STATE_WARNING
+#		echo "Setting WARN exit_state to $STATE_WARNING"
+	fi
+	exit_string=`echo "$exit_string" "WARN Instance $homedir $notinuse GB out of $total_ibdata_space GB. "`
+
+# If warning level  which is total - inuse then compared to the warn level. If remainder is "more than warn" value then space available for InnoDB is all well and good for now.
+
+else 
+#	echo "Setting OK exit_state to $?"
+	exit_string=`echo "$exit_string" "OK Instance $homedir $notinuse GB out of $total_ibdata_space GB. "`
+fi
+
+done
+
+if [ $count -eq 0 ]; then 
+	echo $0 ": No MySQL servers on this machine! "
+	exit $STATE_CRITICAL
+fi
+
+echo $exit_string
+exit $exit_state
+@
+
+
+1.16
+log
+@suppress alerts if mysql.sock doesn't exist
+@
+text
+@d2 1
+a2 1
+# $Id: innodb_space_utilization.sh,v 1.15 2009/04/03 22:42:12 rbraun Exp rbraun $
+d24 2
+a25 2
+warn=20
+crit=10
+d85 1
+a85 1
+for homedir in `grep "MYSQL_HOME" /etc/init.d/mysql_* | /bin/egrep -v '#' | /bin/awk -F"=" '{print $2}'`
+@
+
+
+1.15
+log
+@hack to deal with federated
+@
+text
+@d2 1
+a2 1
+# $Id: innodb_space_utilization.sh,v 1.14 2009/04/03 22:03:21 rbraun Exp rbraun $
+d88 3
+a90 2
+	exit_string=`echo "$exit_string" "CRITICAL Instance " $homedir " mysql.sock is missing. "`
+ 	export exit_state=$STATE_CRITICAL	
+@
+
+
+1.14
+log
+@attempted another fix, probably still has problems
+@
+text
+@d2 1
+a2 1
+# $Id: innodb_space_utilization.sh,v 1.13 2009/02/17 22:52:18 rbraun Exp rbraun $
+d27 1
+d102 8
+d111 2
+@
+
+
+1.13
+log
+@*** empty log message ***
+@
+text
+@d2 1
+a2 1
+# $Id: innodb_space_utilization.sh,v 1.12 2009/02/17 22:50:11 rbraun Exp rbraun $
+d97 1
+a97 1
+# echo "$homedir/bin/mysql -u $user -p$pass $db -S $homedir/mysql.sock -e 'select distinct(round((data_free/1024)/1024)/1024) GbytesUsed from INFORMATION_SCHEMA.TABLES where engine ="InnoDB"\G' | awk '/GbytesUsed:/ {print $2}'"
+d101 9
+a109 6
+dbusedspace=`$homedir/bin/mysql -u $user -p$pass $db -S $homedir/mysql.sock -e 'select distinct(round((data_free/1024)/1024)/1024) GbytesUsed from INFORMATION_SCHEMA.TABLES where engine ="InnoDB"\G' | awk '/GbytesUsed:/ {print $2}'`
+# echo "dbusedspace : " $dbusedspace
+inuse=${dbusedspace:-0}
+
+warn_alert_level=$( echo |  awk '{ print "'"$total_ibdata_space"'" - "'"$inuse"'" }' | cut -d. -f1 )
+crit_alert_level=$( echo |  awk '{ print "'"$total_ibdata_space"'" - "'"$inuse"'" }' | cut -d. -f1 )
+d124 1
+a124 1
+if [  "$crit_alert_level" -le "$crit" ]; then 
+d127 1
+a127 1
+	exit_string=`echo "$exit_string" "CRITICAL Instance " $homedir " " $inuse "GB out of $total_ibdata_space GB. "`
+d131 1
+a131 1
+elif [ \( $warn_alert_level -le $warn \) -o \( $crit_alert_level -ge $crit \) ]; then 
+d136 1
+a136 1
+	exit_string=`echo "$exit_string" "WARN Instance $homedir $inuse GB out of $total_ibdata_space GB. "`
+d142 1
+a142 1
+	exit_string=`echo "$exit_string" "OK Instance $homedir $inuse GB out of $total_ibdata_space GB. "`
+@
+
+
+1.12
+log
+@*** empty log message ***
+@
+text
+@d1 2
+a2 2
+#! /bin/sh 
+# $Id: innodb_space_utilization.sh,v 1.11 2009/02/17 22:40:30 rbraun Exp rbraun $
+@
+
+
+1.11
+log
+@*** empty log message ***
+@
+text
+@d2 1
+a2 1
+# $Id$
+a82 2
+# echo "Crit be
+
+d84 1
+a84 1
+for homedir in `grep "MYSQL_HOME" /etc/init.d/mysql_* | egrep -v '#' | awk -F"=" '{print $2}'`
+@
+
+
+1.10
+log
+@fixed a typo on line 86 with printing.
+@
+text
+@d2 3
+@
+
+
+1.9
+log
+@removed host variable because it is conflicting with using the mysql.sock socket file along with the homedir of the mysql instance on the machines. this is to test if it still works without any -h or -H reference SYS-690
+@
+text
+@d86 1
+a86 1
+	exit_string=`echo "$exit_string" "CRITICAL Instance "  " $homedir " mysql.sock is missing. "`
+@
+
+
+1.8
+log
+@fixing output for innodb
+@
+text
+@d34 1
+a34 1
+usage1="Usage: $0 -H <host> -u user -p password [-w <warn>] [-c <crit>]"
+d57 11
+a67 11
+        -h)
+            echo $usage1;
+	    echo 
+            echo $usage2;
+            echo $usage3;
+            exit $STATE_UNKNOWN
+	    ;;
+	-H)
+            export host=$2
+            shift
+            ;;
+d86 1
+a86 1
+	exit_string=`echo "$exit_string" "CRITICAL " $host " " $homedir "/mysql.sock missing. "`
+d100 1
+a100 1
+dbusedspace=`$homedir/bin/mysql -u $user -p$pass -h $host $db -S $homedir/mysql.sock -e 'select distinct(round((data_free/1024)/1024)/1024) GbytesUsed from INFORMATION_SCHEMA.TABLES where engine ="InnoDB"\G' | awk '/GbytesUsed:/ {print $2}'`
+d123 1
+a123 1
+	exit_string=`echo "$exit_string" "CRITICAL " $host " " $homedir " " $inuse "GB out of $total_ibdata_space GB. "`
+d132 1
+a132 1
+	exit_string=`echo "$exit_string" "WARN $host $homedir $inuse GB out of $total_ibdata_space GB. "`
+d138 1
+a138 1
+	exit_string=`echo "$exit_string" "OK $host $homedir $inuse GB out of $total_ibdata_space GB. "`
+@
+
+
+1.7
+log
+@fixed bash defaults... the ${2:-default} was not defaulting... now fixed
+@
+text
+@d82 2
+a83 7
+list=`grep "MYSQL_HOME" /etc/init.d/mysql_* | egrep -v '#' | awk -F"=" '{print $2}'`
+if [ -z "$list" ]; then 
+	echo $0 ": No MySQL servers on this machine! "
+	exit $STATE_CRITICAL
+fi
+
+for homedir in $list
+d90 1
+d143 5
+@
+
+
+1.6
+log
+@fixed typo
+@
+text
+@d18 5
+d42 1
+a42 1
+            export crit=${2:-10}
+d46 1
+a46 1
+            export warn=${2:-20}
+d50 1
+a50 1
+            export user=${2:-nagmon}
+d54 1
+a54 1
+            export pass=${2:-m0n1t0rM3}
+d65 1
+a65 1
+            export host=${2:localhost}
+@
+
+
+1.5
+log
+@using check_nrpe as the wrapper works using innodb_space_utilization works! Whoot! -- heidi SYS-690
+@
+text
+@d86 1
+a86 1
+	exit_string=`echo "$exit_string" "CRITCIAL " $host " " $homedir "/mysql.sock missing. "`
+@
+
+
+1.4
+log
+@seeing if the script runs and makes a local file on devdb01 and qadb02
+@
+text
+@a2 1
+echo "Starting: " `date` >> /tmp/innodb_util_start_stop_timings
+d37 1
+a37 1
+            export crit=${2:-10.0000}
+d41 1
+a41 1
+            export warn=${2:-20.0000}
+d60 1
+a60 1
+            export host=${2:bogus}
+d69 1
+a69 1
+            exit $STATE_UNKNOWN
+d77 7
+a83 1
+for homedir in `grep "MYSQL_HOME" /etc/init.d/mysql_* | egrep -v '#' | awk -F"=" '{print $2}'`
+a141 1
+echo -n "CRITICAL - "
+a142 1
+echo "Stopping: " `date` >> /tmp/innodb_util_start_stop_timings
+@
+
+
+1.3
+log
+@adding a critical - end message to see if nagios will report the "plugin" output
+@
+text
+@d3 1
+d139 1
+@
+
+
+1.2
+log
+@working out the nagios kinks so it alerts one line for status per server. -- heidi  February 7, 2009 7:28 PM
+@
+text
+@d136 1
+a136 1
+
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 1
+a1 1
+#! /bin/sh
+d20 2
+d60 1
+a60 1
+            export host=$2
+d75 1
+a75 1
+# echo "Crit before for loop: $crit"
+d77 1
+a77 1
+for homedir in `grep "MYSQL_HOME" /etc/init.d/mysql_* | awk -F"=" '{print $2}'`
+d80 2
+a81 1
+	echo "State Critical: The Server $host MySQL instance in $homedir is down. No mysql.sock exists!"
+d84 2
+a85 2
+total_ibdata_space=`perl -ne 'if (/innodb_data_file_path/) {$total_G+=$1 while(/([0-9]+)[GM];*/g); pos()-1; print $total_G}' $homedir/my.cnf`
+
+d93 1
+a93 1
+dbusedspace=`$homedir/bin/mysql -u $user -p$pass $db -S $homedir/mysql.sock -e 'select distinct(round((data_free/1024)/1024)/1024) GbytesUsed from INFORMATION_SCHEMA.TABLES where engine ="InnoDB"\G' | awk '/GbytesUsed:/ {print $2}'`
+a112 2
+# echo "Crit: $crit"
+
+d114 3
+a116 2
+	$(exit $STATE_CRITICAL);
+	echo "State critical: $STATE_CRITICAL";
+d121 5
+a125 2
+	$(exit $STATE_WARNING);
+	echo "State warning: $STATE_WARNING";
+d130 2
+a131 2
+	$(exit $STATE_OK);
+	echo "State okay: $STATE_OK";
+d134 1
+a134 1
+echo Server $host MySQL instance in $homedir is using $inuse GB out of total innodb filesize $total_ibdata_space GB. Based on NagiosQL parameters, the warn level set for this MySQL instance is set for $warn GB left and  crit level is set for $crit GB left. 
+a135 1
+done
+d137 2
+a138 24
+###############
+#  Original if statements outside of the loop left if needed in debugging in NagiosQL 
+###############
+# on the number line, we need to test 6 cases:
+# 0-----w-----c----->
+# 0, 0<lag<w, w, w<lag<c, c, c<lag
+# which we simplify to 
+# lag>=c, w<=lag<c, 0<=lag<warn
+
+#w<=lag<c
+#if [ $freespace \< $warn ]; then 
+#if [ $freespace \> $crit ]; then 
+#exit $STATE_WARNING;
+#fi
+#fi
+
+#if [ $freespace \< $crit ]; then 
+#exit $STATE_CRITICAL;
+#fi
+
+# 0<=lag<warn
+#if [ $freespace \> $warn ]; then 
+#exit $STATE_OK;
+#fi
+@

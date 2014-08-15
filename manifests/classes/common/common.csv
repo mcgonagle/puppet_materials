@@ -1,0 +1,3 @@
+common::var1,hello_world
+#pagerduty
+common::pagerduty::nagios_key,1a1775a01b4d012e4c3312313d009e57

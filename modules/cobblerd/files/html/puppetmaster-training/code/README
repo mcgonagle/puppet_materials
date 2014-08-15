@@ -1,0 +1,6 @@
+max line length is 82 characters or the code will not display properly
+on a 1024x768 display
+
+you can check with the following code snippet
+
+for i in $(ls *.pp); do echo -n "$i "; awk ' { if ( length > x ) { x = length } }END{ print x }' $i; done > /tmp/size && sort -k2n /tmp/size

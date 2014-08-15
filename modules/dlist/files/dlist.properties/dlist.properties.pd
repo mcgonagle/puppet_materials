@@ -1,0 +1,9 @@
+# Properties for DList production environment
+
+dlistServer = www.dlist.com
+songs.directory = /music/
+media.root = /media
+songs.url = http://music.dlist.com/
+apns.mode = production
+apns.key.passphrase = BuV9hust
+build.extraVersion =

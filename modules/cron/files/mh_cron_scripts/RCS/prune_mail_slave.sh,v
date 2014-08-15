@@ -1,0 +1,122 @@
+head	1.4;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.4
+date	2009.08.11.14.33.02;	author mjapher;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2009.08.10.15.04.13;	author mjapher;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2009.08.07.19.31.36;	author mjapher;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2009.08.07.15.55.47;	author mjapher;	state Exp;
+branches;
+next	;
+
+
+desc
+@A new script to create a cron job to prune mails over 20 days from mail slaves.
+@
+
+
+1.4
+log
+@Changed the LOG to CARE_LOG
+SYS-1950
+@
+text
+@#!/bin/sh
+# $Id: $
+# Created 8/07 by mjapher
+
+# Base Variables
+
+. /etc/manhunt/source.sh
+
+
+LOG=$CARE_LOG
+VERBOSITY=-v
+
+ERROR=1
+
+SHARD=$1
+
+# Run as care.
+if [ "$UID" -ne "$CARE_UID" ]
+then
+ echo "Must be care to run this script."
+  exit $ERROR
+fi
+
+if [ "`touch $LOG`" != "" ]
+then
+echo "Cannot write to logfile."
+exit $ERROR
+fi
+
+echo "START $APPNAME `date`" >> $LOG
+
+$MYSQL -u $V4_USER -p$V4_PW -h $SHARD $VERBOSITY $V4_MAILDB -e "call mail_pruner()">> $LOG
+
+echo "FINISH $APPNAME `date`" >> $LOG
+@
+
+
+1.3
+log
+@Made change to ensure that the user executing the script is care.
+@
+text
+@d2 1
+a2 1
+# $Id: prune_mail_slave.sh,v 1.2 2009/08/07 19:31:36 mjapher Exp mjapher $
+d10 1
+a10 1
+LOG=$LOGDIR
+@
+
+
+1.2
+log
+@Changed the user/pwd to match V4 users
+@
+text
+@d2 1
+a2 1
+# $Id: prune_mail_slave.sh,v 1.1 2009/08/07 15:55:47 mjapher Exp mjapher $
+d18 1
+a18 1
+if [ "$UID" -ne "$MANHUNTDB" ]
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 1
+a2 1
+# $Id: prine_mail_slave.sh,v 1.3 2008/08/05 19:19:17 mjapher Exp $
+d10 1
+a10 1
+LOG=$CARE_LOG
+d18 1
+a18 1
+if [ "$UID" -ne "$CARE_UID" ]
+d32 1
+a32 1
+$MYSQL -u $DBUSER -p$DBPASSWD -h $SHARD $VERBOSITY $MESSAGEDB -e "call mail_pruner()">> $LOG
+@

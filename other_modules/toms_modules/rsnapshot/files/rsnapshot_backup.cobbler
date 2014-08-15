@@ -1,0 +1,3 @@
+#LOCALHOST 
+backup /home/    localhost/
+backup /etc/   localhost/

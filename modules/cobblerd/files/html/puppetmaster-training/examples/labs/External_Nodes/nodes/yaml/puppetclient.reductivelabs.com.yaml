@@ -1,0 +1,4 @@
+--- 
+parent: base
+parameters: 
+  nodetype: external

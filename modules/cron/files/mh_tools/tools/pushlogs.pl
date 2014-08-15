@@ -1,0 +1,116 @@
+#!/usr/bin/perl
+# Filename: pushlogs.pl
+# $Id: pushlogs.pl,v 1.2 2008/02/10 03:58:39 rbraun Exp rbraun $
+#
+#   This is a replacement for push_access_logs.pl/logpush.pl.  It uses
+#   rsync instead of scp.  It transfers under username 'logs';
+#   make sure the logs user has read access to /var/log/httpd.
+#
+#   Online Buddies Inc.
+#   5 Sep 2007  v1.0  R Braun
+# mod 29 oct 2007
+# mod  9 Feb 2007 add bwlimit 
+
+use strict; # for syntax checking
+use FindBin qw($Bin);
+use lib "$Bin/../lib";
+use POSIX; # for 'setsid'
+use Sys::Hostname;
+#use MIME::Lite;
+#use system;
+
+my $rsync = '/usr/bin/rsync';
+my $ssh   = '/usr/bin/ssh';
+my $remotehost = 'sawmill';
+my $runas      = 'logs';
+my $sourcedir  = '/var/log/httpd';
+my $destdir    = '/manhunt/www';
+my $filepattern = '*.1.gz';
+my $hostname = '';
+my $day = '';
+my $month = '';
+my $yearOffset = '';
+my $und = '';
+my $suffix = '';
+my $logdate = '';
+my $cmd = '';
+my $status = '';
+my $std_out_ref = '';
+my $std_err_ref = '';
+
+my $cc = $mail_header::CC;
+my $subject= 'Pushlogs: monitoring status';
+my $mailnotice = 'monitor@manhunt.net';
+
+my $retrymax = 5;
+my $retrydelay = 60;
+
+my $DEBUG=1;
+print "Running in DEBUG mode\n" if $DEBUG;
+
+my $debugopts = '';
+$debugopts = '--stats' if $DEBUG;
+
+die "rsync not found\n" unless defined $rsync;
+
+$hostname=&hostname;
+($hostname,$und,$suffix)=split /\./,$hostname,3;
+if ( $suffix eq "jp" ) {
+  $hostname = "japan";
+}
+($und, $und, $und, $day, $month, $yearOffset, $und, $und, $und) = localtime();
+$logdate = sprintf ("%04d%02d%02d", $yearOffset + 1900, $month + 1, $day);
+
+##################
+# send_mail: This function sends mail
+# Calling Profile: &send_mail($from,$to,$subject,$message_ref);
+#                  where $message_ref is a reference to an array  
+#                        containing the message to send
+# Returns: none
+##################
+
+sub send_mail {
+ my ($from,$to,$cc,$subject,$message_ref)= @_;
+ my $msg;
+ my @message=@$message_ref;
+
+    $msg = MIME::Lite->new(
+           From    => $from,
+           To      => $to,
+           Cc      => $cc,
+           Subject => $subject,
+           Type    => 'TEXT/HTML',
+           Data    => \@message );
+
+   $msg->send(  );
+
+}
+
+
+#--------------MAIN LOOP-------------------
+my $count = $retrymax;
+while ($count-- > 0) {
+  $cmd = "su - $runas -c \"$rsync -ac --include '$filepattern' --bwlimit=500 --exclude '*' --partial --partial-dir=$destdir/temp $debugopts $sourcedir/ $remotehost:$destdir/$hostname/$logdate\"";
+  ##$cmd = "sudo su - $runas -c \"$rsync -ac --include '$filepattern' --bwlimit=500 --exclude '*' --partial --partial-dir=$destdir/temp $debugopts $sourcedir/ $remotehost:$destdir/$hostname/$logdate\"";
+  print "Invoking '$cmd'\n" if $DEBUG;
+  my $retval = system ($cmd);
+  if ($retval==0) {
+	print "succeeded\n" if $DEBUG;
+	printf ("succeeded after %d attempts\n", $retrymax - $count) if $count < $retrymax - 1;
+	$cmd="/usr/bin/logger -d -p user.info -t LOGPUSH \"Successfully pushed logs to $remotehost\"";
+        system("$cmd");
+	exit 0;
+  }
+  print "Retrying in $retrydelay seconds\n" if $DEBUG && $count;
+  sleep $retrydelay if $count;
+}
+my @mail_message = ();
+push (@mail_message, "Host: $hostname<BR>");
+my $msg = "Error: Failed after $retrymax attempts!";
+print "$msg\n";
+push (@mail_message, "$msg<BR>");
+&send_mail($runas,$mailnotice,$cc,$subject,\@mail_message);
+
+$cmd="/usr/bin/logger -d -p user.info -t LOGPUSH \"Failed to push logs\"";
+system("$cmd");
+exit 2;

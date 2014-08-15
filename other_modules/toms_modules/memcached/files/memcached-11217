@@ -1,0 +1,74 @@
+#!/bin/bash
+#
+# Init file for memcached server daemon
+#
+# chkconfig: 2345 99 25
+# description: memcached server daemon
+#
+# processname: memcached
+#
+# init script by Matt Shields - 20090727 version 1.0
+
+# source function library
+. /etc/rc.d/init.d/functions
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+DAEMON=/usr/local/bin/memcached
+DAEMONBOOTSTRAP=/usr/share/memcached/scripts/start-memcached
+NAME=memcached
+DESC=memcached
+INSTANCE=11217
+PIDFILE=/var/run/$NAME-$INSTANCE.pid
+LOGFILE=/var/log/memcached/$NAME-$INSTANCE.log
+
+test -x $DAEMON || exit 0
+#test -x $DAEMONBOOTSTRAP || exit 0
+
+set -e
+
+start()
+{
+	echo -n "Starting $DESC: "
+	$DAEMON -u nobody -d -m 1024 -p $INSTANCE -U $INSTANCE -P $PIDFILE
+	echo "$NAME."
+	echo `ps -aef | grep "/usr/local/bin/memcached" | grep $NAME-$INSTANCE | grep -v grep | awk {'print $2'}` > $PIDFILE
+	cat $PIDFILE
+}
+
+stop()
+{
+	echo -n "Stopping $DESC: "
+	
+	if [ -e "$PIDFILE" ] ; then
+		PID=`cat $PIDFILE`
+		kill $PID
+		rm -f $PIDFILE
+#	else
+#		failure $"Stopping $DESC"
+	fi
+        RETVAL=$?
+
+        echo
+}
+
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+
+  restart|force-reload)
+	stop
+	start
+	;;
+  *)
+	N=/etc/init.d/$NAME-$INSTANCE
+	# echo "Usage: $N {start|stop|restart|reload|force-reload}" >&2
+	echo "Usage: $N {start|stop|restart|force-reload}" >&2
+	exit 1
+	;;
+esac
+
+exit 0

@@ -1,0 +1,163 @@
+head	1.3;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.3
+date	2008.08.22.20.29.01;	author tmcgonagle;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2008.08.22.20.05.35;	author sfrattura;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2008.08.19.21.39.55;	author sfrattura;	state Exp;
+branches;
+next	;
+
+
+desc
+@starting point
+@
+
+
+1.3
+log
+@Changed host to dw02
+@
+text
+@#!/bin/sh
+# sessionsclean.sh
+# $Id: US_FutureRebills.sh,v 1.2 2008/08/22 20:05:35 sfrattura Exp tmcgonagle $
+#
+. /etc/manhunt/source.sh
+
+##HOST=${MHMASTERDBHOST}
+HOST=${DWHOST}
+
+VERBOSITY=-v
+LOG=${CARE_LOG}
+
+# Run as care.
+if [ "$UID" -ne "$CARE_UID" ]
+then
+ echo "Must be care to run this script."
+  exit $ERROR
+fi  
+
+if [ "`$MYSQL -u $DBUSER -h $HOST -p$DBPASSWD $MANHUNTDB -e 'show databases'`" == "" ]
+then
+echo "Cannot connect to database."
+exit $ERROR
+fi
+
+if [ "`touch $LOG`" != "" ]
+then 
+echo "Cannot write to logfile."
+exit $ERROR
+fi
+echo "START $APPNAME `date`" >> $LOG
+
+
+
+
+$MYSQL -u $DBUSER -h $HOST -p$DBPASSWD $MANHUNTDB $VERBOSITY -e "insert PermanentArchive.USFutureRebills select date(now()),  sum(case when period =7 then 1 else 0 end) as 7DayCount, sum(case when period =7 then total else 0 end) as 7DayTotal, sum(case when period =30 then 1 else 0 end) as 30DayCount, sum(case when period =30 then total else 0 end) as 30DayTotal, sum(case when period =90 then 1 else 0 end) as 90DayCount, sum(case when period =90 then total else 0 end) as 90DayTotal, sum(case when period not in (7,30,90) then 1 else 0 end) as OtherCount, sum(case when period not in (7,30,90) then total else 0 end) as OtherTotal, count(*) as GrandCount, sum(total) as GrandTotal from Bill_Sched_Paym;" >> $LOG 
+
+
+
+
+echo "FINISH $APPNAME `date`" >> $LOG
+
+exit 0;
+@
+
+
+1.2
+log
+@this is the correct version, although without testing.  But it is at least the correct SQL stmt
+@
+text
+@d3 1
+a3 1
+# $Id: sessionsclean.sh,v 1.2 2008/08/11 21:56:06 rbraun Exp $
+d7 2
+a8 1
+HOST=${MHMASTERDBHOST}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 3
+a4 5
+# $Id: PhiSpammaJamma.sh,v 1.5 2008/08/19 14:23:03 sfrattura Exp $
+# Created 2/08 by sfrattura
+
+# Base Variables
+
+d7 1
+a7 8
+DB=$MESSAGEDB
+BIN=$MYSQLDUMP
+TESTBIN=$MYSQL
+LOG=$CARE_LOG
+
+MYRESULTS=""
+SQL1=""
+ERROR=1
+d9 2
+a10 4
+# Threshold is number of messages; timeframe is number of hours
+
+SPAM_THRESHOLD=$1
+SPAM_TIMEFRAME=$2
+d19 6
+a31 8
+for h in $MAILDBHOSTS_S
+do
+  if [ "`$TESTBIN -u $DBUSER -h $h -p$DBPASSWD $DB -e 'show databases'`" == "" ]
+  then
+    echo "Cannot connect to database."
+    exit $ERROR
+  fi
+done
+a33 2
+for h in $MAILDBHOSTS_S
+do
+d35 1
+a35 1
+$TESTBIN -u $DBUSER -h $h -p$DBPASSWD $DB -e "truncate TABLE sfPhiSpammaJamma "
+a37 1
+echo " `date +%H:%M:%S` -- Server: $h" >> $LOG
+a38 5
+  # all tables that match Inbox should have old records deleted
+  for t in `$TESTBIN -u $DBUSER -h $h -p$DBPASSWD  $DB -e 'show tables'`
+  do
+    for i in `echo $t | /bin/awk '/Sent/ {print $1}'`
+    do
+a39 13
+      SQL1="insert sfPhiSpammaJamma select fromUid, count(distinct toUid) as MyTot, subject, body  from $t where fromUid not in (1,2,588516,2338977,1458169,2338986,2653350,1458175,2338928,513808,1773532,2338890,588516,958964,1498198,1514710) and date >= date_sub(now(), INTERVAL $SPAM_TIMEFRAME HOUR) group by fromUid, subject having MyTot > $SPAM_THRESHOLD;" 
+
+      $TESTBIN -u $DBUSER -h $h -p$DBPASSWD  $DB  -e "$SQL1" 
+      done
+  done
+
+#--before emailing, check to see if this record exists in the PhiSpammaJamma database
+$TESTBIN -u $DBUSER -h $h -p$DBPASSWD $DB -e  "insert ignore into SpamThrottle select fromUid, subj, now() from sfPhiSpammaJamma group by fromuid, subj\G"
+
+#--now email the results, if necessary
+$TESTBIN -u $DBUSER -h $h -p$DBPASSWD $DB -e  "select fromUid, TotalSent, subj, body from sfPhiSpammaJamma where fromuid not in (select fromUid from SpamThrottle where NotifyDate < date_sub(now(), INTERVAL 2 minute)) group by fromuid, subj\G;" | tee --append $LOG
+
+done # end of go through hosts
+a42 2
+
+
+@

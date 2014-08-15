@@ -1,0 +1,254 @@
+head	1.8;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.8
+date	2010.10.14.20.06.55;	author kpanacy;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	2010.10.14.19.25.15;	author kpanacy;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	2010.09.24.16.40.22;	author kpanacy;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	2010.09.23.15.49.39;	author kpanacy;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	2010.09.23.13.08.40;	author kpanacy;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2010.09.23.13.04.33;	author kpanacy;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2010.09.22.21.00.17;	author kpanacy;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2010.09.22.15.35.37;	author kpanacy;	state Exp;
+branches;
+next	;
+
+
+desc
+@sys-3116
+@
+
+
+1.8
+log
+@cleaned up server and database variables
+@
+text
+@#!/bin/sh
+
+PID=${$}
+
+. /etc/manhunt/source.sh
+
+# V4_DATAWAREHOUSE is presently dw03
+
+PASS=${V4_PW}
+USER=${V4_USER}
+USERHOST=${V4_DATAWAREHOUSE}
+USERDB=${V4_USERDB}
+MAILSERVER=${V4_MAILSERVER}
+MAILDB=${V4_MAILDB}
+LOG=${CARE_LOG}_run
+ERROR=1
+VERBOSITY=-vv
+CHAROPT="--default-character-set=utf8"
+DEBUGGING=$1
+
+MSG="insert routines_run (routine_name,routine_status) values ('UnpaidJoinsMail', 'BEGIN')"
+SQL=`mysql $CHAROPT -u $USER -p$PASS -h $USERHOST $USERDB -e "$MSG"`
+
+# Run as care.
+if [ "$UID" -ne "$CARE_UID" ]
+then
+    echo "Must be care to run this script."
+    exit $ERROR
+fi
+
+if [ "`touch $LOG`" != "" ]
+then
+    echo "Cannot write to logfile."
+    exit $ERROR
+fi
+
+echo `date` [$APPNAME] START >> $LOG
+if [ "$DEBUGGING" = "1"  ]
+then
+    echo `date` [$APPNAME] DEBUGGING MODE >> $LOG
+    DEBUGMODE="(Debug mode)"
+else
+    DEBUGMODE=" "
+fi
+
+PIDFILE="$TEMP/UnpaidJoinsMail.pid"
+
+touch $PIDFILE
+
+if [ `cat ${PIDFILE}` ] && [ -d /proc/`cat ${PIDFILE}` ]
+then
+    echo `date` "$0 $1 appears to be running already. Not starting." >> $LOG
+else
+    echo ${PID} > ${PIDFILE}
+
+    COUNTED=0
+    for arrMailList in `mysql $CHAROPT -u $USER -p$PASS -h $USERHOST $USERDB -s -e "call get_unpaid_joins_to_mail"`
+    do
+        OWNERID=`cut -d"|" -f1 <<< $arrMailList`
+        # LANGLOC=`cut -d"|" -f2 <<< $arrMailList`
+        MAILSHARD=`cut -d"|" -f3 <<< $arrMailList`
+        MESSAGEID=`cut -d"|" -f4 <<< $arrMailList`
+
+        # echo $UID $MAILSHARD $MESSAGEID
+
+        MSG="insert ignore mail_messages select $OWNERID, '$MESSAGEID', NULL, 1, $OWNERID, NULL, umailFolderID, now(), 'N', 'N', 'N', NULL, NULL, NULL, 'N', NULL, 'MANHUNTServiceMan' from mailbox_folder where uid = $OWNERID and name = 'Inbox'";
+
+        # echo $MSG
+
+        # MAILSEND=`mysql $CHAROPT -u $USER -p$PASS -h $MAILSHARD $MAILDB -s -e "$MSG"`
+
+        if [ "$DEBUGGING" = "1"  ]
+        then
+             echo mysql $CHAROPT -u $USER -p$PASS -h $MAILSHARD $MAILDB -e '"'$MSG'"'
+        else
+             MAILSEND=`mysql $CHAROPT -u $USER -p$PASS -h $MAILSHARD $MAILDB -e "$MSG"`
+        fi
+       
+        COUNTED=$(($COUNTED+1))
+       
+        echo `date` [$APPNAME] $arrMailList >> $LOG
+    done
+    
+    if [ "$DEBUGGING" = "1"  ]
+        then
+            echo call write_promos_expire_mail_log"("CURRENT_DATE,0,0,0,0,0,$COUNTED")"
+        else
+            MSG="call write_promos_expire_mail_log(CURRENT_DATE,0,0,0,0,0,$COUNTED)"
+            SQL=`mysql $CHAROPT -u $USER -p$PASS -h $USERHOST $USERDB -e "$MSG"`
+    fi    
+    
+    echo `date` [$APPNAME] Completed with $COUNTED rows sent.  >> $LOG
+fi
+
+rm -f ${PIDFILE}
+
+MSG="insert routines_run (routine_name,routine_status,routine_information) values ('UnpaidJoinsMail', 'END', '$COUNTED messages sent. $DEBUGMODE ')"
+SQL=`mysql $CHAROPT -u $USER -p$PASS -h $USERHOST $USERDB -e "$MSG"`
+
+
+exit
+
+@
+
+
+1.7
+log
+@added write to promos mail log
+@
+text
+@d2 1
+a2 1
+#
+d6 3
+d11 1
+a11 1
+USERHOST=DW03
+d70 1
+a70 1
+        # MAILSEND=`mysql $CHAROPT -u $USER -p$PASS -h $MAILSHARD manhunt_mail_v4 -s -e "$MSG"`
+d74 1
+a74 1
+             echo mysql $CHAROPT -u $USER -p$PASS -h $MAILSHARD manhunt_mail_v4 -e '"'$MSG'"'
+d76 1
+a76 1
+             MAILSEND=`mysql $CHAROPT -u $USER -p$PASS -h $MAILSHARD manhunt_mail_v4 -e "$MSG"`
+@
+
+
+1.6
+log
+@added debug mode to routines_run log
+@
+text
+@d81 8
+@
+
+
+1.5
+log
+@changed proc name
+@
+text
+@d38 3
+d86 1
+a86 1
+MSG="insert routines_run (routine_name,routine_status,routine_information) values ('UnpaidJoinsMail', 'END', '$COUNTED messages sent.')"
+@
+
+
+1.4
+log
+@changed log file name to _run
+@
+text
+@d51 1
+a51 1
+    for arrMailList in `mysql $CHAROPT -u $USER -p$PASS -h $USERHOST $USERDB -s -e "call GetUnpaidJoinsToMail"`
+@
+
+
+1.3
+log
+@moved BEGIN write to log message
+@
+text
+@d12 1
+a12 1
+LOG=${CARE_LOG}_$4_users
+@
+
+
+1.2
+log
+@added logging to db so that nagios can track
+@
+text
+@d34 6
+a48 6
+
+    echo `date` [$APPNAME] START >> $LOG
+    if [ "$DEBUGGING" = "1"  ]
+    then
+        echo `date` [$APPNAME] DEBUGGING MODE >> $LOG
+    fi
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d18 3
+d82 4
+@

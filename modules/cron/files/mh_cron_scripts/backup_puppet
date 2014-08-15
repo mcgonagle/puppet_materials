@@ -1,0 +1,16 @@
+#!/bin/bash
+# $Id: backup_puppet,v 1.1 2008/04/16 19:53:36 rbraun Exp $
+#
+# Created 4/08 by rbraun
+#
+# This backs up the puppet configuration in /etc/puppet and /var/lib/puppet.
+# First argument: name of server to back up.
+
+HOST=$1
+DESTDIR=/var/backup/puppet
+DOW=`date +%a`
+
+[ -d $DESTDIR/$DOW ] || mkdir -p $DESTDIR/$HOST/$DOW
+rsync --delete -a $HOST:/var/lib/puppet $DESTDIR/$HOST/$DOW/lib
+rsync --delete -a $HOST:/etc/puppet $DESTDIR/$HOST/$DOW/manifest
+

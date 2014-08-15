@@ -1,0 +1,20 @@
+## This line needs site specific customizations. Or at a minimum change
+## the password on first boot.
+# CCE-3818-2 (row 90) Add a grub bootloader password (password is: rhel5)
+# CCE-15026-8 (row 143) enable audit at boot
+bootloader --location=mbr --password=rhel5 --append="rhgb quiet audit=1"
+# Clear the Master Boot Record
+zerombr
+clearpart --all --initlabel
+# Allow anaconda to partition the system as needed
+autopart
+part /boot --fstype ext3 --size=512 --asprimary
+part swap --recommended 
+part pv.01 --size=1 --grow 
+volgroup vgroup1 pv.01 
+logvol /     --fstype ext3 --name=root --vgname=vgroup1 --size=2560 --grow
+logvol /tmp  --fstype ext3 --name=temp --vgname=vgroup1 --size=256
+logvol /home --fstype ext3 --name=home --vgname=vgroup1 --size=1024
+logvol /var  --fstype ext3 --name=var  --vgname=vgroup1 --size=1024
+logvol /var/log --fstype ext3 --name=varlog --vgname=vgroup1 --size=512
+logvol /var/log/audit --fstype ext3 --name=audit --vgname=vgroup1 --size=256

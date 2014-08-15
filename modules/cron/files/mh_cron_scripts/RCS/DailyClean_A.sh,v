@@ -1,0 +1,328 @@
+head	1.3;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.3
+date	2008.09.10.21.23.04;	author sfrattura;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2008.09.10.21.19.29;	author sfrattura;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2008.09.10.21.07.46;	author sfrattura;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.3
+log
+@capitalized $mysql
+@
+text
+@#!/bin/sh -x
+# $Id: DailyClean_A.sh,v 1.2 2008/09/10 21:19:29 sfrattura Exp sfrattura $
+# Created 9/10/08 by sfrattura
+
+
+# Base Variables
+
+. /etc/manhunt/source.sh
+
+
+DB=$MANHUNTDB
+LOG=$CARE_LOG
+VERBOSITY=-vv
+
+MYRESULTS=""
+SQL1=""
+ERROR=1
+HOST=$MHMASTERDBHOST
+
+# Run as care.
+if [ "$UID" -ne "$CARE_UID" ]
+then
+ echo "Must be care to run this script."
+  exit $ERROR
+fi  
+
+if [ "`touch $LOG`" != "" ]
+then 
+  echo "Cannot write to logfile."
+  exit $ERROR
+fi
+
+echo "START $APPNAME `date`" >> $LOG
+
+if [ "`$MYSQL -u $DBUSER -h $HOST -p$DBPASSWD $MANHUNTDB -e 'show databases'`" == "" ]
+then
+  echo "Cannot connect to database."
+  exit $ERROR
+fi
+
+
+echo "START WhackLimitedMemberSavedSearchItems `date`" >> $LOG
+  SQL1="delete ssi from  SavedSearches ss, SavedSearchItems ssi, Users u where  ss.uid=u.uid  and ss.sid=ssi.sid  and u.type='limited'"
+  $MYSQL -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG
+echo "END WhackLimitedMemberSavedSearchItems `date`" >> $LOG
+echo -e "\n\n" >> $LOG
+
+echo "START WhackLimitedMemberSavedSearches `date`" >> $LOG
+  # N.B.  - must be done in this order! SavedSearches AFTER SavedSearchItems
+  SQL1="delete ss from SavedSearches ss, Users u where ss.uid=u.uid and u.type='limited'"
+  $MYSQL -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG  
+echo "END WhackLimitedMemberSavedSearches `date`" >> $LOG
+echo -e "\n\n" >> $LOG
+
+
+echo "START KillOrphanSavedSearchItems `date`" >> $LOG
+  SQL1="DELETE i FROM SavedSearchItems i LEFT JOIN SavedSearches s ON s.sid=i.sid WHERE s.sid IS NULL"
+  $MYSQL -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG
+echo "END KillOrphanSavedSearchItems `date`" >> $LOG
+echo -e "\n\n" >> $LOG
+
+echo "START SetMembersToPreview `date`" >> $LOG
+  #users marked as "paid" in states where we don't have that status should be marked as "preview"
+  SQL1="update  Users u, Bill_Sales b set u.type = 'preview' where u.uid=b.uid AND CURDATE() between b.startDate AND b.endDate AND b.typesale='pos' AND state_code in ('MX033', 'MX034', 'US052', 'US053', 'US054', 'US055', 'US056', 'US057', 'US059', 'US060', 'US061', 'US062', 'US063', 'US064', 'US065', 'US066', 'US067', 'US068', 'US069')"
+$MYSQL -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG
+echo "END SetMembersToPreview `date`" >> $LOG
+echo -e "\n\n" >> $LOG
+
+
+echo "START SetMembersToPreview4BillComp `date`" >> $LOG
+  #comped Users in these states should be set to "preview" also
+  SQL1="update Users u, Bill_Comp_Time b set  u.type = 'preview' where u.uid=b.uid and CURDATE() between b.startDate AND b.endDate AND state_code in ('MX033', 'MX034', 'US052', 'US053', 'US054', 'US055', 'US056', 'US057', 'US059', 'US060', 'US061', 'US062', 'US063', 'US064', 'US065', 'US066', 'US067', 'US068', 'US069')"
+  $MYSQL -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG
+echo "END SetMembersToPreview4BillComp `date`" >> $LOG
+echo -e "\n\n" >> $LOG
+
+###echo "START KillOrphanAds `date`" >> $LOG
+# remove orphaned ads:
+###SQL1="delete a from Ads a LEFT JOIN Users u ON a.uid=u.uid WHERE u.uid is NULL"
+###$MYSQL -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG
+###echo "END KillOrphanAds `date`" >> $LOG
+echo -e "\n\n" >> $LOG
+
+
+echo "START KillOrphanAds_FT `date`" >> $LOG
+  # remove orphaned Ads_FT:
+  SQL1="delete a from Ads_FT a LEFT JOIN Users u ON a.uid=u.uid WHERE u.uid is NULL"
+  $MYSQL -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG
+echo "END KillOrphanAds_FT `date`" >> $LOG
+echo -e "\n\n" >> $LOG
+
+
+###echo "START RelockForBlockedGuys `date`" >> $LOG
+# BLOCKED PEOPLE CAN NOT ALSO BE UNLOCKED.  Duh!
+####### improvement possibility: add index to Access (blocked, unlocked ) 
+###SQL1="UPDATE Access SET unlocked=0 WHERE unlocked = 1 and blocked = 1"
+###$MYSQL -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG
+###echo "END RelockForBlockedGuys `date`" >> $LOG
+echo -e "\n\n" >> $LOG
+###echo "START RemoveBuddysWhoAreBlocked `date`" >> $LOG
+#BLOCKED PEOPLE SHOULD NOT BE ON BUDDY LISTS
+####### improvement possibility: add index to Access (blocked)
+###SQL1="create table AllBlocks (uid int(10), remoteUid int(10), PRIMARY KEY (uid, remoteUid))"
+###$MYSQL -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG
+###SQL1="insert AllBlocks select uid, remoteUid from Access where blocked = 1 and modified >= now() - interval 6 day"
+###$MYSQL -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG
+###SQL1="delete b from BuddyList b join AllBlocks ab on b.uid = ab.uid and b.buddyUid = ab.remoteUid"
+###$MYSQL -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG
+###SQL1="drop table AllBlocks;"
+###$MYSQL -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG
+###echo "END RemoveBuddysWhoAreBlocked `date`" >> $LOG
+echo -e "\n\n" >> $LOG
+
+
+echo "START UnblockManhuntServiceman `date`" >> $LOG
+  # MAKE SURE NO ONE HAS BLOCKED MANHUNTSERVICEMAN
+  SQL1="DELETE FROM Access WHERE blocked=1 AND remoteUid=1"
+  $MYSQL -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG
+echo "END UnblockManhuntServiceman `date`" >> $LOG
+echo -e "\n\n" >> $LOG
+
+
+echo "START ResetAdminProfiles `date`" >> $LOG
+  SQL1="UPDATE Users SET type='admin', status='active' WHERE uid<=9"
+  $MYSQL -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG
+echo "END ResetAdminProfiles `date`" >> $LOG
+echo -e "\n\n" >> $LOG
+
+
+echo "START org profiles `date`" >> $LOG
+  #ORG PROFILES MUST RECEIVE DAILY NOTIFICATIONS
+  SQL1="UPDATE Users SET notify=1 WHERE type in ('org','ipn')"
+  $MYSQL -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG
+echo "END org profiles `date`" >> $LOG
+echo -e "\n\n" >> $LOG
+
+
+###echo "START WhackBuddyThatDontExist `date`" >> $LOG
+###SQL1="delete b FROM BuddyList b LEFT JOIN Users u on u.uid=b.buddyUid where u.uid IS NULL"
+###$MYSQL -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG
+###echo "END WhackBuddyThatDontExist `date`" >> $LOG
+echo -e "\n\n" >> $LOG
+
+
+echo "START WhackBuddiesMarkedForDeletion `date`" >> $LOG
+  SQL1="delete b FROM BuddyList b LEFT JOIN Users u on u.uid=b.buddyUid where u.status='delete'"
+  $MYSQL -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG
+echo "END WhackBuddiesMarkedForDeletion `date`" >> $LOG
+
+
+echo "FINISH $APPNAME `date`" >> $LOG
+exit 0;
+
+
+
+
+
+
+
+
+
+
+
+@
+
+
+1.2
+log
+@first revision.  SF
+@
+text
+@d2 1
+a2 1
+# $Id: DailyClean_A.sh,v 1.1 2008/09/10 21:07:46 sfrattura Exp sfrattura $
+d35 1
+a35 1
+if [ "`$mysql -u $DBUSER -h $HOST -p$DBPASSWD $MANHUNTDB -e 'show databases'`" == "" ]
+d44 1
+a44 1
+  $mysql -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG
+d51 1
+a51 1
+  $mysql -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG  
+d58 1
+a58 1
+  $mysql -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG
+d65 1
+a65 1
+$mysql -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG
+d73 1
+a73 1
+  $mysql -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG
+d80 1
+a80 1
+###$mysql -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG
+d88 1
+a88 1
+  $mysql -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG
+d97 1
+a97 1
+###$mysql -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG
+d104 1
+a104 1
+###$mysql -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG
+d106 1
+a106 1
+###$mysql -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG
+d108 1
+a108 1
+###$mysql -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG
+d110 1
+a110 1
+###$mysql -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG
+d118 1
+a118 1
+  $mysql -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG
+d125 1
+a125 1
+  $mysql -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG
+d133 1
+a133 1
+  $mysql -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG
+d140 1
+a140 1
+###$mysql -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG
+d147 1
+a147 1
+  $mysql -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1" >> $LOG
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 1
+a2 1
+# $Id: Daily_Clean_A.sh,v 1.5 2008/08/19 14:23:03 sfrattura Exp $
+a11 1
+TESTBIN=$MYSQL
+d35 1
+a35 1
+if [ "`$TESTBIN -u $DBUSER -h $HOST -p$DBPASSWD $MANHUNTDB -e 'show databases'`" == "" ]
+d44 1
+a44 1
+  $TESTBIN -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1"
+d51 1
+a51 1
+  $TESTBIN -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1"  
+d58 1
+a58 1
+  $TESTBIN -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1"
+d65 1
+a65 1
+$TESTBIN -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1"
+d73 1
+a73 1
+  $TESTBIN -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1"
+d80 1
+a80 1
+###$TESTBIN -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1"
+d88 1
+a88 1
+  $TESTBIN -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1"
+d97 1
+a97 1
+###$TESTBIN -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1"
+d104 1
+a104 1
+###$TESTBIN -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1"
+d106 1
+a106 1
+###$TESTBIN -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1"
+d108 1
+a108 1
+###$TESTBIN -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1"
+d110 1
+a110 1
+###$TESTBIN -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1"
+d118 1
+a118 1
+  $TESTBIN -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1"
+d125 1
+a125 1
+  $TESTBIN -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1"
+d133 1
+a133 1
+  $TESTBIN -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1"
+d140 1
+a140 1
+###$TESTBIN -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1"
+d147 1
+a147 1
+  $TESTBIN -u $DBUSER -h $HOST -p$DBPASSWD  $MANHUNTDB $VERBOSITY -e "$SQL1"
+@

@@ -1,0 +1,47 @@
+#!/bin/bash
+# v4_webroller_hourly
+#
+# $Id: v4_webroller_hourly,v 1.7 2009/12/04 19:19:08 rbraun Exp jjoy $
+#
+# Created 03/2009 by wflynn, modified and adapted to hourly by jjoy.
+#
+# Script for cron to zip, backup and delete web logs
+#
+# ###############NOTE WELL##################
+# TBD rbraun 12/4/09:  why does this run as 'root' when it should 'logs'?
+# ##########################################
+
+if [ ! ${1} -ge 0  ]
+then
+    echo "Usage: $0 <hoursago>"
+    echo "       Compress and archive <hoursago> hours ago's logs"
+    exit 1
+fi
+HOURSAGO=$1
+RUNAS="logs"
+ZIP_COMMAND="bzip2"
+ZIP_EXTENSION="bz2"
+LOGDIR="/etc/httpd/logs"
+## TODAY=`date +%Y.%m.%d`  ## This variable is not called, remove if true.
+## YESTERDAY=`date +%Y.%m.%d -d "yesterday"` ## This variable is not called, remove if true.
+
+## Belive it or not, apache logrotate doesn't comprehend DST,
+## So here %Z works, in the logfile name its always "EST".
+#LOGFILEDATE=`date +%Y.%m.%d.%H.%Z -d "${HOURSAGO} hours ago"`
+LOGFILEDATE=`date +%Y.%m.%d.%H -d "${HOURSAGO} hours ago"`
+#  Do the right thing with the directory, though
+LOGDIRDATE=`date +%Y%m%d%H%Z -d "${HOURSAGO} hours ago"`
+SOURCEDIR=${LOGDIR}
+DESTDIR="/manhunt/www"
+REMOTEHOST="sawmill"
+HOSTNAME=`hostname -s`
+
+# Zip em
+find -L ${LOGDIR} -name "*${LOGFILEDATE}*.log" -exec ${ZIP_COMMAND} {} \;
+# Archive em
+su ${RUNAS} -c "ssh ${REMOTEHOST} mkdir -p ${DESTDIR}/${HOSTNAME}/${LOGDIRDATE}"
+su ${RUNAS} -c "rsync -ac --include \"*${LOGFILEDATE}*.${ZIP_EXTENSION}\" --bwlimit=500 --exclude \"*\" --partial --partial-dir=${DESTDIR}/temp ${SOURCEDIR}/ ${REMOTEHOST}:${DESTDIR}/${HOSTNAME}/${LOGDIRDATE}"
+# Delete successfully transferred files
+for logfile in `su ${RUNAS} -c "ssh ${REMOTEHOST} ls ${DESTDIR}/${HOSTNAME}/${LOGDIRDATE}"`; do rm -f ${SOURCEDIR}/${logfile}; done
+
+exit

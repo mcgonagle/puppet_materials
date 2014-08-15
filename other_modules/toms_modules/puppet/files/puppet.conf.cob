@@ -1,0 +1,113 @@
+[main]
+    #Specified to enable Puppets Environment Ussage
+    #http://projects.puppetlabs.com/projects/1/wiki/Using_Multiple_Environments
+    modulepath = /etc/puppet/modules
+    manifest   = /etc/puppet/manifests/site.pp
+    
+    # Where Puppet stores dynamic and growing data.
+    # The default value is '/var/puppet'.
+    vardir = /var/lib/puppet
+
+    # The Puppet log directory.
+    # The default value is '$vardir/log'.
+    logdir = /var/log/puppet
+
+    # Where Puppet PID files are kept.
+    # The default value is '$vardir/run'.
+    rundir = /var/run/puppet
+
+    # Where SSL certificates are kept.
+    # The default value is '$confdir/ssl'.
+    ssldir = $vardir/ssl
+
+    ##pluginsyncing for syncing custom facts
+    pluginsync = true
+    factpath = $vardir/lib/facter
+
+    #External Node RB script, that uses puppet dashboard as an  
+    #external node repository
+    ##external_nodes = /usr/local/puppet-dashboard/bin/external_node
+    ##node_terminus = exec
+
+    #Using cobbler as an external node
+    external_nodes = /usr/bin/cobbler-ext-nodes
+    node_terminus = exec
+
+[puppetd]
+    # The file in which puppetd stores a list of the classes
+    # associated with the retrieved configuratiion.  Can be loaded in
+    # the separate ``puppet`` executable using the ``--loadclasses``
+    # option.
+    # The default value is '$confdir/classes.txt'.
+    classfile = $vardir/classes.txt
+
+    # Where puppetd caches the local configuration.  An
+    # extension indicating the cache format is added automatically.
+    # The default value is '$confdir/localconfig'.
+    localconfig = $vardir/localconfig
+
+    #Turning on reporting for dashboard support
+    report = true
+
+    #Turning on Graphing Support
+    graph = true
+    graphdir = $vardir/state/graphs
+
+
+
+##Section Added by Tom McGonagle on 06/08/10
+[puppetmasterd]
+    autosign = true
+    fileserverconfig = /etc/puppet/fileserver.conf
+    
+    ##enabling Reporting - Requires enabling on the client as well.
+    reports = tagmail, store, log
+    ##enabling dot graphing
+    graph = true
+    graphdir = $vardir/state/graphs
+
+    ##Store Configs Section
+    ##Requires sqlite or mysql
+    ##dbadapter = sqlite3
+    ##dblocation = /var/lib/puppet/storeconfigs.sqlite
+
+    storeconfigs = true
+    dbadapter = mysql
+    dbuser = root
+    dbpassword = ""
+    dbserver = localhost
+    dbsocket = /var/lib/mysql/mysql.sock  
+
+##parameters required to use passenger
+##http://github.com/reductivelabs/puppet/tree/master/ext/rack
+   ssl_client_header = SSL_CLIENT_S_DN
+   ssl_client_verify_header = SSL_CLIENT_VERIFY
+
+##Environment Sections Added by Tom 11/29/10
+[development]
+    manifest   = /etc/puppet/environments/development/manifests/site.pp
+    modulepath = /etc/puppet/environments/development/modules
+
+[qa]
+    manifest   = /etc/puppet/environments/qa/manifests/site.pp
+    modulepath = /etc/puppet/environments/qa/modules
+
+[lr]
+    manifest   = /etc/puppet/environments/lr/manifests/site.pp
+    modulepath = /etc/puppet/environments/lr/modules
+
+[akshat]
+    manifest   = /etc/puppet/environments/akshat/manifests/site.pp
+    modulepath = /etc/puppet/environments/akshat/modules
+
+[bill]
+    manifest   = /etc/puppet/environments/bill/manifests/site.pp
+    modulepath = /etc/puppet/environments/bill/modules
+
+[don]
+    manifest   = /etc/puppet/environments/don/manifests/site.pp
+    modulepath = /etc/puppet/environments/don/modules
+
+[tom]
+    manifest   = /etc/puppet/environments/tom/manifests/site.pp
+    modulepath = /etc/puppet/environments/tom/modules

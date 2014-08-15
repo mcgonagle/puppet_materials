@@ -1,0 +1,63 @@
+#!/bin/bash
+# $Id: backup_mysql_V4_slaves
+#
+# Cloned 03/09 by hschmidt
+#
+# This will keep daily dumps of each production database in subdirectories
+# of /var/backup/v4/mysql, by hostname and day of week.
+
+USER=bkp
+PSWD=807d854bq
+## MySQL command syntax for creating this user:
+## Tera-Bactyl02:
+# GRANT SELECT,RELOAD,SUPER,REPLICATION CLIENT ON *.* TO '$USER'@'192.168.1.228' IDENTIFIED BY '$PSWD';
+## Tera-Bactyl03:
+# GRANT SELECT,RELOAD,SUPER,REPLICATION CLIENT ON *.* TO '$USER'@'192.168.1.194' IDENTIFIED BY '$PSWD';
+## Tera-Bactyl01:
+# GRANT SELECT,RELOAD,SUPER,REPLICATION CLIENT ON *.* TO '$USER'@'192.168.218.105' IDENTIFIED BY '$PSWD';
+
+# The --master-data option is also useful but only when taking a dump
+# directly from a master server.
+####  BUT IS NEVER USEFUL 
+####  WHEN DUMPING A SLAVE.
+#
+####  AND THIS SCRIPT IS USED TO DUMP SLAVES.
+#
+####  THIS SAME SCRIPT IS USED FOR SLAVES THAT HAVE BINLOG DISABLED.  IT BREAKS.
+#
+# DON'T USE --master-data HERE!
+#
+# The flush logs is important to release locks on tables so the schema and data dump will run successfully
+
+DUMPOPTS="--flush-logs --all-databases --force -R --skip-opt --quick --single-transaction --add-drop-table --set-charset --create-options --no-autocommit --extended-insert"
+SCHEMA_DUMP_OPTS=" --flush-logs --force --no-data -R --triggers --events --all-databases"
+
+## Did I remind you not to use --master-data?
+
+DESTDIR=/var/backup/v4/mysql
+DAY=`date +%a`
+COMPRESS="bzip2 -f"
+COMPRESS_EXT="bz2"
+OLD_EXT="gz"
+
+for HOST in $@
+do
+    [ -d $DESTDIR/$HOST/$DAY ] || mkdir -p $DESTDIR/$HOST/$DAY
+ # Delete any lingering files that are over 7 days old:
+    /usr/bin/find $DESTDIR/$HOST/$DAY -name "*.*" -ls -mtime +7 -exec rm {} \;
+ # Schema only
+ # Delete any lingering files from a previous incarnation (or incantation) of this script, compressed or otherwise:
+    rm -f $DESTDIR/$HOST/$DAY/$HOST-schema.sql.$OLD_EXT
+    rm -f $DESTDIR/$HOST/$DAY/$HOST-schema.sql
+    SCHEMA_TARGET=$DESTDIR/$HOST/$DAY/$HOST-schema.sql
+    ( mysqldump -u $USER -p$PSWD $SCHEMA_DUMP_OPTS -h $HOST >$SCHEMA_TARGET && $COMPRESS $SCHEMA_TARGET & )
+ # Data
+ # Delete any lingering files from a previous incarnation (or incantation) of this script, compressed or otherwise:
+    rm -f $DESTDIR/$HOST/$DAY/$HOST-backup.sql.$OLD_EXT
+    rm -f $DESTDIR/$HOST/$DAY/$HOST-backup.sql
+    BACKUP_TARGET=$DESTDIR/$HOST/$DAY/$HOST-backup.sql
+    MASTER_STATUS=$DESTDIR/$HOST/$DAY/$HOST-master-status.txt
+    ( mysql -u $USER -p$PSWD -h $HOST -t -vvv -se "stop slave; show slave status\G" >$MASTER_STATUS  )
+    ( mysqldump -u $USER -p$PSWD $DUMPOPTS -h $HOST >$BACKUP_TARGET ;  $COMPRESS $BACKUP_TARGET & )
+    ( sleep 10; mysql -u $USER -p$PSWD -h $HOST -t -vvv -se "start slave" >>$MASTER_STATUS & )
+done

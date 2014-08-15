@@ -1,0 +1,10 @@
+# configuration for certmasterd and certmaster-ca
+[main]
+autosign = no
+listen_addr = 
+listen_port = 51235
+cadir = /var/lib/puppet/ssl/ca
+cert_dir = /etc/pki/certmaster
+certroot = /var/lib/puppet/ssl/ca/signed
+csrroot = /var/lib/certmaster/certmaster/csrs
+cert_extension = pem

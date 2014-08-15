@@ -1,0 +1,13 @@
+#!/bin/bash
+# $Id: backup_oracle,v 1.2 2009/03/27 15:47:51 hschmidt Exp $
+#
+# Created 2/08 by rbraun
+
+HOST=$1
+DESTDIR=/var/backup/oracle
+DAY=`date +%a`
+
+[ -d $DESTDIR/$HOST/$DAY ] || mkdir -p $DESTDIR/$HOST/$DAY
+# Because the rsync is not set up in the same way the host is set, this find will remove any data backup older than the 7 days retained in the control file. 
+/usr/bin/find $DESTDIR/$HOST/$DAY -name "*" -ls -mtime +7 -exec rm {} \;
+rsync -a --delete $HOST:/u01/app/oracle/flash_recovery_area/. $DESTDIR/$HOST/$DAY

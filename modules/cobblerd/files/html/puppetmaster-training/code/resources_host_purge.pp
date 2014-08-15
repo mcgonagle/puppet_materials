@@ -1,0 +1,3 @@
+resources { 'host':
+  purge => true,
+}

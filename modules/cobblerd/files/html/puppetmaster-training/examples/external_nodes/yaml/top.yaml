@@ -1,0 +1,7 @@
+--- 
+classes: 
+- base
+parameters: 
+  foo: footop
+  bar: bartop
+  baz: baztop

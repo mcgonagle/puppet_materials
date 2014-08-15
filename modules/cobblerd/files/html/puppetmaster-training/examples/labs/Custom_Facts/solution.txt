@@ -1,0 +1,4 @@
+* mkdir -p /etc/puppet/modules/myfacts/plugins/facter
+* copy the provided facts into the directory above.
+* export RUBYLIB=/etc/puppet/modules/myfacts/plugins 
+* execute facter

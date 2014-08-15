@@ -1,0 +1,24 @@
+#!/bin/bash
+# netstat_inspector
+# $Id: netstat_inspector,v 1.2 2008/06/30 18:32:43 wflynn Exp $
+#
+# Created 06/2008 by wflynn
+#
+# Script for capturing network traffic
+#
+TODAY=`date +%Y_%m_%d`
+OUTPUT="/tmp/statnet.${TODAY}.${$}.txt"
+if [ ! -n "${1}" ] || [ ! -n "${2}" ]
+then
+    echo "Usage: $0 <run_times> <sleep_seconds>"
+    exit 1
+fi
+RUNTIMES=$1
+SLEEPSECS=$2
+rm -f ${OUTPUT}
+for runtimes in `seq ${RUNTIMES}`; do
+    sleep ${SLEEPSECS}
+    date >> ${OUTPUT}
+    netstat -pevat | grep -v Recv-Q | grep -v  "Active Internet" | sort -k6 >> ${OUTPUT}
+    echo -e "------\n\n" >> ${OUTPUT}
+done

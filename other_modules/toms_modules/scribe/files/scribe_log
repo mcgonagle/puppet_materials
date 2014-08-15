@@ -1,0 +1,133 @@
+##############################################################################
+# This file is mananged by puppet.  Do NOT edit on the server, your changes  #
+# will be blown away on the next puppet run.                                 #
+##############################################################################
+#!/usr/bin/env python
+
+import optparse
+import os
+import sys
+import time
+from thrift.transport import TTransport
+from thrift.transport import TSocket
+from thrift.transport.TTransport import TTransportException
+from thrift.protocol import TBinaryProtocol
+from scribe import scribe
+
+class ScribeLogError(Exception): pass
+
+def tail_file(file):
+    while True:
+        where = file.tell()
+        line = file.readline()
+        if not line:
+            time.sleep(1.0)
+            file.seek(where)
+        else:
+            yield line
+
+def handle(file, category, host='127.0.0.1', port=1463, prefix='', postfix=''):
+    result = 0
+
+    socket = TSocket.TSocket(host=host, port=port)
+    transport = TTransport.TFramedTransport(socket)
+    protocol = TBinaryProtocol.TBinaryProtocol(
+        trans=transport,
+        strictRead=False,
+        strictWrite=False,
+    )
+    client = scribe.Client(iprot=protocol, oprot=protocol)
+
+    transport.open()
+
+    try:
+        log_file = open(file)
+        try:
+            log_file.seek(0, 2)
+            for line in tail_file(log_file):
+                log_entry = scribe.LogEntry(
+                    category=category,
+                    message=prefix+line+postfix,
+                )
+                result = client.Log(messages=[log_entry])
+        finally:
+            log_file.close()
+    except IOError, error:
+        raise ScribeLogError('IOError: %s' % error)
+
+    try:
+        transport.close()
+    except:
+        pass
+
+    if result == scribe.ResultCode.OK:
+        pass
+    elif result == scribe.ResultCode.TRY_LATER:
+        raise ScribeLogError('Scribe Error: TRY LATER')
+    else:
+        raise ScribeLogError('Scribe Error: Unknown error code (%s)' % result)
+
+if __name__ == '__main__':
+    parser = optparse.OptionParser()
+    parser.add_option(
+        '--file',
+        dest='file',
+        help='file to tail into Scribe',
+        metavar='FILE',
+    )
+    parser.add_option(
+        '--category',
+        dest='category',
+        help='Scribe category',
+        metavar='CATEGORY',
+    )
+    parser.add_option(
+        '--host',
+        default='127.0.0.1',
+        dest='host',
+        help='destination Scribe host server',
+        metavar='HOST',
+    )
+    parser.add_option(
+        '--port',
+        default=1463,
+        dest='port',
+        help='destination Scribe port',
+        metavar='PORT',
+        type='int',
+    )
+    parser.add_option(
+        '--prefix',
+        default='',
+        dest='prefix',
+        help='add to the beginning of each log line',
+        metavar='PREFIX',
+    )
+    parser.add_option(
+        '--postfix',
+        default='',
+        dest='postfix',
+        help='add to the end of each log line',
+        metavar='POSTFIX',
+    )
+
+    (options, args) = parser.parse_args()
+
+    if options.file and options.category:
+        try:
+            handle(
+                file=options.file,
+                category=options.category,
+                host=options.host,
+                port=options.port,
+                prefix=options.prefix,
+                postfix=options.postfix,
+            )
+        except KeyboardInterrupt:
+            sys.exit(0)
+        except (ScribeLogError, TTransportException), error:
+            print >> sys.stderr, error
+            sys.exit(1)
+    else:
+        parser.print_help()
+

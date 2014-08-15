@@ -1,0 +1,14 @@
+%packages --nobase
+@core
+rootfiles
+wget
+sudo
+emacs-nox
+patch
+pe-puppet
+pe-augeas
+pe-ruby-augeas
+
+
+
+

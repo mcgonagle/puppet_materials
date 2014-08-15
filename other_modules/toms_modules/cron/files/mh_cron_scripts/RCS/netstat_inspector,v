@@ -1,0 +1,62 @@
+head	1.2;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.2
+date	2008.06.30.18.32.43;	author wflynn;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2008.06.30.18.31.09;	author wflynn;	state Exp;
+branches;
+next	;
+
+
+desc
+@Script for capturing network traffic.  JIRA: SYS-705
+@
+
+
+1.2
+log
+@Added header info, etc.
+@
+text
+@#!/bin/bash
+# netstat_inspector
+# $Id: $
+#
+# Created 06/2008 by wflynn
+#
+# Script for capturing network traffic
+#
+TODAY=`date +%Y_%m_%d`
+OUTPUT="/tmp/statnet.${TODAY}.${$}.txt"
+if [ ! -n "${1}" ] || [ ! -n "${2}" ]
+then
+    echo "Usage: $0 <run_times> <sleep_seconds>"
+    exit 1
+fi
+RUNTIMES=$1
+SLEEPSECS=$2
+rm -f ${OUTPUT}
+for runtimes in `seq ${RUNTIMES}`; do
+    sleep ${SLEEPSECS}
+    date >> ${OUTPUT}
+    netstat -pevat | grep -v Recv-Q | grep -v  "Active Internet" | sort -k6 >> ${OUTPUT}
+    echo -e "------\n\n" >> ${OUTPUT}
+done
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 7
+@

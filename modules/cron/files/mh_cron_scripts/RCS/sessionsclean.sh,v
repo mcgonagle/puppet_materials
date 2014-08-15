@@ -1,0 +1,406 @@
+head	1.11;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.11
+date	2008.08.27.12.19.42;	author rbraun;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	2008.08.27.11.00.26;	author wflynn;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	2008.08.26.21.31.53;	author rbraun;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	2008.08.26.21.12.31;	author rbraun;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	2008.08.26.20.35.47;	author rbraun;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	2008.08.26.20.20.14;	author rbraun;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	2008.08.26.20.10.53;	author rbraun;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	2008.08.26.16.06.37;	author wflynn;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2008.08.26.16.03.28;	author wflynn;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2008.08.11.21.56.06;	author rbraun;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2008.07.03.19.40.51;	author rbraun;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.11
+log
+@the $VERBOSITY option was missing from DELETE FROM statements
+@
+text
+@#!/bin/sh
+# sessionsclean.sh
+# $Id: sessionsclean.sh,v 1.10 2008/08/27 11:00:26 wflynn Exp rbraun $
+#
+. /etc/manhunt/source.sh
+
+HOST=${MHMASTERDBHOST}
+CURRENTTOTAL=0
+VERBOSITY=-vv
+LOG=${CARE_LOG}
+
+# Run as care.
+if [ "$UID" -ne "$CARE_UID" ]
+then
+ echo "Must be care to run this script."
+  exit $ERROR
+fi  
+
+if [ "`$MYSQL -u $DBUSER -h $HOST -p$DBPASSWD $MANHUNTDB -e 'show databases'`" == "" ]
+then
+echo "Cannot connect to database."
+exit $ERROR
+fi
+
+if [ "`touch $LOG`" != "" ]
+then 
+echo "Cannot write to logfile."
+exit $ERROR
+fi
+echo "START $APPNAME `date`" >> $LOG
+
+#Changed 6-4-2008 by Sandro
+#$MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD $MANHUNTDB $VERBOSITY -e "INSERT IGNORE INTO NetLoginHistory (uid,login,sess_id,server,status,type,IP,browser,lang,lastChange,city_id,state_code) SELECT s.uid,s.lastLogin,s.sess_id,s.server,s.status,s.type,s.IP,u.browser,s.lang,u.lastChange,s.city_id,s.state_code FROM Sessions AS s INNER JOIN Users AS u using (uid) WHERE logout=0;" >> $LOG
+
+$MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD $MANHUNTDB $VERBOSITY >> $LOG <<EOF
+INSERT IGNORE INTO NetLoginHistory (uid,login,sess_id,server,status,type,IP,lang,city_id,state_code) SELECT s.uid,s.lastLogin,s.sess_id,s.server,s.status,s.type,s.IP,s.lang,s.city_id,s.state_code FROM Sessions AS s WHERE logout=0;
+UPDATE NetLoginHistory n INNER JOIN Sessions s ON (login=lastLogin AND s.uid=n.uid) SET n.logout=s.lastAccess, logoutReason='user' WHERE s.logout=1;
+UPDATE NetLoginHistory n INNER JOIN Sessions s ON (login=lastLogin AND s.uid=n.uid) SET n.logout=s.lastAccess, logoutReason='timeout' WHERE s.logout=0 AND lastAccess < NOW() - INTERVAL 30 MINUTE;
+UPDATE Sessions AS s RIGHT JOIN NetLoginHistory AS n ON (n.uid=s.uid and n.login=s.lastLogin) SET n.logout=NOW(),logoutReason='vanished' WHERE s.uid IS NULL AND n.logout IS NULL;
+EOF
+
+[ "$VERBOSITY" = "" ] || echo "  -- `date +%H:%M:%S` manhunt logging sessions done" >> $LOG
+
+[ "$VERBOSITY" = "" ] || echo "  -- `date +%H:%M:%S` delete sessions" >> $LOG
+
+$MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD $MANHUNTDB $VERBOSITY >> $LOG <<EOF
+DELETE FROM $MANHUNTDB.Sessions WHERE (lastAccess < NOW() - INTERVAL 30 MINUTE) AND uid!=0;
+DELETE FROM $MANHUNTDB.Sessions WHERE logout=1 AND uid!=0;
+EOF
+
+###Added 5-30-2008 as a 'user throttle', per Justin
+CURRENTTOTAL=$($MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD $MANHUNTDB -e "select count(*) from Sessions";)
+
+[ "$VERBOSITY" = "" ] || echo "  -- `date +%H:%M:%S` Current Total $CURRENTTOTAL" >> $LOG
+
+# from CSRSessions
+# All Special profiles should have a city of Manhunt HQ
+$MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD $MANHUNTDB -e "UPDATE Users SET status='active',type='admin',city='Manhunt HQ' WHERE uid<10";
+[ "$VERBOSITY" = "" ] || echo "  -- `date +%H:%M:%S` manhuntserviceman active" >> $LOG
+
+#######
+# commented out by Sandro 5-9-2008
+# $MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD $MANHUNTDB -e "UPDATE Users SET type='free' WHERE uid=10";
+#######
+
+$MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD $MANHUNTDB $VERBOSITY -e "UPDATE Users SET city='The Manhunt Movie', state='XX', neighborhood='The Manhunt Movie' WHERE uid in (383574,383580,383582,383585,402925,402930,402932,402933,402938,402940,402941);"  >> $LOG
+
+[ "$VERBOSITY" = "" ] || echo "  -- `date +%H:%M:%S` man movie done" >> $LOG
+
+$MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD $MANHUNTDB $VERBOSITY -e "SELECT COUNT(*) as oldCsrSessions FROM CSRSessions WHERE lastActivity < CURRENT_TIMESTAMP() - INTERVAL 20 MINUTE;"  >> $LOG
+
+[ "$VERBOSITY" = "" ] || echo "  -- `date +%H:%M:%S` manhunt csr sessions count done" >> $LOG
+
+$MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD $MANHUNTDB $VERBOSITY >>$LOG <<EOF
+INSERT INTO CSRLogins (csrName,Login,Logout) SELECT csrName,login,lastActivity FROM CSRSessions WHERE lastActivity < CURRENT_TIMESTAMP() - INTERVAL 20 MINUTE;
+DELETE FROM CSRSessions WHERE lastActivity < CURRENT_TIMESTAMP() - INTERVAL 20 MINUTE;
+EOF
+
+[ "$VERBOSITY" = "" ] || echo "  -- `date +%H:%M:%S` manhunt csr sessions done" >> $LOG
+
+echo "FINISH $APPNAME `date`" >> $LOG
+echo >> $LOG
+exit 0;
+@
+
+
+1.10
+log
+@Pushing out MattY's change. JIRA: DB-442
+@
+text
+@d3 1
+a3 1
+# $Id: sessionsclean.sh,v 1.9 2008/08/26 21:31:53 rbraun Exp wflynn $
+d46 1
+a46 3
+## JIRA: SYS-820/DB-442 - MattY recommends splitting this out into two deletes to take advantage of existing indexes:
+#$MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD $MANHUNTDB -e "DELETE FROM $MANHUNTDB.Sessions WHERE (lastAccess <  NOW() - INTERVAL 30 MINUTE OR logout=1) AND uid!=0;" >> $LOG
+$MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD $MANHUNTDB >> $LOG <<EOF
+@
+
+
+1.9
+log
+@The CURRENTTOTAL logging line had a typo.  (Note that the throttle is actually
+implemented in a separate script.)
+@
+text
+@d3 1
+a3 1
+# $Id: sessionsclean.sh,v 1.8 2008/08/26 21:12:31 rbraun Exp rbraun $
+d47 5
+a51 10
+
+# Instructions for 8/27/08 maintenance
+#   Comment out the next line which includes WHERE clause referring to both lastAccess and logout
+#   Uncomment the four lines which eliminate this OR clause
+$MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD $MANHUNTDB -e "DELETE FROM $MANHUNTDB.Sessions WHERE (lastAccess <  NOW() - INTERVAL 30 MINUTE OR logout=1) AND uid!=0;" >> $LOG
+
+#$MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD $MANHUNTDB >> $LOG <<EOF
+#DELETE FROM $MANHUNTDB.Sessions WHERE (lastAccess < NOW() - INTERVAL 30 MINUTE) AND uid!=0;
+#DELETE FROM $MANHUNTDB.Sessions WHERE logout=1 AND uid!=0;
+#EOF
+@
+
+
+1.8
+log
+@another efficiency improvement -- multiple-line queries should use syntax
+
+mysql <<EOF
+query1;
+query2;
+EOF
+@
+text
+@d3 1
+a3 1
+# $Id: sessionsclean.sh,v 1.7 2008/08/26 20:35:47 rbraun Exp rbraun $
+d59 1
+a59 1
+CURRENTTOTAL=$($MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD $MANHUNTDB -e "select count(*) from sessions";)
+@
+
+
+1.7
+log
+@verbosity=-vv so we can see number of records changed
+@
+text
+@d3 1
+a3 1
+# $Id: sessionsclean.sh,v 1.6 2008/08/26 20:20:14 rbraun Exp rbraun $
+d35 6
+a40 6
+$MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD $MANHUNTDB $VERBOSITY -e "INSERT IGNORE INTO NetLoginHistory (uid,login,sess_id,server,status,type,IP,lang,city_id,state_code) SELECT s.uid,s.lastLogin,s.sess_id,s.server,s.status,s.type,s.IP,s.lang,s.city_id,s.state_code FROM Sessions AS s WHERE logout=0;" >> $LOG 
+
+$MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD $MANHUNTDB $VERBOSITY -e "UPDATE NetLoginHistory n INNER JOIN Sessions s ON (login=lastLogin AND s.uid=n.uid) SET n.logout=s.lastAccess, logoutReason='user' WHERE s.logout=1;" >> $LOG
+$MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD $MANHUNTDB $VERBOSITY -e "UPDATE NetLoginHistory n INNER JOIN Sessions s ON (login=lastLogin AND s.uid=n.uid) SET n.logout=s.lastAccess, logoutReason='timeout' WHERE s.logout=0 AND lastAccess < NOW() - INTERVAL 30 MINUTE; " >> $LOG
+
+$MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD $MANHUNTDB $VERBOSITY -e "UPDATE Sessions AS s RIGHT JOIN NetLoginHistory AS n ON (n.uid=s.uid and n.login=s.lastLogin) SET n.logout=NOW(),logoutReason='vanished' WHERE s.uid IS NULL AND n.logout IS NULL;" >> $LOG
+d50 1
+a50 1
+#   Uncomment the two lines which eliminate this OR clause
+d52 5
+a56 2
+# $MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD $MANHUNTDB -e "DELETE FROM $MANHUNTDB.Sessions WHERE (lastAccess < NOW() - INTERVAL 30 MINUTE) AND uid!=0;" >> $LOG
+# $MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD $MANHUNTDB -e "DELETE FROM $MANHUNTDB.Sessions WHERE logout=1 AND uid!=0;" >> $LOG
+d59 1
+a59 1
+$CURRENTTOTAL=$($MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD $MANHUNTDB -e "select count(*) from sessions";)
+d81 4
+a84 2
+$MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD $MANHUNTDB $VERBOSITY -e "INSERT INTO CSRLogins (csrName,Login,Logout) SELECT csrName,login,lastActivity FROM CSRSessions WHERE lastActivity < CURRENT_TIMESTAMP() - INTERVAL 20 MINUTE;"  >> $LOG
+$MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD $MANHUNTDB $VERBOSITY -e "DELETE FROM CSRSessions WHERE lastActivity < CURRENT_TIMESTAMP() - INTERVAL 20 MINUTE"  >> $LOG
+@
+
+
+1.6
+log
+@*** empty log message ***
+@
+text
+@d3 1
+a3 1
+# $Id: sessionsclean.sh,v 1.5 2008/08/26 20:10:53 rbraun Exp rbraun $
+d9 1
+a9 1
+VERBOSITY=-v
+@
+
+
+1.5
+log
+@added instructions for maintenance deployment
+@
+text
+@d3 1
+a3 1
+# $Id: sessionsclean.sh,v 1.4 2008/08/26 16:06:37 wflynn Exp rbraun $
+d42 1
+a42 1
+echo "manhunt logging sessions done" >> $LOG
+d44 1
+a44 2
+echo `date` >> $LOG
+echo "now delete sessions" >> $LOG
+d46 1
+a46 1
+## JIRA: SYS-820 - MattY recommends splitting this out into two deletes to take advantage of existing indexes:
+a56 1
+echo Current Total $CURRENTTOTAL >> $LOG
+d58 1
+d63 1
+a63 1
+echo "manhuntserviceman active" >> $LOG
+a69 1
+echo `date` >> $LOG
+d72 2
+a73 2
+echo "manhunt movie done" >> $LOG
+echo `date` >> $LOG
+d76 2
+a77 2
+echo "manhunt csr sessions count done" >> $LOG
+echo `date` >> $LOG
+d81 2
+a82 1
+echo "manhunt csr sessions done" >> $LOG
+@
+
+
+1.4
+log
+@Missing paren!
+@
+text
+@d3 1
+a3 1
+# $Id: sessionsclean.sh,v 1.3 2008/08/26 16:03:28 wflynn Exp wflynn $
+d46 6
+a52 1
+## JIRA: SYS-820 - MattY recommends splitting this out into two deletes to take advantage of existing indexes:
+@
+
+
+1.3
+log
+@Prepare for implementing Sessions delete as two seperate deletes.  JIRA: SYS-820 and DB-442
+@
+text
+@d3 1
+a3 1
+# $Id: sessionsclean.sh,v 1.2 2008/08/11 21:56:06 rbraun Exp wflynn $
+d48 2
+a49 2
+# $MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD $MANHUNTDB -e "DELETE FROM $MANHUNTDB.Sessions WHERE (lastAccess < NOW() - INTERVAL 30 MINUTE AND uid!=0;" >> $LOG
+# $MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD $MANHUNTDB -e "DELETE FROM $MANHUNTDB.Sessions WHERE (logout=1) AND uid!=0;" >> $LOG
+@
+
+
+1.2
+log
+@send log to /home/care; reduce verbosity, and use standardized variable
+names defined in /etc/manhunt/source.sh
+@
+text
+@d3 1
+a3 1
+# $Id: sessionsclean.sh,v 1.1 2008/07/03 19:40:51 rbraun Exp rbraun $
+d47 3
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d3 1
+a3 1
+# $Id: $
+a6 4
+PASS=${DBPASSWD}
+USER=${DBUSER}
+DB=${MANHUNTDB}
+BIN=${MYSQL}
+d9 2
+d19 1
+a19 1
+if [ "`$BIN -u $USER -h $HOST -p$PASS $DB -e 'show databases'`" == "" ]
+d30 1
+a31 1
+echo `date` >> $LOG
+d33 1
+a33 1
+#$BIN -u $USER -h $HOST --password=$PASS $DB -vv -e "INSERT IGNORE INTO NetLoginHistory (uid,login,sess_id,server,status,type,IP,browser,lang,lastChange,city_id,state_code) SELECT s.uid,s.lastLogin,s.sess_id,s.server,s.status,s.type,s.IP,u.browser,s.lang,u.lastChange,s.city_id,s.state_code FROM Sessions AS s INNER JOIN Users AS u using (uid) WHERE logout=0;" >> $LOG
+d35 1
+a35 1
+$BIN -u $USER -h $HOST --password=$PASS $DB -vv -e "INSERT IGNORE INTO NetLoginHistory (uid,login,sess_id,server,status,type,IP,lang,city_id,state_code) SELECT s.uid,s.lastLogin,s.sess_id,s.server,s.status,s.type,s.IP,s.lang,s.city_id,s.state_code FROM Sessions AS s WHERE logout=0;" >> $LOG 
+d37 2
+a38 2
+$BIN -u $USER -h $HOST --password=$PASS $DB -vv -e "UPDATE NetLoginHistory n INNER JOIN Sessions s ON (login=lastLogin AND s.uid=n.uid) SET n.logout=s.lastAccess, logoutReason='user' WHERE s.logout=1;" >> $LOG
+$BIN -u $USER -h $HOST --password=$PASS $DB -vv -e "UPDATE NetLoginHistory n INNER JOIN Sessions s ON (login=lastLogin AND s.uid=n.uid) SET n.logout=s.lastAccess, logoutReason='timeout' WHERE s.logout=0 AND lastAccess < NOW() - INTERVAL 30 MINUTE; " >> $LOG
+d40 1
+a40 1
+$BIN -u $USER -h $HOST --password=$PASS $DB -vv -e "UPDATE Sessions AS s RIGHT JOIN NetLoginHistory AS n ON (n.uid=s.uid and n.login=s.lastLogin) SET n.logout=NOW(),logoutReason='vanished' WHERE s.uid IS NULL AND n.logout IS NULL;" >> $LOG
+d46 1
+a46 1
+$BIN -u $USER -h $HOST --password=$PASS $DB -e "DELETE FROM $DB.Sessions WHERE (lastAccess <  NOW() - INTERVAL 30 MINUTE OR logout=1) AND uid!=0;" >> $LOG
+d49 1
+a49 1
+$CURRENTTOTAL=$($BIN -u $USER -h $HOST --password=$PASS $DB -e "select count(*) from sessions";)
+d55 1
+a55 1
+$BIN -u $USER -h $HOST --password=$PASS $DB -e "UPDATE Users SET status='active',type='admin',city='Manhunt HQ' WHERE uid<10";
+d60 1
+a60 1
+# $BIN -u $USER -h $HOST --password=$PASS $DB -e "UPDATE Users SET type='free' WHERE uid=10";
+d64 1
+a64 1
+$BIN -u $USER -h $HOST --password=$PASS $DB -vv -e "UPDATE Users SET city='The Manhunt Movie', state='XX', neighborhood='The Manhunt Movie' WHERE uid in (383574,383580,383582,383585,402925,402930,402932,402933,402938,402940,402941);"  >> $LOG
+d68 1
+a68 1
+$BIN -u $USER -h $HOST --password=$PASS $DB -vv -e "SELECT COUNT(*) as oldCsrSessions FROM CSRSessions WHERE lastActivity < CURRENT_TIMESTAMP() - INTERVAL 20 MINUTE;"  >> $LOG
+d72 2
+a73 2
+$BIN -u $USER -h $HOST --password=$PASS $DB -vv -e "INSERT INTO CSRLogins (csrName,Login,Logout) SELECT csrName,login,lastActivity FROM CSRSessions WHERE lastActivity < CURRENT_TIMESTAMP() - INTERVAL 20 MINUTE;"  >> $LOG
+$BIN -u $USER -h $HOST --password=$PASS $DB -vv -e "DELETE FROM CSRSessions WHERE lastActivity < CURRENT_TIMESTAMP() - INTERVAL 20 MINUTE"  >> $LOG
+d75 3
+a77 2
+echo "manhunt csr sessions (and end of script) done" >> $LOG
+echo `date` >> $LOG
+@

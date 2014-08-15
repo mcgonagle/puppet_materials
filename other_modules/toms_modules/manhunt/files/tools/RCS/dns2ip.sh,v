@@ -1,0 +1,88 @@
+head	1.4;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.4
+date	2009.08.19.21.19.24;	author jjoy;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2009.08.19.21.15.09;	author jjoy;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2009.08.19.20.55.10;	author jjoy;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2009.08.19.16.30.47;	author jjoy;	state Exp;
+branches;
+next	;
+
+
+desc
+@usage: dns2ip <hostname>
+Provides IP address of <hostname>
+SYS-1982
+@
+
+
+1.4
+log
+@Small tweak suggested by Bill.  I like it better.
+@
+text
+@#!/bin/bash
+
+## dns2ip: Converts hostname to ip.
+## Written by jjoy, 08/19/09
+
+if [ "$#" -eq "0" ]; then
+    echo "dns2ip: dns2ip <hostname>"
+    exit
+fi
+
+IP=`nslookup $1 | tail -n 2 | grep -v \# | cut -d ' ' -f2`
+
+echo -n $IP
+
+@
+
+
+1.3
+log
+@Fixed problem with IP detection, made sure the last Address field was the one picked up.
+@
+text
+@d11 1
+a11 1
+IP=`nslookup $1 | tail -n 2 | grep Address | cut -d ' ' -f2`
+@
+
+
+1.2
+log
+@Modification to strip out new lines.
+@
+text
+@d11 1
+a11 1
+IP=`nslookup $1 | grep Server | cut -f3`
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d11 3
+a14 1
+host $1 | cut -d " " -f 4
+@

@@ -1,0 +1,174 @@
+head	1.4;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.4
+date	2008.07.28.18.41.45;	author rbraun;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2008.07.28.18.13.46;	author rbraun;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2008.07.03.19.40.27;	author rbraun;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2008.07.01.14.07.36;	author rbraun;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.4
+log
+@*** empty log message ***
+@
+text
+@#!/bin/sh
+# $Id: user_throttle.sh,v 1.3 2008/07/28 18:13:46 rbraun Exp rbraun $
+#
+# Kick off sessions over the specified threshold (passed as first parameter)
+
+. /etc/manhunt/source.sh
+
+MAXUSERS=$1
+LOG=$CARE_LOG
+VERBOSITY=
+
+ERROR=1
+
+# Run as care.
+if [ "$UID" -ne "$CARE_UID" ]
+then
+ echo "Must be care to run this script."
+  exit $ERROR
+fi  
+
+if [ "`touch $LOG`" != "" ]
+then 
+echo "Cannot write to logfile."
+exit $ERROR
+fi
+echo "START $APPNAME `date`" >> $LOG
+
+CURRENT_OVER=0
+NOW_ON=0
+
+if [ "`$MYSQL -u $DBUSER -h $MHMASTERDBHOST -p$DBPASSWD $VERBOSITY $MANHUNTDB -e 'show databases'`" == "" ]
+then
+echo "Cannot connect to database."
+exit $ERROR
+fi
+
+CURRENT_OVER=$($MYSQL -u $DBUSER -h $MHMASTERDBHOST --password=$DBPASSWD $VERBOSITY $MANHUNTDB -e "select @@MyCount:=count(*)-$MAXUSERS as '' from Sessions;")
+
+# if greater than zero (i.e. more than 45,000 guys online), run the "kick out" query
+if [ $CURRENT_OVER -gt 0 ]
+then
+     NOW_ON=$[ $MAXUSERS + $CURRENT_OVER]
+#     echo "("`date`") USER THROTTLE SCRIPT: Script Disabled, or I would have marked.... $CURRENT_OVER for deletion!"  >> $LOG
+
+     echo " -- ("`date`"marking $CURRENT_OVER for deletion, above $MAXUSERS" >> $LOG
+     $MYSQL -u $DBUSER -h $MHMASTERDBHOST --password=$DBPASSWD $VERBOSITY $MANHUNTDB -e "UPDATE Sessions SET logout=1 WHERE type !='paid' AND logout!=1 ORDER BY lastLogin LIMIT $CURRENT_OVER;" >> $LOG
+
+else
+     NOW_ON=$[ $MAXUSERS + $CURRENT_OVER]
+     echo " -- $NOW_ON men online now, under limit $MAXUSERS"  >> $LOG
+fi
+
+echo "FINISH $APPNAME `date`" >> $LOG
+echo >> $LOG
+
+exit 0;
+@
+
+
+1.3
+log
+@cleanup, move log to ~care and get rid of shell var redefinitions that
+were already in /etc/manhunt/source.sh
+@
+text
+@d2 1
+a2 1
+# $Id: user_throttle.sh,v 1.2 2008/07/03 19:40:27 rbraun Exp rbraun $
+a36 7
+if [ "`touch $LOG`" != "" ]
+then 
+echo "Cannot write to logfile."
+exit $ERROR
+fi
+echo "START $APPNAME `date`" >> $LOG
+
+@
+
+
+1.2
+log
+@*** empty log message ***
+@
+text
+@d2 1
+a2 1
+# $Id$
+d8 6
+d21 7
+a27 6
+PASS="LQSyM"
+USER="apache"
+DB="manhunt"
+BIN=/usr/bin/mysql
+HOST=db-mhmaster.svc.waltham.manhunt.net
+MAXUSERS=$1
+a29 2
+LOG=/var/tmp/userthrottle.log
+ERROR=1
+d31 1
+a31 1
+if [ "`$BIN -u $USER -h $HOST -p$PASS $DB -e 'show databases'`" == "" ]
+d42 1
+d44 1
+a44 2
+
+CURRENT_OVER=$($BIN -u $USER -h $HOST --password=$PASS $DB -e "select @@MyCount:=count(*)-$MAXUSERS as '' from Sessions;")
+d50 1
+a50 2
+#     echo "("`date`") USER THROTTLE SCRIPT: Script Disabled, or I would have marked...." $CURRENT_OVER "for deletion!"  >> $LOG
+
+d52 2
+a53 2
+     echo "("`date`"about to mark " $CURRENT_OVER " for deletion" >> $LOG
+     $BIN -u $USER -h $HOST --password=$PASS $DB -e "UPDATE Sessions SET logout=1 WHERE type !='paid' AND logout!=1 ORDER BY lastLogin LIMIT $CURRENT_OVER;"
+d57 1
+a57 1
+     echo "("`date`") USER THROTTLE SCRIPT: Nothing to do...." $NOW_ON "men online now."  >> $LOG
+d60 2
+a61 1
+
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 12
+a17 1
+CARE_UID=500
+d19 2
+a20 2
+HOST=192.168.1.184
+MAXUSERS=50000
+@

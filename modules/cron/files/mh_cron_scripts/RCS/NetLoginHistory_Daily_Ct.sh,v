@@ -1,0 +1,278 @@
+head	1.10;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.10
+date	2009.03.20.18.52.49;	author hschmidt;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	2009.03.20.18.10.43;	author hschmidt;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	2008.11.26.18.03.38;	author sfrattura;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	2008.11.25.16.19.10;	author sfrattura;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	2008.11.20.19.21.00;	author sfrattura;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	2008.11.03.14.27.37;	author sfrattura;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	2008.10.28.23.50.35;	author sfrattura;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2008.09.03.19.51.32;	author sfrattura;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2008.09.03.19.23.03;	author sfrattura;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2008.09.03.18.47.35;	author sfrattura;	state Exp;
+branches;
+next	;
+
+
+desc
+@strating point
+@
+
+
+1.10
+log
+@Sandro said email user last in list is gone from the company -- heidi  March 20, 2009 2:53 PM
+@
+text
+@#!rbin/sh
+# NetLoginHistory_Daily_Ct.sh
+# $Id: NetLoginHistory_Daily_Ct.sh,v 1.9 2009/03/20 18:10:43 hschmidt Exp hschmidt $
+#
+. /etc/manhunt/source.sh
+
+PASS=${DBPASSWD}
+USER=${DBUSER}
+DB=${MANHUNTDB}
+HOST=${DWHOSTV4}
+LOG=${CARE_LOG}
+
+
+
+# Run as care.
+if [ "$UID" -ne "$CARE_UID" ]
+then
+ echo "Must be care to run this script."
+  exit $ERROR
+fi
+
+if [ "`touch $LOG`" != "" ]
+then
+echo "Cannot write to logfile."
+exit $ERROR
+fi
+
+echo START $APPNAME `date` >> $LOG
+
+
+
+DW01_NLH_ct=$(/usr/bin/mysql -u $DBUSER -h $HOST -p$DBPASSWD $DB  -sN -e "SELECT COUNT(*) FROM LoginHistory WHERE
+login > NOW()-interval 1 day");
+
+DW01_NLH_TOTALct=$(/usr/bin/mysql -u $DBUSER -h $HOST -p$DBPASSWD $DB  -sN -e "SELECT COUNT(*) FROM NetLoginHistory");
+
+
+###  implement later ### DW01_NLH_YYYY_MM_ct=$(/usr/bin/mysql -u $USER -h $DW01_HOST -p$PASS $DB  -sN -e "call get_yesterday_YYYY_MMLoginHistory_count()");
+
+echo "The DW01 NetLoginHistory table count for previous day is $DW01_NLH_ct" | /bin/mail -s "NLH COUNT" sfrattura@@online-buddies.com,dba@@online-buddies.com,jcurran@@online-buddies.com
+
+echo "The DW01 NetLoginHistory **TOTAL** table count is $DW01_NLH_TOTALct" | /bin/mail -s "NLH TOTAL COUNT" sfrattura@@online-buddies.com
+
+
+echo FINISH $APPNAME `date` >> $LOG
+echo >> $LOG
+
+exit 0;
+@
+
+
+1.9
+log
+@SYS-1504 ticket tracks this work to make script point to DW04 from DW01 after server move by Rich 3/18/09
+@
+text
+@d1 1
+a1 1
+#!/bin/sh
+d3 1
+a3 1
+# $Id: NetLoginHistory_Daily_Ct.sh,v 1.8 2008/11/26 18:03:38 sfrattura Exp hschmidt $
+d40 1
+a40 1
+echo "The DW01 NetLoginHistory table count for previous day is $DW01_NLH_ct" | /bin/mail -s "NLH COUNT" sfrattura@@online-buddies.com,dba@@online-buddies.com,jcurran@@online-buddies.com,kherron@@online-buddies.com
+@
+
+
+1.8
+log
+@changed the count(*) line to count NETloginhistory not loginhistory!
+@
+text
+@d3 1
+a3 1
+# $Id: NetLoginHistory_Daily_Ct.sh,v 1.7 2008/11/25 16:19:10 sfrattura Exp sfrattura $
+d10 1
+a10 1
+HOST=${DWHOST2}
+d48 1
+a48 1
+exit 0;@
+
+
+1.7
+log
+@added a query to get TOTAL count for NLH table, and to email me that total.  this is so I can monitor the size of that table in light of the recnt changes to cleanNLH script.
+@
+text
+@d3 1
+a3 1
+# $Id: NetLoginHistory_Daily_Ct.sh,v 1.6 2008/11/20 19:21:00 sfrattura Exp sfrattura $
+d35 1
+a35 1
+DW01_NLH_TOTALct=$(/usr/bin/mysql -u $DBUSER -h $HOST -p$DBPASSWD $DB  -sN -e "SELECT COUNT(*) FROM LoginHistory");
+@
+
+
+1.6
+log
+@variablized DWHOST2
+@
+text
+@d3 1
+a3 1
+# $Id: NetLoginHistory_Daily_Ct.sh,v 1.5 2008/11/03 14:27:37 sfrattura Exp sfrattura $
+d35 2
+d42 2
+@
+
+
+1.5
+log
+@added Ken Herron
+@
+text
+@d3 1
+a3 1
+# $Id: NetLoginHistory_Daily_Ct.sh,v 1.4 2008/10/28 23:50:35 sfrattura Exp sfrattura $
+d10 1
+a10 1
+HOST=DW01.cambridge.manhunt.net
+@
+
+
+1.4
+log
+@changed references to DW01 from DW02
+@
+text
+@d3 1
+a3 1
+# $Id: NetLoginHistory_Daily_Ct.sh,v 1.3 2008/09/03 19:51:32 sfrattura Exp sfrattura $
+d38 1
+a38 1
+echo "The DW01 NetLoginHistory table count for previous day is $DW01_NLH_ct" | /bin/mail -s "NLH COUNT" sfrattura@@online-buddies.com,dba@@online-buddies.com,jcurran@@online-buddies.com
+@
+
+
+1.3
+log
+@removed the extrneous 'echo' line
+@
+text
+@d3 1
+a3 1
+# $Id: NetLoginHistory_Daily_Ct.sh,v 1.2 2008/09/03 19:23:03 sfrattura Exp sfrattura $
+d10 1
+a10 1
+HOST=${DWHOST}
+d32 1
+a32 1
+DW02_NLH_ct=$(/usr/bin/mysql -u $DBUSER -h $HOST -p$DBPASSWD $DB  -sN -e "SELECT COUNT(*) FROM LoginHistory WHERE
+d36 1
+a36 1
+###  implement later ### DW02_NLH_YYYY_MM_ct=$(/usr/bin/mysql -u $USER -h $DW02_HOST -p$PASS $DB  -sN -e "call get_yesterday_YYYY_MMLoginHistory_count()");
+d38 1
+a38 1
+echo "The DW02 NetLoginHistory table count for previous day is $DW02_NLH_ct" | /bin/mail -s "NLH COUNT" sfrattura@@online-buddies.com,dba@@online-buddies.com,jcurran@@online-buddies.com
+@
+
+
+1.2
+log
+@MADE MODIFICATIONS TO USE ETC/SOURCE, AND OTHER STANDARDIZATIONS
+@
+text
+@d3 1
+a3 1
+# $Id: NetLoginHistory_Daily_Ct.sh,v 1.1 2008/09/03 18:47:35 sfrattura Exp sfrattura $
+a34 1
+echo $DW02_NLH_ct;
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d3 1
+a3 1
+# $Id: NetLoginHistory_Daily_Ct.sh,v 1.2 2008/07/03 21:00:15 sfrattura Exp $
+a6 2
+APASS=${ARCH_PASSWD}
+AUSER=${ARCH_USER}
+d10 1
+a10 1
+HOST=${MHDBMASTERHOST}
+a13 7
+PASS="LQSyM"
+USER="apache"
+DB="manhunt"
+BIN=/usr/bin/mysql
+DW01_HOST="DW01"
+DW02_HOST="DW02"
+ERROR=1
+d15 18
+a32 1
+DW02_NLH_ct=$(/usr/bin/mysql -u $USER -h $DW02_HOST -p$PASS $DB  -sN -e "SELECT COUNT(*) FROM LoginHistory WHERE
+d37 3
+a39 1
+#DW02_NLH_YYYY_MM_ct=$(/usr/bin/mysql -u $USER -h $DW02_HOST -p$PASS $DB  -sN -e "call get_yesterday_YYYY_MMLoginHistory_count()");
+a40 1
+echo "The DW02 NetLoginHistory table count for previous day is $DW02_NLH_ct" | /bin/mail -s "NLH COUNT" sfrattura@@online-buddies.com,thedro14@@gmail.com
+d42 2
+d45 1
+a45 1
+#| /bin/mail -s "DW02 - Daily NetLoginHistory Count" sfrattura@@online-buddies.com";
+@

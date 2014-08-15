@@ -1,0 +1,17 @@
+# 
+# OCS Inventory "Unix Unified Agent" Configuration File
+#
+# options used by cron job overides this (see /etc/sysconfig/ocsinventory-agent)
+#
+
+# Server URL, unconmment if needed
+server = <%= servername %>
+#local = /var/lib/ocsinventory-agent
+
+# Administrative TAG (optional, must be filed before first inventory)
+#tag = <%= serialnumber %>-<%= uniqueid %>
+tag = <%= role %>
+
+# How to log, can be File,Stderr,Syslog
+logger = Stderr
+logfile = /var/log/ocsinventory-agent/ocsinventory-agent.log

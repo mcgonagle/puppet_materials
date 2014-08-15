@@ -1,0 +1,30 @@
+#!/bin/bash
+# dclk_logroller
+# $Id: dclk_logroller,v 1.1 2008/06/25 18:45:17 wflynn Exp $
+#
+# Created 06/2008 by wflynn
+#
+# Script for cron to archive and then roll off doubleclick logs
+#
+if [ ${1} -ge ${2} ]
+then
+    echo "Usage: $0 <raw_retention_days> <zip_retention_days>"
+    echo "       <raw_retention_days> must be less than <zip_retention_days>"
+    exit 1
+fi
+RAW_RETENTION_DAYS=$1
+ZIP_RETENTION_DAYS=$2
+
+ZIP_COMMAND="bzip2"
+ZIP_EXTENSION="bz2"
+LOGDIR="/usr/local/doubleclick/logs"
+TODAY=`date +%C%y%m%d`
+YESTERDAY=`date +%C%y%m%d -d "yesterday"`
+ZIP_DATE=`date +%C%y%m%d -d "${RAW_RETENTION_DAYS} days ago"`
+DELETE_DATE=`date +%C%y%m%d -d "${ZIP_RETENTION_DAYS} days ago"`
+
+# Delete oldest logs
+find ${LOGDIR} -name "*${DELETE_DATE}*.log.${ZIP_EXTENSION}" -delete
+# Archive old logs
+find ${LOGDIR} -name "*${ZIP_DATE}*.log" -exec ${ZIP_COMMAND} {} \;
+exit

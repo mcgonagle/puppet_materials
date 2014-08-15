@@ -1,0 +1,4 @@
+#!/bin/sh
+#
+TERM=linux
+lynx -auth=auto:MHadmin -source 'http://www.manhunt.net/admin/precompiler.php'

@@ -1,0 +1,44 @@
+#!/bin/bash
+# $Id: backup_photos,v 1.7 2008/09/10 12:31:55 rbraun Exp $
+
+# Created by rbraun 2/08
+#  Run this from the backup server as user care
+#  Files will be sync'ed to /var/backup/photos/{hostname}/[0-9]
+
+#  Maximum data rate is 7 Mbytes/sec
+
+DESTDIR=/var/backup/photos
+LOG=/var/tmp/backup_photos.log
+RATE=7000
+VERBOSITY=-v
+
+if [ "$1" = "" ]
+then
+  echo Usage: backup_photos host1 [ host2 host3 etc ]
+  exit 1
+fi
+
+if [ "`touch $LOG`" != "" ]
+then
+  echo "Cannot write to logfile."
+  exit $ERROR
+fi
+
+# Interlock - check to see if script still running from previous instance
+
+[ -e /var/tmp/backup_photos.pid ] && [ -e /proc/`cat /var/tmp/backup_photos.pid` ] && exit 0
+echo $$ > /var/tmp/backup_photos.pid
+
+[ "$VERBOSITY" = "" ] || echo START backup_photos `date` >> $LOG
+
+for HOST in $@
+do
+  [ -d $DESTDIR/$HOST ] || mkdir -p $DESTDIR/$HOST
+  [ "$VERBOSITY" = "" ] || echo " -- starting $HOST at `date +%H:%M:%S`" >> $LOG
+  rsync -a --delete --bwlimit=$RATE $HOST:/var/manhunt/photos/[0-9] $DESTDIR/$HOST 2>&1 >> $LOG
+done
+
+rm /var/tmp/backup_photos.pid
+[ "$VERBOSITY" = "" ] || echo FINISH backup_photos `date` >> $LOG
+
+exit 0

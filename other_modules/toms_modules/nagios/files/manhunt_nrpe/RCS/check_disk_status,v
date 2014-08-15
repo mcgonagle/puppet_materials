@@ -1,0 +1,148 @@
+head	1.5;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.5
+date	2010.01.08.21.44.02;	author rbraun;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	2009.10.16.02.56.10;	author rbraun;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2009.09.17.16.24.11;	author rbraun;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2009.09.17.16.15.56;	author rbraun;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2009.09.17.16.15.20;	author rbraun;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.5
+log
+@ignore loop device
+@
+text
+@#!/bin/sh
+# $Id: check_disk_status,v 1.4 2009/10/16 02:56:10 rbraun Exp $
+
+WARN=90
+CRIT=95
+
+MAX_USE=0
+
+# Note:  the programs 'cut' and 'awk' are in:
+#  /usr/bin on OpenSUSE
+#  /bin on RHEL
+# hence we do not specify the full path for those
+
+for disk in `/bin/egrep ":|^/dev" /etc/mtab |egrep -v "^/dev/loop" | cut -f2 -d\  `
+do
+  output=`/bin/df -H $disk | /bin/egrep -v "^Filesystem|tmpfs|cdrom"`
+  partition=$(/bin/echo $output | awk '{ print $1}' )
+  usep=$(/bin/echo $output | awk '{ print $5}' | cut -d'%' -f1  )
+  if [ $usep -gt $MAX_USE ]
+  then
+    MAX_USE=$usep
+    BIGGEST_PART=$partition
+  fi
+  if [ \! $usep ]; then
+    # probably stale file handle
+    exit 1;
+  fi
+done
+echo $BIGGEST_PART at $MAX_USE%
+if [ $MAX_USE -ge $CRIT ]; then
+  exit 2;
+elif [ $MAX_USE -ge $WARN ]; then
+  exit 1;
+fi
+exit 0;
+@
+
+
+1.4
+log
+@get rid of the full path on 'cut' and 'awk' for SuSE
+@
+text
+@d2 1
+a2 1
+# $Id: check_disk_status,v 1.3 2009/09/17 16:24:11 rbraun Exp rbraun $
+d14 1
+a14 1
+for disk in `/bin/egrep ":|^/dev" /etc/mtab | cut -f2 -d\  `
+@
+
+
+1.3
+log
+@Set up CRIT/WARN thresholds
+@
+text
+@d2 1
+a2 1
+# $Id: check_disk_status,v 1.2 2009/09/17 16:15:56 rbraun Exp rbraun $
+d9 6
+a14 1
+for disk in `/bin/egrep ":|^/dev" /etc/mtab | /bin/cut -f2 -d\  `
+d17 2
+a18 2
+  partition=$(/bin/echo $output | /bin/awk '{ print $1}' )
+  usep=$(/bin/echo $output | /bin/awk '{ print $5}' | cut -d'%' -f1  )
+@
+
+
+1.2
+log
+@Fix the logic so only one line of output is generated:  biggest offender
+@
+text
+@d2 4
+a5 1
+# $Id$
+d25 4
+a28 2
+if [ $MAX_USE -ge 90 ]; then
+    exit 1;
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 3
+d8 1
+a8 1
+output=`/bin/df -H $disk | /bin/egrep -v "^Filesystem|tmpfs|cdrom"`
+d11 13
+a23 4
+echo $partition $usep%
+if [ \! $usep ]; then
+# probably stale file handle
+exit 1;
+a24 4
+if [ $usep -ge 90 ]; then
+exit 1;
+fi
+done
+@

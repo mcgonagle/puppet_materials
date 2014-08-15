@@ -1,0 +1,593 @@
+head	1.23;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.23
+date	2010.10.07.18.56.47;	author wflynn;	state Exp;
+branches;
+next	1.22;
+
+1.22
+date	2010.09.02.21.09.31;	author wflynn;	state Exp;
+branches;
+next	1.21;
+
+1.21
+date	2010.08.27.18.17.23;	author dcote;	state Exp;
+branches;
+next	1.20;
+
+1.20
+date	2010.08.20.16.15.35;	author apradhan;	state Exp;
+branches;
+next	1.19;
+
+1.19
+date	2010.08.17.21.23.56;	author dcote;	state Exp;
+branches;
+next	1.18;
+
+1.18
+date	2010.06.09.01.35.43;	author dcote;	state Exp;
+branches;
+next	1.17;
+
+1.17
+date	2010.05.27.17.30.44;	author apradhan;	state Exp;
+branches;
+next	1.16;
+
+1.16
+date	2009.12.07.21.16.16;	author dcote;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	2009.11.12.23.24.56;	author wflynn;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	2009.10.02.20.27.23;	author wflynn;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	2009.10.01.16.17.23;	author wflynn;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	2009.09.17.16.20.01;	author wflynn;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	2009.09.09.14.29.33;	author wflynn;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	2009.07.31.20.48.28;	author wflynn;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	2009.07.23.21.56.14;	author wflynn;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	2009.07.23.21.48.33;	author wflynn;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	2009.07.20.22.42.53;	author wflynn;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	2009.06.19.13.08.57;	author wflynn;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	2009.05.13.15.00.21;	author wflynn;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	2009.05.11.20.02.04;	author wflynn;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2009.05.06.14.20.08;	author wflynn;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2009.05.05.17.47.53;	author wflynn;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2009.05.05.17.46.22;	author wflynn;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.23
+log
+@SYS-3488 add www31/32
+@
+text
+@#!/bin/bash
+#
+# pushrelease.sh
+#
+# $Id: pushrelease.sh 61 2010-10-07 18:55:10Z wflynn $
+#
+# WFlynn 05/09
+#
+# Stupid script for handling v4 releases until we get something reasonable in place.
+# This puts files where the v4nicator will want to find them
+# App dot yml files are managed via puppet with the v4_dotnet_config function
+
+EXPECTED_ARGS=2
+TMPDIR=/tmp
+
+if [ $# -ne $EXPECTED_ARGS ]
+then
+    SHOWBUILDS=5
+    echo "Usage: `basename $0` release_number build_number "
+    echo -e "Example: `basename $0` 336--BUILD20 4.0.539"
+    echo -e "\t Pulls release tarballs for 'release_number' from colbert DROPZONE"
+    echo -e "\t and places the appropriate tarball on each of web, admin, and billing servers."
+    echo -e "\t The ${SHOWBUILDS} most recent releases:" `ssh colbert ls -t /DROPZONE | grep MH | grep tgz | cut -d\. -f3 | cut -d\- -f1 | uniq  | head -${SHOWBUILDS}`
+    echo -en "\t Corresponding to builds: "
+    for RELEASE in `ssh colbert ls -t /DROPZONE | grep MH | grep tgz | cut -d\. -f3 | cut -d\- -f1-3 | sort -ur -nk1  | head -${SHOWBUILDS}`;
+    do
+	for MANIFEST in `ssh colbert egrep mhbangv4.version=.+?${RELEASE} /DROPZONE/MANIF* | cut -d: -f1`;
+	do
+	    for BUILD in `ssh colbert egrep manifest.version= ${MANIFEST} | cut -d= -f2`;
+	    do
+		echo -n "$RELEASE -> $BUILD   "
+	    done
+	done
+    done
+    echo ""
+    exit;
+fi
+
+RELEASE=${1}
+BUILD=${2}
+
+FELIST=(
+    www01
+    www02
+    www03
+    www04
+    www05
+    www06
+    www07
+    www08
+    www09
+    www10
+    www11
+    www12
+    www13
+    www14
+    www15
+    www16
+    www17
+    www18
+    www19
+    www20
+    www21
+    www22
+    www23
+    www24
+    www25
+    www26
+    www27
+    www28
+    www29
+    www30
+    www31
+    www32
+    billing01
+    billing02
+    billing03
+    billing04
+    billing05
+    billing06
+)
+
+ADMINLIST=(
+    admin41
+    admin42
+)
+
+cd ${TMPDIR}
+
+MANIFEST=`ssh colbert egrep -H mhbangv4.version=.+?${RELEASE} /DROPZONE/MANIF*${BUILD}* | cut -d: -f1`
+MANIFEST=`basename ${MANIFEST}`
+
+echo "Fetching: Build ${BUILD} (${RELEASE})..."
+scp colbert:/DROPZONE/*${RELEASE}*.tgz .
+scp colbert:/DROPZONE/${MANIFEST} .
+
+for FEHOST in ${FELIST[*]}
+do
+    if host ${FEHOST}.v4 &> /dev/null;
+    then
+	echo "${BUILD} -> ${FEHOST}" && scp *${RELEASE}-*FRONT* ${FEHOST}.v4:/tmp && scp ${MANIFEST} ${FEHOST}.v4:/tmp;
+	echo "${BUILD} -> ${FEHOST}" && scp *${RELEASE}-*ASS* ${FEHOST}.v4:/tmp && scp ${MANIFEST} ${FEHOST}.v4:/tmp;
+	echo "${BUILD} -> ${FEHOST}" && scp *${RELEASE}-*XML* ${FEHOST}.v4:/tmp && scp ${MANIFEST} ${FEHOST}.v4:/tmp;
+    fi
+done
+
+for ADMINHOST in ${ADMINLIST[*]}
+do
+    if host ${ADMINHOST}.v4 &> /dev/null;
+    then
+	echo "${BUILD} -> ${ADMINHOST}" && scp *${RELEASE}-*ADMIN* ${ADMINHOST}.v4:/tmp && scp ${MANIFEST} ${ADMINHOST}.v4:/tmp;
+    fi
+done
+@
+
+
+1.22
+log
+@Added www29 and www30
+@
+text
+@d5 1
+a5 1
+# $Id: pushrelease.sh,v 1.21 2010/08/27 18:17:23 dcote Exp wflynn $
+d73 2
+d101 3
+a103 3
+	echo "${BUILD} -> ${FEHOST}" && scp *${RELEASE}-*FRONT* ${FEHOST}.v4:/tmp && scp ${MANIFEST} ${FEHOST}.v4:/tmp; 
+	echo "${BUILD} -> ${FEHOST}" && scp *${RELEASE}-*ASS* ${FEHOST}.v4:/tmp && scp ${MANIFEST} ${FEHOST}.v4:/tmp; 
+	echo "${BUILD} -> ${FEHOST}" && scp *${RELEASE}-*XML* ${FEHOST}.v4:/tmp && scp ${MANIFEST} ${FEHOST}.v4:/tmp; 
+d111 1
+a111 1
+	echo "${BUILD} -> ${ADMINHOST}" && scp *${RELEASE}-*ADMIN* ${ADMINHOST}.v4:/tmp && scp ${MANIFEST} ${ADMINHOST}.v4:/tmp; 
+@
+
+
+1.21
+log
+@added scp for XMLMOBILE per sys-3387
+@
+text
+@d5 1
+a5 1
+# $Id: pushrelease.sh,v 1.20 2010/08/20 16:15:35 apradhan Exp dcote $
+d71 2
+d79 1
+a79 1
+    )
+d84 1
+a84 1
+    )
+@
+
+
+1.20
+log
+@modified "Example"
+@
+text
+@d5 1
+a5 1
+# $Id: pushrelease.sh,v 1.19 2010/08/17 21:23:56 dcote Exp apradhan $
+d99 1
+@
+
+
+1.19
+log
+@added www27 and www28
+@
+text
+@d5 1
+a5 1
+# $Id: pushrelease.sh,v 1.18 2010/06/09 01:35:43 dcote Exp dcote $
+d20 1
+a20 1
+    echo -e "Example: `basename $0` 191 4.0.21"
+@
+
+
+1.18
+log
+@added scp for ASSFINDER
+@
+text
+@d5 1
+a5 1
+# $Id: pushrelease.sh,v 1.17 2010/05/27 17:30:44 apradhan Exp $
+d69 2
+@
+
+
+1.17
+log
+@added billing06
+@
+text
+@d5 1
+a5 1
+# $Id: pushrelease.sh,v 1.16 2009/12/07 21:16:16 dcote Exp apradhan $
+d96 1
+@
+
+
+1.16
+log
+@added web servers 23 - 26 to the script
+@
+text
+@d5 1
+a5 1
+# $Id: pushrelease.sh,v 1.15 2009/11/12 23:24:56 wflynn Exp dcote $
+d74 1
+@
+
+
+1.15
+log
+@Fixed to support multiple versions of manifests
+@
+text
+@d5 1
+a5 1
+# $Id: pushrelease.sh,v 1.14 2009/10/02 20:27:23 wflynn Exp wflynn $
+d65 4
+@
+
+
+1.14
+log
+@support release candidates
+@
+text
+@d5 1
+a5 1
+# $Id: pushrelease.sh,v 1.11 2009/09/09 14:29:33 wflynn Exp $
+d78 1
+d80 1
+d84 1
+a84 1
+scp colbert:${MANIFEST} manifest.properties
+d90 1
+a90 1
+	echo "${BUILD} -> ${FEHOST}" && scp *${RELEASE}-*FRONT* ${FEHOST}.v4:/tmp && scp manifest.properties ${FEHOST}.v4:/tmp; 
+d98 1
+a98 1
+	echo "${BUILD} -> ${ADMINHOST}" && scp *${RELEASE}-*ADMIN* ${ADMINHOST}.v4:/tmp && scp manifest.properties ${ADMINHOST}.v4:/tmp; 
+@
+
+
+1.13
+log
+@Added changes to support new build naming convention
+@
+text
+@d5 1
+a5 1
+# $Id: pushrelease.sh,v 1.12 2009/09/17 16:20:01 wflynn Exp wflynn $
+d18 1
+d23 1
+a23 1
+    echo -e "\t The 5 most recent releases:" `ssh colbert ls -t /DROPZONE | grep MH | grep tgz | cut -d\. -f3 | cut -d\- -f1 | sort -ur -nk1  | head -5`
+d25 1
+a25 1
+    for RELEASE in `ssh colbert ls -t /DROPZONE | grep MH | grep tgz | cut -d\. -f3 | cut -d\- -f1 | sort -ur -nk1  | head -5`;
+d31 1
+a31 1
+		echo -n "$RELEASE -> $BUILD "
+d88 1
+a88 1
+	echo "${BUILD} -> ${FEHOST}" && scp *${RELEASE}-*RC*FRONT* ${FEHOST}.v4:/tmp && scp manifest.properties ${FEHOST}.v4:/tmp; 
+d96 1
+a96 1
+	echo "${BUILD} -> ${ADMINHOST}" && scp *${RELEASE}-*RC*ADMIN* ${ADMINHOST}.v4:/tmp && scp manifest.properties ${ADMINHOST}.v4:/tmp; 
+@
+
+
+1.12
+log
+@Specify release and build now, to support more than one release having the same build number
+@
+text
+@d5 1
+a5 1
+# $Id: pushrelease.sh,v 1.11 2009/09/09 14:29:33 wflynn Exp $
+d87 1
+a87 1
+	echo "${BUILD} -> ${FEHOST}" && scp *${RELEASE}-FRONT* ${FEHOST}.v4:/tmp && scp manifest.properties ${FEHOST}.v4:/tmp; 
+d95 1
+a95 1
+	echo "${BUILD} -> ${ADMINHOST}" && scp *${RELEASE}-ADMIN* ${ADMINHOST}.v4:/tmp && scp manifest.properties ${ADMINHOST}.v4:/tmp; 
+@
+
+
+1.11
+log
+@Added www13
+@
+text
+@d5 1
+a5 1
+# $Id: pushrelease.sh,v 1.10 2009/07/31 20:48:28 wflynn Exp wflynn $
+d13 1
+a13 1
+EXPECTED_ARGS=1
+d18 2
+a19 2
+    echo "Usage: `basename $0` release_number "
+    echo -e "Example: `basename $0` 191"
+d26 7
+a32 3
+	MANIFEST=`ssh colbert egrep mhbangv4.version=.+?${RELEASE} /DROPZONE/MANIF* | cut -d: -f1`
+	BUILD=`ssh colbert egrep manifest.version= ${MANIFEST} | cut -d= -f2`
+	echo -n "$BUILD "
+d39 1
+d77 1
+a77 2
+MANIFEST=`ssh colbert egrep mhbangv4.version=.+?${RELEASE} /DROPZONE/MANIF* | cut -d: -f1`
+BUILD=`ssh colbert egrep manifest.version= ${MANIFEST} | cut -d= -f2`
+@
+
+
+1.10
+log
+@extra output in usage
+@
+text
+@d5 1
+a5 1
+# $Id: pushrelease.sh,v 1.9 2009/07/23 21:56:14 wflynn Exp wflynn $
+d49 1
+@
+
+
+1.9
+log
+@Some more status reporting data...
+@
+text
+@d5 1
+a5 1
+# $Id: pushrelease.sh,v 1.8 2009/07/23 21:48:33 wflynn Exp wflynn $
+d23 8
+@
+
+
+1.8
+log
+@Add new webservers, plus grab specified version of manifest, rather than the
+one on the top of the stack.
+@
+text
+@d5 1
+a5 1
+# $Id: pushrelease.sh,v 1.7 2009/07/20 22:42:53 wflynn Exp wflynn $
+d63 2
+a64 1
+MANIFEST=`ssh colbert egrep version=.+?${RELEASE} /DROPZONE/MANIF* | cut -d: -f1`
+d66 1
+d74 1
+a74 1
+	echo ${FEHOST} && scp *${RELEASE}-FRONT* ${FEHOST}.v4:/tmp && scp manifest.properties ${FEHOST}.v4:/tmp; 
+d82 1
+a82 1
+	echo ${ADMINHOST} && scp *${RELEASE}-ADMIN* ${ADMINHOST}.v4:/tmp && scp manifest.properties ${ADMINHOST}.v4:/tmp; 
+@
+
+
+1.7
+log
+@Added 20 and 21
+@
+text
+@d5 1
+a5 1
+# $Id: pushrelease.sh,v 1.6 2009/06/19 13:08:57 wflynn Exp wflynn $
+d41 4
+d49 1
+d63 1
+d66 1
+a66 1
+scp colbert:/DROPZONE/manifest manifest.properties
+@
+
+
+1.6
+log
+@Added billing04/05 to host list.  SYS-1741
+@
+text
+@d5 1
+a5 1
+# $Id: pushrelease.sh,v 1.5 2009/05/13 15:00:21 wflynn Exp wflynn $
+d43 2
+@
+
+
+1.5
+log
+@Added billing03
+@
+text
+@d5 1
+a5 1
+# $Id: pushrelease.sh,v 1.4 2009/05/11 20:02:04 wflynn Exp wflynn $
+d46 2
+@
+
+
+1.4
+log
+@Helpful info about releases
+@
+text
+@d5 1
+a5 1
+# $Id: pushrelease.sh,v 1.3 2009/05/06 14:20:08 wflynn Exp wflynn $
+d45 1
+@
+
+
+1.3
+log
+@Added usage
+@
+text
+@d5 1
+a5 1
+# $Id: pushrelease.sh,v 1.2 2009/05/05 17:47:53 wflynn Exp wflynn $
+d21 2
+a22 1
+    echo -e "\t\t and places the appropriate tarball on each of web, admin, and billing servers."
+@
+
+
+1.2
+log
+@Script to stage up release content for the v4nicator
+@
+text
+@d5 1
+a5 1
+# $Id: pushrelease.sh,v 1.1 2009/05/05 17:46:22 wflynn Exp wflynn $
+d13 12
+a25 1
+TMPDIR=/tmp
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d5 1
+a5 1
+# $Id: $
+d10 2
+a11 1
+#
+@

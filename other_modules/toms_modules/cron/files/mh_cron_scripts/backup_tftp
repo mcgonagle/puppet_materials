@@ -1,0 +1,21 @@
+#!/bin/bash
+# $Id: backup_tftp,v 1.2 2008/08/11 20:04:37 rbraun Exp $
+#
+# Created 3/08 by rbraun
+#
+# This backs up the tftp directory which we use for router/switch
+# configuration backups and the base OS definitions for Instant Linux.
+# On these hosts, user 'care' must have group read permissions for all
+# files under /tftpboot.
+#
+# Command line parameters:  list of hosts to back up.
+
+DESTDIR=/var/backup/tftp
+SRCDIR=/tftpboot
+DAY=`date +%a`
+
+for HOST in $@
+do
+  [ -d $DESTDIR/$HOST/$DAY ] || mkdir -p $DESTDIR/$HOST/$DAY
+  rsync --delete -a $HOST:$SRCDIR/. $DESTDIR/$HOST/$DAY
+done

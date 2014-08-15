@@ -1,0 +1,103 @@
+head	1.3;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.3
+date	2008.10.06.22.16.06;	author wflynn;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2008.09.12.20.24.43;	author wflynn;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2008.08.12.16.19.13;	author wflynn;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.3
+log
+@Tweak this to work similar to backup_directory SYS-387
+@
+text
+@#!/bin/bash
+#
+# $Id: backup_atlassian,v 1.2 2008/09/12 20:24:43 wflynn Exp wflynn $
+#
+# Run this from the backup server as user care
+# First arg is atlassian host, remainder are individual directories for atlassian apps
+# Files will be sync'ed to /var/backup/atlassian/appdir
+
+DESTDIR=/var/backup/atlassian
+HOST=$1
+APPROOT=$2
+LOG=/var/tmp/backup_$1.log
+VERBOSITY=-v
+shift
+shift
+
+if [ "`touch $LOG`" != "" ]
+then
+    echo "Cannot write to logfile."
+    exit $ERROR
+fi
+
+# Interlock - check to see if script still running from previous instance
+[ -e /var/tmp/atlassian_$1.pid ] && [ -e /proc/`cat /var/tmp/atlassian_$1.pid` ] && exit 0
+echo $$ > /var/tmp/atlassian_$1.pid
+
+[ "$VERBOSITY" = "" ] || echo START atlassian_$1 `date` >> $LOG
+
+for APPDIR in ${@@}; do
+    [ -d $DESTDIR/$HOST/$APPDIR ] || mkdir -p $DESTDIR/$HOST/$APPDIR
+    rsync -a --delete $HOST:"$APPROOT/$APPDIR/." $DESTDIR/$HOST/$APPDIR
+done
+
+rm /var/tmp/atlassian_$1.pid
+
+[ "$VERBOSITY" = "" ] || echo FINISH atlassian_$1 `date` >> $LOG
+
+exit 0
+@
+
+
+1.2
+log
+@Added directory argument to backup_atlassian so we can use the same job on the
+new host. SYS-387
+@
+text
+@d3 1
+a3 1
+# $Id: backup_atlassian,v 1.1 2008/08/12 16:19:13 wflynn Exp wflynn $
+d12 2
+d16 13
+d31 1
+a31 1
+    rsync -a --delete $HOST:$APPROOT/$APPDIR $DESTDIR/$HOST/$APPDIR
+d33 6
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d3 1
+a3 1
+# $Id: $
+a9 1
+APPROOT=/var/www
+d11 2
+@

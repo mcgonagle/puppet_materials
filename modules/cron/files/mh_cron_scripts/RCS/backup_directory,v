@@ -1,0 +1,145 @@
+head	1.5;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.5
+date	2009.04.15.20.03.27;	author wflynn;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	2008.09.12.14.30.43;	author rbraun;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2008.09.05.21.06.40;	author rbraun;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2008.09.05.20.24.06;	author rbraun;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2008.09.05.20.05.53;	author rbraun;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.5
+log
+@Remove quotes and now it works SYS-1192
+@
+text
+@#!/bin/bash
+# $Id: backup_directory,v 1.4 2008/09/12 14:30:43 rbraun Exp wflynn $
+#
+# Created 9/08 by rbraun
+#
+# This backs up a single specified directory.
+
+# Command line parameters:
+#   $1   Destination directory (relative to /var/backup) on terabactyl
+#   $2   Host name
+#   $3   Source directory (full path name) on host
+#   $4   Optional rsync parameter(s) such as bwlimit
+#
+# Note that user 'care' must have group read permissions for all
+# files under the source directory.
+
+DESTDIR=/var/backup/$1
+HOST=$2
+SRCDIR=$3
+LOG=/var/tmp/backup_$1.log
+VERBOSITY=-v
+
+if [ "`touch $LOG`" != "" ]
+then
+  echo "Cannot write to logfile."
+  exit $ERROR
+fi
+
+# Interlock - check to see if script still running from previous instance
+
+[ -e /var/tmp/backup_$1.pid ] && [ -e /proc/`cat /var/tmp/backup_$1.pid` ] && exit 0
+echo $$ > /var/tmp/backup_$1.pid
+
+[ "$VERBOSITY" = "" ] || echo START backup_$1 `date` >> $LOG
+
+[ -d $DESTDIR/$HOST ] || mkdir -p $DESTDIR/$HOST
+rsync --delete ${4} -a $HOST:${SRCDIR}/. $DESTDIR/$HOST
+
+rm /var/tmp/backup_$1.pid
+[ "$VERBOSITY" = "" ] || echo FINISH backup_$1 `date` >> $LOG
+
+exit 0
+@
+
+
+1.4
+log
+@logging to /var/tmp
+@
+text
+@d2 1
+a2 1
+# $Id: backup_directory,v 1.3 2008/09/05 21:06:40 rbraun Exp rbraun $
+d37 1
+a37 1
+rsync --delete "$4" -a $HOST:"$SRCDIR/." $DESTDIR/$HOST
+@
+
+
+1.3
+log
+@*** empty log message ***
+@
+text
+@d2 1
+a2 1
+# $Id: backup_directory,v 1.2 2008/09/05 20:24:06 rbraun Exp rbraun $
+d20 8
+d31 4
+a34 2
+[ -e /var/tmp/backup_$1 ] && [ -e /proc/`cat /var/tmp/backup_$1` ] && exit 0
+echo $$ > /var/tmp/backup_$1
+d39 3
+a41 1
+rm /var/tmp/backup_$1
+@
+
+
+1.2
+log
+@*** empty log message ***
+@
+text
+@d2 1
+a2 1
+# $Id: backup_directory,v 1.1 2008/09/05 20:05:53 rbraun Exp rbraun $
+d27 1
+a27 1
+rsync --delete $4 -a $HOST:$SRCDIR/. $DESTDIR/$HOST
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 1
+a2 1
+# $Id: backup_tftp,v 1.2 2008/08/11 20:04:37 rbraun Exp $
+d21 5
+d28 3
+@

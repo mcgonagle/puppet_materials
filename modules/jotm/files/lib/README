@@ -1,0 +1,6 @@
+Most of the lib are triggered from the maven dependencies:
+See ../../assembly/assembly.xml
+
+Some of the libraries are not maven modules, and are put
+directly here:
+xapool		 needed for examples only.

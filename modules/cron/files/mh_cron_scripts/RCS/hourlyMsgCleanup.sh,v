@@ -1,0 +1,232 @@
+head	1.6;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.6
+date	2008.07.09.21.01.55;	author tmcgonagle;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	2008.07.07.17.25.25;	author rbraun;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	2008.07.05.16.32.23;	author rbraun;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2008.07.03.21.11.33;	author rbraun;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2008.07.03.20.55.08;	author rbraun;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2008.07.03.19.40.51;	author rbraun;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.6
+log
+@*** empty log message ***
+@
+text
+@#!/bin/sh
+# $Id: hourlyMsgCleanup.sh,v 1.5 2008/07/07 17:25:25 rbraun Exp sfrattura $
+
+. /etc/manhunt/source.sh
+
+HOSTS="$MAILDB0024 $MAILDB2549"
+LOG=${CARE_LOG}
+ERROR=1
+VERBOSITY=-vv
+#VERBOSITY=
+
+# Run as care.
+if [ "$UID" -ne "$CARE_UID" ]
+then
+ echo "Must be care to run this script."
+  exit $ERROR
+fi
+
+if [ "`touch $LOG`" != "" ]
+then
+echo "Cannot write to logfile."
+exit $ERROR
+fi
+
+echo START $APPNAME `date` >> $LOG
+
+# get the uid and # over 500 that user is, for Inbox and Sent, who haven't had activity in the last 10 minutes
+# (haven't changed their mailboxes and/or had new messages put there)
+
+for host in $HOSTS
+do
+  if [ "`$MYSQL -u $DBUSER -h $host -p$DBPASSWD $MESSAGEDB -e 'show databases'`" == "" ]
+  then
+  echo "Cannot connect to $MESSAGEDB on $host"
+  exit $ERROR
+  fi
+
+  for row in `$MYSQL -u $DBUSER -p$DBPASSWD -h $host $MESSAGEDB -e "SELECT concat(uid,',',totalMsgs-LEAST(totalMsgs,500),',',totalSent-LEAST(totalSent,500)) FROM MessageTotals WHERE (totalMsgs>500 or totalSent>500) AND modified < NOW() - INTERVAL 10 MINUTE"`
+  do
+  uid=`echo $row | cut -f1 -d,`
+  overInbox=`echo $row | cut -f2 -d,`
+  overSent=`echo $row | cut -f3 -d,`
+
+  lastTwo=`echo $uid | perl -nle 'm/(..$)/;print $1'`
+  if [ -e $lastTwo ]
+  then
+  lastTwo=0`echo $uid | perl -nle 'm/(.$)/;print $1'`
+  fi 
+
+if [ "$overInbox" != "'" ]  
+then
+  if [ $overInbox -gt 0 -a $lastTwo = "00" ]
+  then
+  $MYSQL -u $DBUSER -p$DBPASSWD -h $host $MESSAGEDB $VERBOSITY -e "delete Table1 from Inbox_$lastTwo Table1 join (select msgid FROM Inbox_$lastTwo WHERE toUid=$uid ORDER BY modified desc LIMIT 500, $overInbox) as Table2 using(msgid);" >> $LOG
+  $MYSQL -u $DBUSER -p$DBPASSWD -h $host $MESSAGEDB $VERBOSITY -e "UPDATE MessageTotals SET totalMsgs=500 WHERE uid=$uid" >> $LOG
+  fi
+fi
+
+if [ "$overSent" != "'" ]  
+then
+  if [ $overSent -gt 0 -a $lastTwo = "00" ]
+  then
+  $MYSQL -u $DBUSER -p$DBPASSWD -h $host $MESSAGEDB $VERBOSITY -e "delete Table1 from Sent_$lastTwo Table1 join (select sentmsgid from Sent_$lastTwo WHERE fromUid=$uid ORDER BY modified desc LIMIT 500, $overSent) as Table2 using(sentmsgid);" >> $LOG
+  $MYSQL -u $DBUSER -p$DBPASSWD -h $host $MESSAGEDB $VERBOSITY -e "UPDATE MessageTotals SET totalSent=500 WHERE uid=$uid" >> $LOG
+  fi
+fi
+  done
+done
+
+echo FINISH $APPNAME `date` >> $LOG
+@
+
+
+1.5
+log
+@turn down verbosity now that we have 47 megs of log
+@
+text
+@d2 1
+a2 1
+# $Id: hourlyMsgCleanup.sh,v 1.4 2008/07/05 16:32:23 rbraun Exp rbraun $
+d9 2
+a10 2
+#VERBOSITY=-vv
+VERBOSITY=
+d38 1
+a38 1
+  for row in `$MYSQL -u $DBUSER -p$DBPASSWD -h $host $MESSAGEDB -e "SELECT concat(uid,',',totalMsgs-LEAST(totalMsgs,500),',',totalSent-LEAST(totalSent,500)) FROM MessageTotals WHERE totalMsgs>500 or totalSent>500 AND modified < NOW() - INTERVAL 10 MINUTE"`
+d52 1
+a52 1
+  if [ $overInbox -gt 0 ]
+d54 1
+a54 1
+  $MYSQL -u $DBUSER -p$DBPASSWD -h $host $MESSAGEDB $VERBOSITY -e "DELETE FROM Inbox_$lastTwo WHERE toUid=$uid ORDER BY modified LIMIT $overInbox;" >> $LOG
+d61 1
+a61 1
+  if [ $overSent -gt 0 ]
+d63 1
+a63 1
+  $MYSQL -u $DBUSER -p$DBPASSWD -h $host $MESSAGEDB $VERBOSITY -e "DELETE FROM Sent_$lastTwo WHERE toUid=$uid ORDER BY modified LIMIT $overSent;" >> $LOG
+@
+
+
+1.4
+log
+@added START/FINISH statements so we know how long this thing takes
+@
+text
+@d2 1
+a2 1
+# $Id: hourlyMsgCleanup.sh,v 1.3 2008/07/03 21:11:33 rbraun Exp rbraun $
+d9 2
+a10 1
+VERBOSITY=-vv
+@
+
+
+1.3
+log
+@*** empty log message ***
+@
+text
+@d2 1
+a2 1
+# $Id: hourlyMsgCleanup.sh,v 1.2 2008/07/03 20:55:08 rbraun Exp rbraun $
+d9 1
+d24 2
+d53 2
+a54 2
+  $MYSQL -u $DBUSER -p$DBPASSWD -h $host $MESSAGEDB -vv -e "DELETE FROM Inbox_$lastTwo WHERE toUid=$uid ORDER BY modified LIMIT $overInbox;" >> $LOG
+  $MYSQL -u $DBUSER -p$DBPASSWD -h $host $MESSAGEDB -vv -e "UPDATE MessageTotals SET totalMsgs=500 WHERE uid=$uid" >> $LOG
+d62 2
+a63 2
+  $MYSQL -u $DBUSER -p$DBPASSWD -h $host $MESSAGEDB -vv -e "DELETE FROM Sent_$lastTwo WHERE toUid=$uid ORDER BY modified LIMIT $overSent;" >> $LOG
+  $MYSQL -u $DBUSER -p$DBPASSWD -h $host $MESSAGEDB -vv -e "UPDATE MessageTotals SET totalSent=500 WHERE uid=$uid" >> $LOG
+d68 2
+@
+
+
+1.2
+log
+@*** empty log message ***
+@
+text
+@d2 1
+a2 1
+# $Id$
+a5 1
+BIN=/usr/bin/mysql
+d7 1
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 3
+d7 1
+a7 6
+USER=apache
+PASS=LQSyM
+HOSTS="192.168.2.201 192.168.1.212"
+DB="messages"
+CARE_UID=500
+LOG=/home/care/hourlyMessages.log
+d28 1
+a28 1
+  if [ "`$BIN -u $USER -h $host -p$PASS $DB -e 'show databases'`" == "" ]
+d30 1
+a30 1
+  echo "Cannot connect to $DB on $host"
+d34 1
+a34 1
+  for row in `$BIN -u $USER -p$PASS -h $host $DB -e "SELECT concat(uid,',',totalMsgs-LEAST(totalMsgs,500),',',totalSent-LEAST(totalSent,500)) FROM MessageTotals WHERE totalMsgs>500 or totalSent>500 AND modified < NOW() - INTERVAL 10 MINUTE"`
+d50 2
+a51 2
+  $BIN -u $USER -p$PASS -h $host $DB -vv -e "DELETE FROM Inbox_$lastTwo WHERE toUid=$uid ORDER BY modified LIMIT $overInbox;" >> $LOG
+  $BIN -u $USER -p$PASS -h $host $DB -vv -e "UPDATE MessageTotals SET totalMsgs=500 WHERE uid=$uid" >> $LOG
+d59 2
+a60 2
+  $BIN -u $USER -p$PASS -h $host $DB -vv -e "DELETE FROM Sent_$lastTwo WHERE toUid=$uid ORDER BY modified LIMIT $overSent;" >> $LOG
+  $BIN -u $USER -p$PASS -h $host $DB -vv -e "UPDATE MessageTotals SET totalSent=500 WHERE uid=$uid" >> $LOG
+@

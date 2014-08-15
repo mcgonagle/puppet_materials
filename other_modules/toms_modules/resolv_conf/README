@@ -1,0 +1,22 @@
+Puppet module: resolv_conf
+
+# Written by Tom McGonagle #
+# mcgonagle@gmail.com
+# Google Voice (617)229-5185
+# http://www.puppetll.com
+
+
+DESCRIPTION:
+This module installs and manages resolv_conf software
+Standard and extended classes are available.
+Decide and customize how you want to define configation files: static files, templates, infile modifications...
+
+
+USAGE:
+# Standard Classes 
+include resolv_conf              # Install and run resolv_conf with standard configurations.
+include resolv_conf::disable     # Disable resolv_conf service.
+include resolv_conf::disableboot # Disable resolv_conf service at boot time, but don't stop if it's running.
+include resolv_conf::absent      # Remove resolv_conf package.
+
+DEPENDENCIES:

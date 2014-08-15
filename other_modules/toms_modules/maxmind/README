@@ -1,0 +1,22 @@
+Puppet module: maxmind
+
+# Written by Tom McGonagle #
+# mcgonagle@gmail.com
+# Google Voice (617)229-5185
+# http://www.puppetll.com
+
+
+DESCRIPTION:
+This module installs and manages maxmind software
+Standard and extended classes are available.
+Decide and customize how you want to define configation files: static files, templates, infile modifications...
+
+
+USAGE:
+# Standard Classes 
+include maxmind              # Install and run maxmind with standard configurations.
+include maxmind::disable     # Disable maxmind service.
+include maxmind::disableboot # Disable maxmind service at boot time, but don't stop if it's running.
+include maxmind::absent      # Remove maxmind package.
+
+DEPENDENCIES:

@@ -1,0 +1,9 @@
+#!/bin/bash
+# $Id: rsyncManhuntdaily.sh,v 1.1 2010/05/25 20:59:32 apradhan Exp apradhan $
+
+for i in `seq 01 04`
+do
+    ( rsync -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" -a --partial --delete-before --force --ignore-errors /var/www/html/wordpress/wp-content/. blogsite$i:/var/www/html/wordpress/wp-content/ ) &
+done
+
+date >> /tmp/rsyncManhuntdaily_runtimes

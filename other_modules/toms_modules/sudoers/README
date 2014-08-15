@@ -1,0 +1,18 @@
+Puppet module: sudoers
+
+# Written by Tom McGonagle #
+# mcgonagle@gmail.com
+# Google Voice (617)229-5185
+# http://www.puppetll.com
+
+
+DESCRIPTION:
+This module manages the /etc/sudoers file. 
+Standard and extended classes are available.
+Decide and customize how you want to define configation files: static files, templates, infile modifications...
+
+USAGE:
+# Standard Classes 
+include sudoers              # Install and manages the /etc/sudoers file
+
+DEPENDENCIES:

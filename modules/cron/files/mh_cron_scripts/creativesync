@@ -1,0 +1,176 @@
+#!/bin/bash -x
+#
+# $Id: creativesync,v 1.32 2010/10/14 14:32:48 wflynn Exp $
+#
+# Trying a smarter creativesync.  This isn't done yet.
+#
+
+MH_CRON_HOME=/usr/local/manhunt/cron/
+DEPLOY_HOME=/home/deploy
+SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+TIMESTAMP=`date +%F-%H.%M.%S`
+WWW_HOSTS=${DEPLOY_HOME}/www_hosts.txt
+AD_HOSTS=${DEPLOY_HOME}/ad_hosts.txt
+DL_HOSTS=${DEPLOY_HOME}/dl_hosts.txt
+cd ${DEPLOY_HOME}
+LOGDIR=${DEPLOY_HOME}
+#  Make sure we've got the right args before going any further
+case "${1}" in
+    delta)
+	;;
+    full)
+	;;
+    *)
+	echo "Unknown or missing argument: ${1}" && echo "Usage: $0 [delta|full]" && exit 2
+	;;
+esac
+
+. /etc/manhunt/source.sh
+
+LOG="${LOGDIR}/${LOGNAME}.${1}"
+STAT_LOG="${STAT_LOGDIR}/${STATLOGNAME}.${1}"
+
+mh_user_check "deploy"
+mh_init "clobber"
+mh_pid_check
+
+proc_rv () {
+    RV=${1}
+       # This is a list of rsync exit codes (rsync status codes / rsync error codes).
+       # 0      Success
+       # 1      Syntax or usage error
+       # 2      Protocol incompatibility
+       # 3      Errors selecting input/output files, dirs
+       # 4      Requested  action not supported: an attempt was made to manipulate 64-bit files on a platform
+       #            that cannot support them; or an option was specified that is supported by the client and not by the server.
+       # 5      Error starting client-server protocol
+       # 6      Daemon unable to append to log-file
+       # 10     Error in socket I/O
+       # 11     Error in file I/O
+       # 12     Error in rsync protocol data stream
+       # 13     Errors with program diagnostics
+       # 14     Error in IPC code
+       # 20     Received SIGUSR1 or SIGINT
+       # 21     Some error returned by waitpid()
+       # 22     Error allocating core memory buffers
+       # 23     Partial transfer due to error
+       # 24     Partial transfer due to vanished source files
+       # 25     The --max-delete limit stopped deletions
+       # 30     Timeout in data send/receive
+       # 35     Timeout waiting for daemon connection
+    case "${RV}" in
+	0)
+	    MYSTATUS=${OK}
+	    ;;
+	23)
+	    MYSTATUS=${OK}
+	    ;;
+	*)
+	    MYSTATUS=${CRITICAL}
+	    ;;
+    esac
+
+#  Make sure we error in the event ANY host has a problem:
+    if [ $MYSTATUS -gt $STATUS ]
+    then
+	echo "Received Return Code: ${RV} Changing ${STATUS} to ${MYSTATUS}" >> ${LOG}
+	STATUS=${MYSTATUS}
+    else
+	echo "Received Return Code: ${RV} Status is ${STATUS}" >> ${LOG}
+    fi
+}
+
+mh_ad_server_check () {
+    if [ -e /usr/local/manhunt/cron/hostchecker.pl ]
+    then
+	if ! /usr/local/manhunt/cron/hostchecker.pl --domain v4.waltham.manhunt.net --domain waltham.manhunt.net --hostname_contains www --hostlistfile www_hosts.txt
+	then
+	    echo "WARNING! $0 Can't perform upcheck on www hosts!" >&2
+	    echo "WARNING! $0 Can't perform upcheck on www hosts!" >> ${LOG}
+	    mh_exit $CRITICAL
+	fi
+	if ! /usr/local/manhunt/cron/hostchecker.pl --domain waltham.manhunt.net --hostname_contains mhads --hostlistfile ad_hosts.txt
+	then
+	    echo "WARNING! $0 Can't perform upcheck on manhunt ad hosts!" >&2
+	    echo "WARNING! $0 Can't perform upcheck on manhunt ad hosts!" >> ${LOG}
+	    mh_exit $CRITICAL
+	fi
+	if ! /usr/local/manhunt/cron/hostchecker.pl --domain waltham.manhunt.net --hostname_contains dlads --hostlistfile dl_hosts.txt
+	then
+	    echo "WARNING! $0 Can't perform upcheck on dlist ad hosts!" >&2
+	    echo "WARNING! $0 Can't perform upcheck on dlist ad hosts!" >> ${LOG}
+	    mh_exit $CRITICAL
+	fi
+    fi
+}
+
+echo -e "START RUN $0 ${1}: `date`\n" >> ${LOG}
+case "${1}" in
+    delta)
+	mh_ad_server_check
+	WWW_SUCKER=`head -1 $WWW_HOSTS`
+	CMD="/usr/bin/time -a -o ${LOG} rsync --stats --only-write-batch=www_creatives -a --partial --delete-before --force --ignore-errors  -e "ssh ${SSH_OPTS}" /mnt/manhunt/other/creative/. $WWW_SUCKER:/var/www/html/mh"
+	echo "$WWW_SUCKER ${1} generate: `date`" >> ${LOG};
+	echo ${CMD} >> ${LOG};
+	/usr/bin/time -a -o ${LOG} rsync --stats --only-write-batch=www_creatives -a --partial --delete-before --force --ignore-errors -e "ssh ${SSH_OPTS}" /mnt/manhunt/other/creative/. $WWW_SUCKER:/var/www/html/mh
+
+	AD_SUCKER=`head -1 $AD_HOSTS`
+	CMD="/usr/bin/time -a -o ${LOG} rsync --stats -e 'ssh ${SSH_OPTS}' --only-write-batch=ad_creatives -a --partial --delete-before --force --ignore-errors /mnt/manhunt/other/creative/V4 $AD_SUCKER:/var/www/html/mh"
+	echo "$AD_SUCKER ${1} generate: `date`" >> ${LOG};
+	echo ${CMD} >> ${LOG};
+	/usr/bin/time -a -o ${LOG} rsync --stats --only-write-batch=ad_creatives -a --partial --delete-before --force --ignore-errors -e "ssh ${SSH_OPTS}" /mnt/manhunt/other/creative/V4 $AD_SUCKER:/var/www/html/mh
+
+	for host in $(cat $WWW_HOSTS);
+	do
+	    CMD="/usr/bin/time -a -o ${LOG} scp ${SSH_OPTS} www_creatives* $host:${DEPLOY_HOME} && /usr/bin/time -a -o ${LOG} ssh ${SSH_OPTS} $host ${DEPLOY_HOME}/www_creatives.sh"
+	    echo "START $host ${1}: `date`" >> ${LOG};
+	    echo ${CMD} >> ${LOG};
+	    /usr/bin/time -a -o ${LOG} scp ${SSH_OPTS} www_creatives* $host:${DEPLOY_HOME} && /usr/bin/time -a -o ${LOG} ssh ${SSH_OPTS} $host ${DEPLOY_HOME}/www_creatives.sh;
+	    proc_rv ${?};
+	    echo -e "END $host ${1}: `date`\n" >> ${LOG}
+	done
+
+	for host in $(cat $AD_HOSTS $DL_HOSTS);
+	do
+	    CMD="/usr/bin/time -a -o ${LOG} scp ${SSH_OPTS} ad_creatives* $host:${DEPLOY_HOME} && /usr/bin/time -a -o ${LOG} ssh ${SSH_OPTS} $host ${DEPLOY_HOME}/ad_creatives.sh"
+	    echo "START $host ${1}: `date`" >> ${LOG};
+	    echo ${CMD} >> ${LOG};
+	    /usr/bin/time -a -o ${LOG} scp ${SSH_OPTS} ad_creatives* $host:${DEPLOY_HOME} && /usr/bin/time -a -o ${LOG} ssh ${SSH_OPTS} $host ${DEPLOY_HOME}/ad_creatives.sh;
+	    proc_rv ${?};
+	    echo -e "END $host ${1}: `date`\n" >> ${LOG}
+	done
+	;;
+    full)
+	mh_ad_server_check
+	for host in $(cat $WWW_HOSTS);
+	do
+	    CMD="/usr/bin/time -a -o ${LOG} rsync --stats -e 'ssh ${SSH_OPTS}' -a --partial --delete-before --force --ignore-errors /mnt/manhunt/other/creative/. $host:/var/www/html/mh"
+	    echo "START $host ${1}: `date`" >> ${LOG};
+	    echo ${CMD} >> ${LOG};
+	    /usr/bin/time -a -o ${LOG} rsync --stats -a --partial --delete-before --force --ignore-errors -e "ssh ${SSH_OPTS}" /mnt/manhunt/other/creative/. $host:/var/www/html/mh;
+	    proc_rv ${?};
+	    echo -e "END $host ${1}: `date`\n" >> ${LOG}
+	done
+
+	for host in $(cat $AD_HOSTS $DL_HOSTS);
+	do
+	    CMD="/usr/bin/time -a -o ${LOG} rsync --stats -e 'ssh ${SSH_OPTS}' -a --partial --delete-before --force --ignore-errors /mnt/manhunt/other/creative/V4 $host:/var/www/html/mh"
+	    echo "START $host ${1}: `date`" >> ${LOG};
+	    echo ${CMD} >> ${LOG};
+	    /usr/bin/time -a -o ${LOG} rsync --stats -a --partial --delete-before --force --ignore-errors -e "ssh ${SSH_OPTS}" /mnt/manhunt/other/creative/V4 $host:/var/www/html/mh;
+	    proc_rv ${?};
+	    echo -e "END $host ${1}: `date`\n" >> ${LOG}
+	done
+	;;
+    *)
+	echo "Unknown or missing argument: ${1}" && echo "Usage: $0 [delta|full]" && mh_exit $UNKNOWN
+	;;
+esac
+echo -e "END RUN $0 ${1}: `date`\n" >> ${LOG}
+
+date >> /tmp/creativesync_runtimes
+
+# If Status isn't "OK" then capture this run's log for investigation later
+mh_capture_log
+mh_pid_check clean
+mh_exit $STATUS

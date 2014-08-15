@@ -1,0 +1,1770 @@
+head	1.59;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.59
+date	2010.01.14.18.48.17;	author sfrattura;	state Exp;
+branches;
+next	1.58;
+
+1.58
+date	2009.12.01.23.25.05;	author jjoy;	state Exp;
+branches;
+next	1.57;
+
+1.57
+date	2009.11.16.15.44.19;	author sfrattura;	state Exp;
+branches;
+next	1.56;
+
+1.56
+date	2009.11.09.17.13.45;	author sfrattura;	state Exp;
+branches;
+next	1.55;
+
+1.55
+date	2009.10.29.00.09.27;	author sfrattura;	state Exp;
+branches;
+next	1.54;
+
+1.54
+date	2009.09.14.18.58.56;	author sfrattura;	state Exp;
+branches;
+next	1.53;
+
+1.53
+date	2009.09.14.18.37.56;	author sfrattura;	state Exp;
+branches;
+next	1.52;
+
+1.52
+date	2009.09.10.19.28.29;	author sfrattura;	state Exp;
+branches;
+next	1.51;
+
+1.51
+date	2009.09.08.22.14.01;	author sfrattura;	state Exp;
+branches;
+next	1.50;
+
+1.50
+date	2009.09.08.15.15.18;	author sfrattura;	state Exp;
+branches;
+next	1.49;
+
+1.49
+date	2009.09.08.15.04.49;	author sfrattura;	state Exp;
+branches;
+next	1.48;
+
+1.48
+date	2009.08.27.18.52.05;	author sfrattura;	state Exp;
+branches;
+next	1.47;
+
+1.47
+date	2009.08.24.18.32.54;	author sfrattura;	state Exp;
+branches;
+next	1.46;
+
+1.46
+date	2009.08.24.17.17.10;	author sfrattura;	state Exp;
+branches;
+next	1.45;
+
+1.45
+date	2009.08.24.17.09.30;	author sfrattura;	state Exp;
+branches;
+next	1.44;
+
+1.44
+date	2009.08.21.18.44.02;	author sfrattura;	state Exp;
+branches;
+next	1.43;
+
+1.43
+date	2009.08.21.18.09.35;	author sfrattura;	state Exp;
+branches;
+next	1.42;
+
+1.42
+date	2009.08.21.18.05.13;	author sfrattura;	state Exp;
+branches;
+next	1.41;
+
+1.41
+date	2009.08.21.16.53.25;	author sfrattura;	state Exp;
+branches;
+next	1.40;
+
+1.40
+date	2009.08.21.16.41.13;	author sfrattura;	state Exp;
+branches;
+next	1.39;
+
+1.39
+date	2009.08.20.19.21.55;	author sfrattura;	state Exp;
+branches;
+next	1.38;
+
+1.38
+date	2009.08.19.22.47.13;	author mjapher;	state Exp;
+branches;
+next	1.37;
+
+1.37
+date	2009.08.19.22.24.08;	author mjapher;	state Exp;
+branches;
+next	1.36;
+
+1.36
+date	2009.08.19.21.36.23;	author sfrattura;	state Exp;
+branches;
+next	1.35;
+
+1.35
+date	2009.08.19.19.35.19;	author mjapher;	state Exp;
+branches;
+next	1.34;
+
+1.34
+date	2009.08.14.16.38.21;	author wflynn;	state Exp;
+branches;
+next	1.33;
+
+1.33
+date	2009.08.11.21.14.04;	author sfrattura;	state Exp;
+branches;
+next	1.32;
+
+1.32
+date	2009.08.11.21.08.46;	author sfrattura;	state Exp;
+branches;
+next	1.31;
+
+1.31
+date	2009.08.11.14.42.08;	author sfrattura;	state Exp;
+branches;
+next	1.30;
+
+1.30
+date	2009.08.03.18.59.22;	author sfrattura;	state Exp;
+branches;
+next	1.29;
+
+1.29
+date	2009.07.29.16.55.40;	author wflynn;	state Exp;
+branches;
+next	1.28;
+
+1.28
+date	2009.07.29.15.57.32;	author sfrattura;	state Exp;
+branches;
+next	1.27;
+
+1.27
+date	2009.07.07.13.40.15;	author sfrattura;	state Exp;
+branches;
+next	1.26;
+
+1.26
+date	2009.06.23.14.04.14;	author sfrattura;	state Exp;
+branches;
+next	1.25;
+
+1.25
+date	2009.06.15.16.11.06;	author wflynn;	state Exp;
+branches;
+next	1.24;
+
+1.24
+date	2009.05.29.17.24.44;	author sfrattura;	state Exp;
+branches;
+next	1.23;
+
+1.23
+date	2009.05.12.15.59.07;	author sfrattura;	state Exp;
+branches;
+next	1.22;
+
+1.22
+date	2009.04.22.14.46.35;	author sfrattura;	state Exp;
+branches;
+next	1.21;
+
+1.21
+date	2009.04.20.19.12.44;	author rbraun;	state Exp;
+branches;
+next	1.20;
+
+1.20
+date	2009.04.20.19.10.23;	author rbraun;	state Exp;
+branches;
+next	1.19;
+
+1.19
+date	2009.04.13.18.45.53;	author sfrattura;	state Exp;
+branches;
+next	1.18;
+
+1.18
+date	2009.04.13.18.44.32;	author sfrattura;	state Exp;
+branches;
+next	1.17;
+
+1.17
+date	2009.04.13.17.40.00;	author wflynn;	state Exp;
+branches;
+next	1.16;
+
+1.16
+date	2009.04.02.02.53.04;	author wflynn;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	2009.04.02.02.49.04;	author sfrattura;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	2009.04.01.14.02.21;	author sfrattura;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	2009.03.31.14.22.15;	author wflynn;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	2009.03.27.20.50.26;	author wflynn;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	2009.03.03.16.37.13;	author sfrattura;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	2009.03.02.15.00.19;	author sfrattura;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	2009.02.23.18.08.40;	author sfrattura;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	2009.02.19.17.33.10;	author sfrattura;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	2009.02.19.17.23.48;	author sfrattura;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	2009.02.18.19.04.35;	author sfrattura;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	2009.02.18.18.27.06;	author sfrattura;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	2009.02.18.17.15.43;	author sfrattura;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2009.02.18.16.53.42;	author sfrattura;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2009.02.18.00.48.02;	author sfrattura;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2009.02.17.23.21.39;	author sfrattura;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.59
+log
+@pointed the queries to run against the backup shards
+@
+text
+@#!/bin/sh
+# Email Notifier, Sandro Frattura Feb 2009
+PID=${$}
+
+. /etc/manhunt/source.sh
+PASS=${V4_PW}
+USER=${V4_USER}
+USERHOST=${V4_ROSLAVE}
+USERDB=${V4_USERDB}
+MAILSERVER=${V4_MAILSERVER}
+MAILDB=${V4_MAILDB}
+LOG=${CARE_LOG}_$4_users
+ERROR=1
+VERBOSITY=-vv
+CHAROPT="--default-character-set=utf8"
+QDIR="/var/tmp/email_queue"
+
+# Run as care.
+if [ "$UID" -ne "$CARE_UID" ]
+then
+    echo "Must be care to run this script."
+    exit $ERROR
+fi
+
+if [ "`touch $LOG`" != "" ]
+then
+    echo "Cannot write to logfile."
+    exit $ERROR
+fi
+
+if [ -z "$1" -o -z "$2" -o -z "$3" ]
+then
+    echo
+    echo "Need Four Parameters!!"
+    echo "    1-daily or weekly"
+    echo "    2-#of users per language(for testing this script)           -- pass in \"0\" to run ALL users"
+    echo "    3-emailAddress for testing (all emails go to this address)  -- pass in \"REAL\" to send the real email address"
+    echo "    4-last digit of UserID to notify <a.k.a. mod(10)>"
+    echo
+    exit 1
+fi
+
+PIDFILE="$TEMP/v4Notify.${1}.${4}.pid"
+
+if [ `cat ${PIDFILE}` ] && [ -d /proc/`cat ${PIDFILE}` ]
+then
+    echo `date` "$0 $1 appears to be running already. Not starting." >> $LOG
+else
+    echo ${PID} > ${PIDFILE}
+
+    echo START $APPNAME `date` >> $LOG
+
+    mkdir -p ${QDIR}
+
+# get my email-builder variables from the DB
+
+for language in de en es fr it pt; do
+# get my email-builder variables from the DB
+
+	email_templ=`mysql $CHAROPT -u $USER -p$PASS -h $MAILSERVER $MAILDB -s -e "select concat(Salutation, '|', SingIntro, '|', PlurIntro, '|', SingIntroFinish, '|', PlurIntroFinish, '|', WindDown, '|', webURL, '|',Signoff, '|', SignoffName, '|', SingSubject, '|', PlurSubject, '|', canSpam1, '|', canSpam2, '|', canSpam3, '|', FromLabel, '|', SubjectLabel, '|', ReceivedLabel, '|', MoreMsgsIntro, '|', MoreMsgsFinish) from emailTemplate where lang = '$language'"`
+
+	mailSalutation=`cut -d"|" -f1 <<< $email_templ`
+	mailSingIntro=`cut -d"|" -f2 <<< $email_templ`
+	mailPlurIntro=`cut -d"|" -f3 <<< $email_templ`
+	mailSingFinish=`cut -d"|" -f4 <<< $email_templ`
+	mailPlurFinish=`cut -d"|" -f5 <<< $email_templ`
+	mailWindDown=`cut -d"|" -f6 <<< $email_templ`
+	mailURL=`cut -d"|" -f7 <<< $email_templ`
+	mailSignoff=`cut -d"|" -f8 <<< $email_templ`
+	mailSignoffName=`cut -d"|" -f9 <<< $email_templ`
+	mailSingSubject=`cut -d"|" -f10 <<< $email_templ`
+	mailPlurSubject=`cut -d"|" -f11 <<< $email_templ`
+	mailCanSpam1=`cut -d"|" -f12 <<< $email_templ`
+	mailCanSpam2=`cut -d"|" -f13 <<< $email_templ`
+	mailCanSpam3=`cut -d"|" -f14 <<< $email_templ`
+	mailFromLabel=`cut -d"|" -f15 <<< $email_templ`
+	mailSubjectLabel=`cut -d"|" -f16 <<< $email_templ`
+	mailReceivedLabel=`cut -d"|" -f17 <<< $email_templ`
+	mailMoreMsgsIntro=`cut -d"|" -f18 <<< $email_templ`
+	mailMoreMsgsFinish=`cut -d"|" -f19 <<< $email_templ`
+
+# Are we sending weekly or daily notices?
+	if [ "$1" = "daily" ]
+	then
+	    type=7;
+	    interval="4 hour";
+	    titleType="Daily";
+	else
+	    type=1;
+	    interval="12 hour";
+	    titleType="Weekly";
+	fi
+
+	select="select concat('bkp-mailshard',shlutshard, '|',  uid,'|',  trim(email),'|', trim(username), '|', trim(gaActivationCode), '|', trim(shortLocaleID)) from user natural join as_search natural left join general_activation join mailbox_shlut on mod(uid,100) = slotNumber"
+	where="where right(uid,1) = $4 and shortLocaleID='$language' and gatTypeID = 2 and abuse = 0 and email <> '' and emailFrequency ="$type
+
+	if [ "$2" != "0" ]
+	then
+	    limit=" limit $2"
+	fi
+
+	sql="$select $where $limit"
+
+#echo $sql
+
+	LoopCounter=0
+
+	for row in `mysql $CHAROPT -u $USER -p$PASS -h $USERHOST $USERDB -s -e "$sql"`
+	do
+	    userName=`cut -d"|" -f4 <<< $row`
+	    userEmail=`cut -d"|" -f3 <<< $row`
+	    userID=`cut -d"|" -f2 <<< $row`
+	    userMailServer=`cut -d"|" -f1 <<< $row`
+            userOptOutCode=`cut -d"|" -f5 <<< $row`
+            userLang=`cut -d"|" -f6 <<< $row`
+
+#echo $userMailServer $userID $userEmail $userOptOutCode
+#exit
+
+### OLD ONE	    mailInfoString=`mysql $CHAROPT -u $USER -p$PASS -h $userMailServer $MAILDB -s -e "select distinct concat(totalMessages-readMessages, '|', umailFolderID) from mailbox_folder natural join mail_messages where uidTo = $userID and name='inbox' order by uidTo"`
+
+mailInfoString=`mysql $CHAROPT -u $USER -p$PASS -h $userMailServer $MAILDB -s -e "select concat(totalMessages-readMessages, '|', umailFolderID) from mailbox_folder where uid = $userID and name='inbox'"`
+
+
+	    userUnreadCount=`cut -d"|" -f1 <<< $mailInfoString`
+	    userFolderID=`cut -d"|" -f2 <<< $mailInfoString`
+
+	    if [ "$userUnreadCount" != "0" ] && [[ -n "$userUnreadCount" ]] && [[ $"userUnreadCount" != "" ]]
+	    then
+		let "LoopCounter=$LoopCounter+1"
+
+                #set the language. I picked these as my best guesses.  Different flavors are available (country specific)
+                ## they can be found here: http://dev.mysql.com/doc/refman/5.0/en/locale-support.html
+
+                case $language in
+                   en) dispLang=en_US;;
+                   es) dispLang=es_US;;
+                   pt) dispLang=pt_BR;;
+                   de) dispLang=de_DE;;
+                   fr) dispLang=fr_FR;;
+                   it) dispLang=it_IT;;
+                esac
+                
+
+
+		mailRows=`mysql $CHAROPT -u $USER -p$PASS -h $userMailServer $MAILDB -s -e "SET lc_time_names = $dispLang; select concat(usernameFrom, '|', coalesce(huge.hugeTitle, title), '|',  date_format(created, '%W, %M %D - %l:%i %p EST'), '|') as mailString from mail_messages M left join mail_message_huge AS huge ON huge.umMessageID = M.umMessageID AND huge.uidOwner = M.uidFrom AND huge.shortLocaleID in ('$language','') where  M.uidOwner = $userID and umailFolderID = $userFolderID and opened = 'N' order by is_system_uid(uidFrom) asc, created desc limit 5"`
+
+#####
+#  This stuff can be easily replaced with a "for" or "do" loop construct.  clean up later
+		mailFrom=`cut -d"|" -f1 <<< $mailRows`
+		mailSubj=`cut -d"|" -f2 <<< $mailRows`
+		mailDate=`cut -d"|" -f3 <<< $mailRows`
+		mailFrom2=`cut -d"|" -f4 <<< $mailRows`
+		mailSubj2=`cut -d"|" -f5 <<< $mailRows`
+		mailDate2=`cut -d"|" -f6 <<< $mailRows`
+		mailFrom3=`cut -d"|" -f7 <<< $mailRows`
+		mailSubj3=`cut -d"|" -f8 <<< $mailRows`
+		mailDate3=`cut -d"|" -f9 <<< $mailRows`
+		mailFrom4=`cut -d"|" -f10 <<< $mailRows`
+		mailSubj4=`cut -d"|" -f11 <<< $mailRows`
+		mailDate4=`cut -d"|" -f12 <<< $mailRows`
+		mailFrom5=`cut -d"|" -f13 <<< $mailRows`
+		mailSubj5=`cut -d"|" -f14 <<< $mailRows`
+		mailDate5=`cut -d"|" -f15 <<< $mailRows`
+####
+
+		if [ "$userUnreadCount" != "1" ]
+		then
+		    Intro2Use="$mailPlurIntro$userUnreadCount$mailPlurFinish"
+		    subject2Use="$mailPlurSubject"
+		else
+		    Intro2Use="$mailSingIntro$userUnreadCount$mailSingFinish"
+		    subject2Use="$mailSingSubject"
+		fi
+
+		extraCount=$[userUnreadCount - 5]
+
+		case "$userUnreadCount"
+		    in
+		    [0-5]) andTheresMore="";;
+		    *) andTheresMore="$mailMoreMsgsIntro$extraCount $mailMoreMsgsFinish";;
+		esac
+
+
+		mailDetails="$mailFromLabel $mailFrom
+$mailSubjectLabel $mailSubj
+$mailReceivedLabel $mailDate
+"
+
+		if [ -n "$mailFrom2" ]  && [[ "$mailFrom2" != " NULL NULL" ]]
+		then
+		    mailDetails=${mailDetails}"
+$mailFromLabel $mailFrom2
+$mailSubjectLabel $mailSubj2
+$mailReceivedLabel $mailDate2
+"
+		fi
+
+		if [ -n "$mailFrom3" ]  && [[ "$mailFrom3" != " NULL NULL" ]]
+		then
+		    mailDetails=${mailDetails}"
+$mailFromLabel $mailFrom3
+$mailSubjectLabel $mailSubj3
+$mailReceivedLabel $mailDate3
+"
+		fi
+
+		if [ -n "$mailFrom4" ]  && [[ "$mailFrom4" != " NULL NULL" ]]
+		then
+		    mailDetails=${mailDetails}"
+$mailFromLabel $mailFrom4
+$mailSubjectLabel $mailSubj4
+$mailReceivedLabel $mailDate4
+"
+		fi
+
+		if [ -n "$mailFrom5" ]  && [[ "$mailFrom5" != " NULL NULL" ]]
+		then
+		    mailDetails=${mailDetails}"
+$mailFromLabel $mailFrom5
+$mailSubjectLabel $mailSubj5
+$mailReceivedLabel $mailDate5"
+		fi
+
+echo
+
+		full_email="$mailSalutation $userName,
+
+$Intro2Use
+
+$mailDetails
+
+$andTheresMore
+
+$mailWindDown
+
+$mailCanSpam1 http://www.manhunt.net/external/optout?username="$userName"&code="$userOptOutCode"&lang="$userLang" .)
+
+$mailCanSpam2
+
+$mailCanSpam3"
+
+		if [ "$3" = "REAL" ]
+		then
+		    email2Use=$userEmail
+		else
+		    email2Use="$3"
+		fi
+
+		if [ "$VERBOSITY" = "-vvv" ]
+		then
+		    echo ______________________________ >> $LOG
+		    echo `date` >> $LOG
+		    echo >> $LOG
+		    echo email sent to:  $userEmail >> $LOG
+		    echo >> $LOG
+		    echo $full_email >> $LOG
+		    echo >> $LOG
+		elif [ "$VERBOSITY" = "-vv" ]
+		then
+		    echo "  -- ${1} process ${PID}: Message sent to $userName ($userEmail) - $(date)" >> $LOG
+		fi
+		
+		echo -e "$full_email" > ${QDIR}/"$userName"_email.txt
+
+#Send the actual email
+		/usr/local/manhunt/cron/treet_pusher.py -e$email2Use -f${QDIR}/"$userName"_email.txt -i$userID -l$language -u$userName -s"$subject2Use"
+
+		let "MyModulus = $LoopCounter%5000"
+                if [ "$MyModulus" = "0" -o "$LoopCounter" = "1" ]
+		then
+     #now send the BCC
+		    /usr/local/manhunt/cron/treet_pusher.py -ev4BCC@@online-buddies.com -f${QDIR}/"$userName"_email.txt -i$userID  -l$language -u$userName -s"$subject2Use"
+		fi
+
+		rm ${QDIR}/"$userName"_email.txt
+
+	    fi
+	done
+    done
+
+    [ "$VERBOSITY" = "" ] || echo "  -- $LoopCounter Members notified" >> $LOG
+
+    echo FINISH $APPNAME `date` >> $LOG
+    echo SCRIPT ENDED ON `date` >> $LOG
+
+fi
+@
+
+
+1.58
+log
+@Modified the logging so that the shard number doesn't mess with log rotate.
+@
+text
+@d94 1
+a94 1
+	select="select concat('mailshard',shlutshard, '|',  uid,'|',  trim(email),'|', trim(username), '|', trim(gaActivationCode), '|', trim(shortLocaleID)) from user natural join as_search natural left join general_activation join mailbox_shlut on mod(uid,100) = slotNumber"
+@
+
+
+1.57
+log
+@changed the modulus logic in the BCCer to send 1st message, then every 5000th
+@
+text
+@d12 1
+a12 1
+LOG=${CARE_LOG}_users_$4
+@
+
+
+1.56
+log
+@added localized support for date_format string
+@
+text
+@d270 1
+a270 1
+		if [ "$MyModulus" = "0" ]
+@
+
+
+1.55
+log
+@made the script point to teh main shards for mail (not teh bkp-shards. also removed a distinct where I dont think it was needed
+@
+text
+@d132 15
+a146 1
+		mailRows=`mysql $CHAROPT -u $USER -p$PASS -h $userMailServer $MAILDB -s -e "select concat(usernameFrom, '|', coalesce(huge.hugeTitle, title), '|',  date_format(created, '%W, %M %D - %l:%i %p EST'), '|') as mailString from mail_messages M left join mail_message_huge AS huge ON huge.umMessageID = M.umMessageID AND huge.uidOwner = M.uidFrom AND huge.shortLocaleID in ('$language','') where  M.uidOwner = $userID and umailFolderID = $userFolderID and opened = 'N' order by is_system_uid(uidFrom) asc, created desc limit 5"`
+@
+
+
+1.54
+log
+@added "is_system_uid to teh wuery that gets teh 5 samples.  system messages receiver lower priority now"
+@
+text
+@d94 1
+a94 1
+	select="select concat('bkp-mailshard',shlutshard, '|',  uid,'|',  trim(email),'|', trim(username), '|', trim(gaActivationCode), '|', trim(shortLocaleID)) from user natural join as_search natural left join general_activation join mailbox_shlut on mod(uid,100) = slotNumber"
+d122 1
+a122 1
+mailInfoString=`mysql $CHAROPT -u $USER -p$PASS -h $userMailServer $MAILDB -s -e "select distinct concat(totalMessages-readMessages, '|', umailFolderID) from mailbox_folder where uid = $userID and name='inbox'"`
+@
+
+
+1.53
+log
+@changed it so i get one in every 5000 emails (not one in every 1000)
+@
+text
+@d132 1
+a132 1
+		mailRows=`mysql $CHAROPT -u $USER -p$PASS -h $userMailServer $MAILDB -s -e "select concat(usernameFrom, '|', coalesce(huge.hugeTitle, title), '|',  date_format(created, '%W, %M %D - %l:%i %p EST'), '|') as mailString from mail_messages M left join mail_message_huge AS huge ON huge.umMessageID = M.umMessageID AND huge.uidOwner = M.uidFrom AND huge.shortLocaleID in ('$language','') where  M.uidOwner = $userID and umailFolderID = $userFolderID and opened = 'N' order by created desc limit 5"`
+@
+
+
+1.52
+log
+@added a backup language ('') to huge.shortLocaleID = '$language' section
+@
+text
+@d255 1
+a255 1
+		let "MyModulus = $LoopCounter%1000"
+@
+
+
+1.51
+log
+@added gatTypeID = 2 for optOutCode.  And also made it a left join in case they have no record in that table!!
+@
+text
+@d132 1
+a132 1
+		mailRows=`mysql $CHAROPT -u $USER -p$PASS -h $userMailServer $MAILDB -s -e "select concat(usernameFrom, '|', coalesce(huge.hugeTitle, title), '|',  date_format(created, '%W, %M %D - %l:%i %p EST'), '|') as mailString from mail_messages M left join mail_message_huge AS huge ON huge.umMessageID = M.umMessageID AND huge.uidOwner = M.uidFrom AND huge.shortLocaleID = '$language' where  M.uidOwner = $userID and umailFolderID = $userFolderID and opened = 'N' order by created desc limit 5"`
+@
+
+
+1.50
+log
+@added userLang to the top query and to teh optout string
+@
+text
+@d94 2
+a95 2
+	select="select concat('bkp-mailshard',shlutshard, '|',  uid,'|',  trim(email),'|', trim(username), '|', trim(gaActivationCode), '|', trim(shortLocaleID)) from user natural join as_search natural join general_activation join mailbox_shlut on mod(uid,100) = slotNumber"
+	where="where right(uid,1) = $4 and shortLocaleID='$language' and abuse = 0 and email <> '' and emailFrequency ="$type
+@
+
+
+1.49
+log
+@changed the optout URL link per https://jira/browse/MHNET-2118
+@
+text
+@d94 1
+a94 1
+	select="select concat('bkp-mailshard',shlutshard, '|',  uid,'|',  trim(email),'|', trim(username), '|', trim(gaActivationCode)) from user natural join as_search natural join general_activation join mailbox_shlut on mod(uid,100) = slotNumber"
+d115 1
+d223 1
+a223 1
+$mailCanSpam1 http://www.manhunt.net/external/optout?username="$userName"code="$userOptOutCode" .)
+@
+
+
+1.48
+log
+@remove a strat /bin/bash thing from line 119 (or 118, i forget)
+@
+text
+@d222 1
+a222 1
+$mailCanSpam1 http://www.somehost.com/external/canSpamOptOut?uid="$userID"code="$userOptOutCode" .)
+@
+
+
+1.47
+log
+@correct the build of the optOut URL and removed a stray "exit"
+@
+text
+@a117 1
+/bin/bash: indent: command not found
+@
+
+
+1.46
+log
+@built the optout URL string
+@
+text
+@d117 2
+a118 3
+exit
+
+
+d211 2
+d223 1
+a223 1
+$mailCanSpam1 http://www.somehost.com/external/canSpamOptOut?uid=$userIDcode=$userOptOutCode.)
+@
+
+
+1.45
+log
+@added deactivation code to the script (optout)
+@
+text
+@d222 1
+a222 1
+$mailCanSpam1$userOptOutCode.)
+@
+
+
+1.44
+log
+@made the logs write to unique log names
+@
+text
+@d94 1
+a94 1
+	select="select concat('bkp-mailshard',shlutshard, '|',  uid,'|',  trim(email),'|', trim(username)) from user natural join as_search join mailbox_shlut on mod(uid,100) = slotNumber"
+d105 1
+d114 5
+a118 1
+#echo $userMailServer $userID $userEmail
+d222 1
+a222 1
+$mailCanSpam1
+@
+
+
+1.43
+log
+@added a close " at teh end of teh 4th parameter warning message
+@
+text
+@d12 1
+a12 1
+LOG=${CARE_LOG}
+@
+
+
+1.42
+log
+@changes the part of script where I get the shards to remove teh double concat
+@
+text
+@d38 1
+a38 1
+    echo "    4-last digit of UserID to notify <a.k.a. mod(10)>
+@
+
+
+1.41
+log
+@modified to select right(uid,1) from the user/as search join
+@
+text
+@d94 1
+a94 1
+	select="select concat(concat('bkp-mailshard',shlutshard), '|',  uid,'|',  trim(email),'|', trim(username)) from user natural join as_search join mailbox_shlut on mod(uid,100) = slotNumber"
+@
+
+
+1.40
+log
+@added a 4th parameter which will allow us to run this multi-threaded
+@
+text
+@d95 1
+a95 1
+	where="where shortLocaleID='$language' and abuse = 0 and email <> '' and emailFrequency ="$type
+@
+
+
+1.39
+log
+@changes the "X MORE MESSAGES" part, to reflect the new columns.
+@
+text
+@d34 1
+a34 1
+    echo "Need Three Parameters!!"
+d38 1
+d43 1
+a43 1
+PIDFILE="$TEMP/v4Notify.${1}.pid"
+d57 1
+a57 4
+
+
+
+    for language in de en es fr it pt; do
+@
+
+
+1.38
+log
+@removed extra colons from the From Labels
+@
+text
+@d62 1
+a62 1
+	email_templ=`mysql $CHAROPT -u $USER -p$PASS -h $MAILSERVER $MAILDB -s -e "select concat(Salutation, '|', SingIntro, '|', PlurIntro, '|', SingIntroFinish, '|', PlurIntroFinish, '|', WindDown, '|', webURL, '|',Signoff, '|', SignoffName, '|', SingSubject, '|', PlurSubject, '|', canSpam1, '|', canSpam2, '|', canSpam3, '|', FromLabel, '|', SubjectLabel, '|', ReceivedLabel, '|', SingMessageIntro, '|', SingMessageFinish, '|', PlurMessagesIntro, '|', PlurMessagesFinish) from emailTemplate where lang = '$language'"`
+d81 2
+a82 4
+	mailSingMessageIntro=`cut -d"|" -f18 <<< $email_templ`
+	mailSingMessageFinish=`cut -d"|" -f19 <<< $email_templ`
+	mailPlurMessagesIntro=`cut -d"|" -f20 <<< $email_templ`
+	mailPlurMessagesFinish=`cut -d"|" -f21 <<< $email_templ`
+d165 1
+a165 2
+		    6) andTheresMore=" $mailSingMessageIntro 1 $mailSingMessageFinish";;
+		    *) andTheresMore="$mailPlurMessagesIntro$extraCount $mailPlurMessagesFinish";;
+@
+
+
+1.37
+log
+@Added 7 more labels to the mail notify script to accomodate different languages.
+MHNET-1698
+@
+text
+@d168 1
+a168 1
+		    *) andTheresMore="$mailPlurMessagesIntro $extraCount $mailPlurMessagesFinish";;
+d172 3
+a174 3
+		mailDetails="$mailFromLabel: $mailFrom
+$mailSubjectLabel: $mailSubj
+$mailReceivedLabel: $mailDate
+d180 3
+a182 3
+$mailFromLabel: $mailFrom2
+$mailSubjectLabel: $mailSubj2
+$mailReceivedLabel: $mailDate2
+d189 3
+a191 3
+$mailFromLabel: $mailFrom3
+$mailSubjectLabel: $mailSubj3
+$mailReceivedLabel: $mailDate3
+d198 3
+a200 3
+$mailFromLabel: $mailFrom4
+$mailSubjectLabel: $mailSubj4
+$mailReceivedLabel: $mailDate4
+d207 3
+a209 3
+$mailFromLabel: $mailFrom5
+$mailSubjectLabel: $mailSubj5
+$mailReceivedLabel: $mailDate5"
+@
+
+
+1.36
+log
+@nothing done.
+@
+text
+@d62 1
+a62 1
+	email_templ=`mysql $CHAROPT -u $USER -p$PASS -h $MAILSERVER $MAILDB -s -e "select concat(Salutation, '|', SingIntro, '|', PlurIntro, '|', SingIntroFinish, '|', PlurIntroFinish, '|', WindDown, '|', webURL, '|',Signoff, '|', SignoffName, '|', SingSubject, '|', PlurSubject, '|', canSpam1, '|', canSpam2, '|', canSpam3) from emailTemplate where lang = '$language'"`
+d78 7
+d167 2
+a168 2
+		    6) andTheresMore="(plus 1 more message - log in to view them all)";;
+		    *) andTheresMore="(plus $extraCount more messages - log in to view them all)";;
+d172 3
+a174 3
+		mailDetails="From: $mailFrom
+Subject: $mailSubj
+Received: $mailDate
+d180 3
+a182 3
+From: $mailFrom2
+Subject: $mailSubj2
+Received: $mailDate2
+d189 3
+a191 3
+From: $mailFrom3
+Subject: $mailSubj3
+Received: $mailDate3
+d198 3
+a200 3
+From: $mailFrom4
+Subject: $mailSubj4
+Received: $mailDate4
+d207 3
+a209 3
+From: $mailFrom5
+Subject: $mailSubj5
+Received: $mailDate5"
+@
+
+
+1.35
+log
+@Changed the SQL which sends out broadcast to customers, SYS-1997
+@
+text
+@d125 1
+a125 1
+		mailRows=`mysql $CHAROPT -u $USER -p$PASS -h $userMailServer $MAILDB -s -e "select concat(usernameFrom, '|', coalesce(huge.hugeTitle, title), '|',  date_format(created, '%W, %M %D - %l:%i %p EST'), '|') as mailString from mail_messages M left join mail_message_huge AS huge ON huge.umMessageID = M.umMessageID AND huge.uidOwner = M.uidFrom AND huge.shortLocaleID = '$language' where  M.uidOwner = $userID and opened = 'N' order by created desc limit 5"`
+@
+
+
+1.34
+log
+@Added some info to logging
+@
+text
+@d125 1
+a125 1
+		mailRows=`mysql $CHAROPT -u $USER -p$PASS -h $userMailServer $MAILDB -s -e "select concat(usernameFrom, '|', ifnull(title,' - no subject - ') , '|', date_format(created, '%W, %M %D - %l:%i %p EST'), '|') as mailString from mail_messages M where uidOwner = $userID and opened = 'N' order by created desc limit 5"`
+@
+
+
+1.33
+log
+@added a check for BLANK emails
+@
+text
+@d239 1
+a239 1
+		    echo "  -- Message sent to $userName ($userEmail) - $(date)" >> $LOG
+d241 1
+a241 1
+
+@
+
+
+1.32
+log
+@changes to the query that gets the unread count & umailFolderID
+@
+text
+@d92 1
+a92 1
+	where="where shortLocaleID='$language' and abuse = 0 and emailFrequency ="$type
+@
+
+
+1.31
+log
+@added the date to the log output (on each line)
+@
+text
+@a56 1
+   echo SCRIPT STARTED ON `date` >> $LOG
+d91 1
+a91 1
+	select="select concat(concat('bkp-mailshard',shlutshard), '|',  uid,'|',  trim(email),'|', trim(username)) from user natural join profiles natural join as_search join mailbox_shlut on mod(uid,100) = slotNumber"
+d115 1
+a115 1
+  mailInfoString=`mysql $CHAROPT -u $USER -p$PASS -h $userMailServer $MAILDB -s -e "select distinct concat(totalMessages-readMessages, '|', umailFolderID) from mailbox_folder natural join mail_messages where uid = $userID and name='inbox'"`
+d125 1
+a125 1
+		mailRows=`mysql $CHAROPT -u $USER -p$PASS -h $userMailServer $MAILDB -s -e "select concat(usernameFrom, '|', ifnull(title,' - no subject - ') , '|', date_format(created, '%W, %M %D - %l:%i %p EST'), '|') as mailString from mail_messages M where uidTo = $userID and opened = 'N' order by created desc limit 5"`
+@
+
+
+1.30
+log
+@added "script start" and "Script End" echos (for log file)
+@
+text
+@d240 1
+a240 1
+		    echo "  -- Message sent to $userName ($userEmail)" >> $LOG
+@
+
+
+1.29
+log
+@Make singleton SYS-1906
+@
+text
+@d56 4
+d114 4
+a117 1
+	    mailInfoString=`mysql $CHAROPT -u $USER -p$PASS -h $userMailServer $MAILDB -s -e "select distinct concat(totalMessages-readMessages, '|', umailFolderID) from mailbox_folder natural join mail_messages where uidTo = $userID and name='inbox' order by uidTo"`
+d126 1
+a126 1
+		mailRows=`mysql $CHAROPT -u $USER -p$PASS -h $userMailServer $MAILDB -s -e "select concat(usernameFrom, '|', ifnull(title,' - no subject - ') , '|', date_format(created, '%W, %M %D - %l:%i %p EST'), '|') as mailString from mailbox_folder natural join mail_messages M where uidTo = $userID and name='inbox' and opened = 'N' order by created desc limit 5"`
+d264 2
+@
+
+
+1.28
+log
+@using denormalized usernameFrom (instead of uid_username_mapper).  Also, added a space after Salutation, and modified the instructions
+@
+text
+@d3 1
+a3 1
+
+d21 2
+a22 2
+ echo "Must be care to run this script."
+  exit $ERROR
+d27 2
+a28 2
+echo "Cannot write to logfile."
+exit $ERROR
+d33 7
+a39 7
+echo
+echo "Need Three Parameters!!"  
+echo "    1-daily or weekly"
+echo "    2-#of users per language(for testing this script)           -- pass in \"0\" to run ALL users"
+echo "    3-emailAddress for testing (all emails go to this address)  -- pass in \"REAL\" to send the real email address" 
+echo
+exit 1
+d42 7
+d50 1
+a50 1
+echo START $APPNAME `date` >> $LOG
+d52 1
+a52 1
+mkdir -p ${QDIR}
+d56 1
+a56 1
+for language in de en es fr it pt; do   
+d59 1
+a59 1
+email_templ=`mysql $CHAROPT -u $USER -p$PASS -h $MAILSERVER $MAILDB -s -e "select concat(Salutation, '|', SingIntro, '|', PlurIntro, '|', SingIntroFinish, '|', PlurIntroFinish, '|', WindDown, '|', webURL, '|',Signoff, '|', SignoffName, '|', SingSubject, '|', PlurSubject, '|', canSpam1, '|', canSpam2, '|', canSpam3) from emailTemplate where lang = '$language'"`
+d61 14
+a74 14
+mailSalutation=`cut -d"|" -f1 <<< $email_templ`
+mailSingIntro=`cut -d"|" -f2 <<< $email_templ`
+mailPlurIntro=`cut -d"|" -f3 <<< $email_templ`
+mailSingFinish=`cut -d"|" -f4 <<< $email_templ`
+mailPlurFinish=`cut -d"|" -f5 <<< $email_templ`
+mailWindDown=`cut -d"|" -f6 <<< $email_templ`
+mailURL=`cut -d"|" -f7 <<< $email_templ`
+mailSignoff=`cut -d"|" -f8 <<< $email_templ`
+mailSignoffName=`cut -d"|" -f9 <<< $email_templ`
+mailSingSubject=`cut -d"|" -f10 <<< $email_templ`
+mailPlurSubject=`cut -d"|" -f11 <<< $email_templ`
+mailCanSpam1=`cut -d"|" -f12 <<< $email_templ`
+mailCanSpam2=`cut -d"|" -f13 <<< $email_templ`
+mailCanSpam3=`cut -d"|" -f14 <<< $email_templ`
+d77 18
+a94 13
+if [ "$1" = "daily" ]
+then
+  type=7;
+  interval="4 hour";
+  titleType="Daily";
+else
+  type=1;
+  interval="12 hour";
+  titleType="Weekly";
+fi
+
+select="select concat(concat('bkp-mailshard',shlutshard), '|',  uid,'|',  trim(email),'|', trim(username)) from user natural join profiles natural join as_search join mailbox_shlut on mod(uid,100) = slotNumber"
+where="where shortLocaleID='$language' and abuse = 0 and emailFrequency ="$type
+d96 1
+a96 6
+if [ "$2" != "0" ] 
+then
+  limit=" limit $2"
+fi
+ 
+sql="$select $where $limit"
+d99 1
+a99 1
+LoopCounter=0
+d101 6
+a106 6
+for row in `mysql $CHAROPT -u $USER -p$PASS -h $USERHOST $USERDB -s -e "$sql"`
+do
+  userName=`cut -d"|" -f4 <<< $row`
+  userEmail=`cut -d"|" -f3 <<< $row`
+  userID=`cut -d"|" -f2 <<< $row`
+  userMailServer=`cut -d"|" -f1 <<< $row`
+d110 1
+a110 1
+mailInfoString=`mysql $CHAROPT -u $USER -p$PASS -h $userMailServer $MAILDB -s -e "select distinct concat(totalMessages-readMessages, '|', umailFolderID) from mailbox_folder natural join mail_messages where uidTo = $userID and name='inbox' order by uidTo"`
+d112 2
+a113 2
+userUnreadCount=`cut -d"|" -f1 <<< $mailInfoString`
+userFolderID=`cut -d"|" -f2 <<< $mailInfoString`
+d115 3
+a117 3
+if [ "$userUnreadCount" != "0" ] && [[ -n "$userUnreadCount" ]] && [[ $"userUnreadCount" != "" ]] 
+ then
+ let "LoopCounter=$LoopCounter+1"
+d119 1
+a119 1
+mailRows=`mysql $CHAROPT -u $USER -p$PASS -h $userMailServer $MAILDB -s -e "select concat(usernameFrom, '|', ifnull(title,' - no subject - ') , '|', date_format(created, '%W, %M %D - %l:%i %p EST'), '|') as mailString from mailbox_folder natural join mail_messages M where uidTo = $userID and name='inbox' and opened = 'N' order by created desc limit 5"`
+d123 15
+a137 15
+             mailFrom=`cut -d"|" -f1 <<< $mailRows`
+             mailSubj=`cut -d"|" -f2 <<< $mailRows`
+             mailDate=`cut -d"|" -f3 <<< $mailRows`
+             mailFrom2=`cut -d"|" -f4 <<< $mailRows`
+             mailSubj2=`cut -d"|" -f5 <<< $mailRows`
+             mailDate2=`cut -d"|" -f6 <<< $mailRows`
+             mailFrom3=`cut -d"|" -f7 <<< $mailRows`
+             mailSubj3=`cut -d"|" -f8 <<< $mailRows`
+             mailDate3=`cut -d"|" -f9 <<< $mailRows`
+             mailFrom4=`cut -d"|" -f10 <<< $mailRows`
+             mailSubj4=`cut -d"|" -f11 <<< $mailRows`
+             mailDate4=`cut -d"|" -f12 <<< $mailRows`
+             mailFrom5=`cut -d"|" -f13 <<< $mailRows`
+             mailSubj5=`cut -d"|" -f14 <<< $mailRows`
+             mailDate5=`cut -d"|" -f15 <<< $mailRows`
+d140 17
+a156 10
+if [ "$userUnreadCount" != "1" ] 
+then
+Intro2Use="$mailPlurIntro$userUnreadCount$mailPlurFinish"
+subject2Use="$mailPlurSubject"
+else
+Intro2Use="$mailSingIntro$userUnreadCount$mailSingFinish"
+subject2Use="$mailSingSubject"
+fi
+
+extraCount=$[userUnreadCount - 5]
+a157 6
+case "$userUnreadCount" 
+in
+[0-5]) andTheresMore="";;
+6) andTheresMore="(plus 1 more message - log in to view them all)";;
+*) andTheresMore="(plus $extraCount more messages - log in to view them all)";;
+esac
+d159 1
+a159 2
+
+mailDetails="From: $mailFrom
+d164 3
+a166 3
+if [ -n "$mailFrom2" ]  && [[ "$mailFrom2" != " NULL NULL" ]]
+then
+mailDetails=${mailDetails}"
+d171 1
+a171 1
+fi
+d173 3
+a175 3
+if [ -n "$mailFrom3" ]  && [[ "$mailFrom3" != " NULL NULL" ]]
+then
+mailDetails=${mailDetails}"
+d180 1
+a180 1
+fi
+d182 3
+a184 3
+if [ -n "$mailFrom4" ]  && [[ "$mailFrom4" != " NULL NULL" ]]
+then
+mailDetails=${mailDetails}"
+d189 1
+a189 1
+fi
+d191 3
+a193 3
+if [ -n "$mailFrom5" ]  && [[ "$mailFrom5" != " NULL NULL" ]]
+then
+mailDetails=${mailDetails}"
+d197 1
+a197 1
+fi
+d199 1
+a199 1
+full_email="$mailSalutation $userName,
+d215 20
+a234 20
+if [ "$3" = "REAL" ]
+then
+   email2Use=$userEmail
+else
+   email2Use="$3"
+fi
+
+if [ "$VERBOSITY" = "-vvv" ]
+then
+  echo ______________________________ >> $LOG
+  echo `date` >> $LOG
+  echo >> $LOG
+  echo email sent to:  $userEmail >> $LOG
+  echo >> $LOG
+  echo $full_email >> $LOG
+  echo >> $LOG
+elif [ "$VERBOSITY" = "-vv" ]
+then
+  echo "  -- Message sent to $userName ($userEmail)" >> $LOG
+fi
+d236 1
+a236 1
+echo -e "$full_email" > ${QDIR}/"$userName"_email.txt
+d239 1
+a239 1
+/usr/local/manhunt/cron/treet_pusher.py -e$email2Use -f${QDIR}/"$userName"_email.txt -i$userID -l$language -u$userName -s"$subject2Use"
+d241 3
+a243 3
+let "MyModulus = $LoopCounter%1000"
+  if [ "$MyModulus" = "0" ]
+  then
+d245 2
+a246 2
+      /usr/local/manhunt/cron/treet_pusher.py -ev4BCC@@online-buddies.com -f${QDIR}/"$userName"_email.txt -i$userID  -l$language -u$userName -s"$subject2Use"
+  fi
+d248 1
+a248 1
+rm ${QDIR}/"$userName"_email.txt
+d250 3
+a252 3
+fi
+done
+done
+d254 1
+a254 1
+[ "$VERBOSITY" = "" ] || echo "  -- $LoopCounter Members notified" >> $LOG
+d256 2
+a257 1
+echo FINISH $APPNAME `date` >> $LOG
+@
+
+
+1.27
+log
+@removed ** from salutation
+@
+text
+@d36 1
+a36 1
+echo "    2-#of users (for testing the script)                        -- pass in \"0\" to run ALL users"
+d112 1
+a112 1
+mailRows=`mysql $CHAROPT -u $USER -p$PASS -h $userMailServer $MAILDB -s -e "select concat(uum2.username, '|', ifnull(title,' - no subject - ') , '|', date_format(created, '%W, %M %D - %l:%i %p EST'), '|') as mailString from mailbox_folder natural join mail_messages M join uid_username_mapper U on M.uidTo = U.uid join uid_username_mapper uum2 on M.uidFrom=uum2.uid where uidTo = $userID and name='inbox' and opened = 'N' order by created desc limit 5"`
+d192 1
+a192 1
+full_email="$mailSalutation$userName,
+@
+
+
+1.26
+log
+@changed the BCC modulus from every 100 emails to every 1000 emails
+@
+text
+@d192 1
+a192 1
+full_email="$mailSalutation**$userName**,
+@
+
+
+1.25
+log
+@"full_email" is not for the logfile.  SYS-1748
+@
+text
+@d234 1
+a234 1
+let "MyModulus = $LoopCounter%100"
+@
+
+
+1.24
+log
+@pointed the sql that gets the users actual counts and actual mail content to the CORRECT server (userMailServer) instead of mailshard-01 always
+@
+text
+@d226 1
+a226 1
+  echo "  -- Message sent to $full_email" >> $LOG
+@
+
+
+1.23
+log
+@i pointed the main query (which build the entire list of who gets notified) to mianro00.  I pointed the mail queries (which used to go to mailshard01/02/03/04 to bk-mailshard01/02/03/04.
+@
+text
+@d103 1
+a103 1
+mailInfoString=`mysql $CHAROPT -u $USER -p$PASS -h $MAILSERVER $MAILDB -s -e "select distinct concat(totalMessages-readMessages, '|', umailFolderID) from mailbox_folder natural join mail_messages where uidTo = $userID and name='inbox' order by uidTo"`
+d112 1
+a112 1
+mailRows=`mysql $CHAROPT -u $USER -p$PASS -h $MAILSERVER $MAILDB -s -e "select concat(uum2.username, '|', ifnull(title,' - no subject - ') , '|', date_format(created, '%W, %M %D - %l:%i %p EST'), '|') as mailString from mailbox_folder natural join mail_messages M join uid_username_mapper U on M.uidTo = U.uid join uid_username_mapper uum2 on M.uidFrom=uum2.uid where uidTo = $userID and name='inbox' and opened = 'N' order by created desc limit 5"`
+@
+
+
+1.22
+log
+@changed the BCC to send one out of every 100 emails (not one out of ten) to me
+@
+text
+@d8 1
+a8 1
+USERHOST=${V4_USERSERVER}
+d81 1
+a81 1
+select="select concat(concat('mailshard',shlutshard), '|',  uid,'|',  trim(email),'|', trim(username)) from user natural join profiles natural join as_search join mailbox_shlut on mod(uid,100) = slotNumber"
+@
+
+
+1.21
+log
+@*** empty log message ***
+@
+text
+@d234 1
+a234 1
+let "MyModulus = $LoopCounter%10"
+@
+
+
+1.20
+log
+@improved verbosity-level support
+@
+text
+@a16 1
+COUNT=0
+a233 2
+COUNT=$COUNT + 1
+
+d247 1
+a247 1
+[ "$VERBOSITY" = "" ] || echo "  -- $COUNT Members notified" >> $LOG
+@
+
+
+1.19
+log
+@changed the "cc" piece to send one of every TEN emails during this testing phase...
+@
+text
+@d17 1
+d44 1
+a44 1
+echo SCRIPT STARTED ON `date` >> $LOG
+d216 13
+a228 7
+echo ______________________________ >> $LOG
+echo `date` >> $LOG
+echo >> $LOG
+echo email sent to:  $userEmail >> $LOG
+echo >> $LOG
+echo $full_email >> $LOG
+echo >> $LOG
+d235 1
+d250 3
+a252 1
+echo SCRIPT ENDED ON `date` >> $LOG
+@
+
+
+1.18
+log
+@move the "loop counter incrementer" inside the "if" that checks if they have any mail about which to be notified.
+removed a couple of "comments" also
+@
+text
+@d229 1
+a229 1
+let "MyModulus = $LoopCounter%1000"
+@
+
+
+1.17
+log
+@Edit to make sure "mail_queue" directory is present before writing to it.
+@
+text
+@a80 5
+# note:  Interval is supposed to be used as "date since last email", to prevent a person from getting too many
+#select="select concat(concat('mailshard',shlutshard), '|',  uid,'|',  trim(email),'|', trim(username)) from user natural join account_settings join mailbox_shlut on mod(uid,100) = slotNumber"
+#where="where accSettingName='emailFrequency' and value ="$type 
+
+#March 1 - Sandro Added profile_location table = 14 and also utilized as_search table
+a95 1
+ let "LoopCounter=$LoopCounter+1"
+d110 2
+@
+
+
+1.16
+log
+@Force mysql to use UTF8 MHNET-1324
+@
+text
+@d16 1
+a16 1
+
+a30 3
+
+
+
+d45 2
+d227 1
+a227 1
+echo -e "$full_email" > /var/tmp/email_queue/"$userName"_email.txt
+d230 1
+a230 1
+/usr/local/manhunt/cron/treet_pusher.py -e$email2Use -f/var/tmp/email_queue/"$userName"_email.txt -i$userID -l$language -u$userName -s"$subject2Use"
+d237 1
+a237 1
+      /usr/local/manhunt/cron/treet_pusher.py -ev4BCC@@online-buddies.com -f/var/tmp/email_queue/"$userName"_email.txt -i$userID  -l$language -u$userName -s"$subject2Use"
+d240 1
+a240 1
+rm /var/tmp/email_queue/"$userName"_email.txt
+@
+
+
+1.15
+log
+@every 100 emails come to me now, not every 100
+@
+text
+@d15 1
+a15 1
+
+d53 1
+a53 1
+email_templ=`mysql -u $USER -p$PASS -h $MAILSERVER $MAILDB -s -e "select concat(Salutation, '|', SingIntro, '|', PlurIntro, '|', SingIntroFinish, '|', PlurIntroFinish, '|', WindDown, '|', webURL, '|',Signoff, '|', SignoffName, '|', SingSubject, '|', PlurSubject, '|', canSpam1, '|', canSpam2, '|', canSpam3) from emailTemplate where lang = '$language'"`
+d100 1
+a100 1
+for row in `mysql -u $USER -p$PASS -h $USERHOST $USERDB -s -e "$sql"`
+d110 1
+a110 1
+mailInfoString=`mysql -u $USER -p$PASS -h $MAILSERVER $MAILDB -s -e "select distinct concat(totalMessages-readMessages, '|', umailFolderID) from mailbox_folder natural join mail_messages where uidTo = $userID and name='inbox' order by uidTo"`
+d117 1
+a117 1
+mailRows=`mysql -u $USER -p$PASS -h $MAILSERVER $MAILDB -s -e "select concat(uum2.username, '|', ifnull(title,' - no subject - ') , '|', date_format(created, '%W, %M %D - %l:%i %p EST'), '|') as mailString from mailbox_folder natural join mail_messages M join uid_username_mapper U on M.uidTo = U.uid join uid_username_mapper uum2 on M.uidFrom=uum2.uid where uidTo = $userID and name='inbox' and opened = 'N' order by created desc limit 5"`
+@
+
+
+1.14
+log
+@added "and abuse = 0" to the query
+@
+text
+@d234 1
+a234 1
+let "MyModulus = $LoopCounter%100"
+@
+
+
+1.13
+log
+@Remove join with profile_locations, eliminating duplicate notifications.  SYS-1550
+@
+text
+@d88 1
+a88 1
+where="where shortLocaleID='$language' and emailFrequency ="$type
+@
+
+
+1.12
+log
+@Support multiple languages SYS-1038
+@
+text
+@d87 1
+a87 1
+select="select concat(concat('mailshard',shlutshard), '|',  uid,'|',  trim(email),'|', trim(username)) from user natural join profiles natural join profile_locations natural join as_search join mailbox_shlut on mod(uid,100) = slotNumber"
+@
+
+
+1.11
+log
+@emails not write to /var/tmp instead of /tmp
+@
+text
+@d50 2
+d53 1
+a53 1
+email_templ=`mysql -u $USER -p$PASS -h $MAILSERVER $MAILDB -s -e "select concat(Salutation, '|', SingIntro, '|', PlurIntro, '|', SingIntroFinish, '|', PlurIntroFinish, '|', WindDown, '|', webURL, '|',Signoff, '|', SignoffName, '|', SingSubject, '|', PlurSubject, '|', canSpam1, '|', canSpam2, '|', canSpam3) from emailTemplate where lang = 'en'"`
+a69 3
+
+
+
+d88 1
+a88 2
+where="where locationID = 14 and emailFrequency ="$type
+
+a156 1
+
+a196 3
+
+
+
+d231 1
+a231 1
+/usr/local/manhunt/cron/treet_pusher.py -e$email2Use -f/var/tmp/email_queue/"$userName"_email.txt -i$userID -u$userName -s"$subject2Use"
+d238 1
+a238 1
+      /usr/local/manhunt/cron/treet_pusher.py -ev4BCC@@online-buddies.com -f/var/tmp/email_queue/"$userName"_email.txt -i$userID -u$userName -s"$subject2Use"
+d245 1
+@
+
+
+1.10
+log
+@added check for locationID = 14 (au) and also am using as_search table now
+@
+text
+@d234 1
+a234 1
+echo -e "$full_email" > /tmp/email_queue/"$userName"_email.txt
+d237 1
+a237 1
+/usr/local/manhunt/cron/treet_pusher.py -e$email2Use -f/tmp/email_queue/"$userName"_email.txt -i$userID -u$userName -s"$subject2Use"
+d244 1
+a244 1
+      /usr/local/manhunt/cron/treet_pusher.py -ev4BCC@@online-buddies.com -f/tmp/email_queue/"$userName"_email.txt -i$userID -u$userName -s"$subject2Use"
+d247 1
+a247 1
+rm /tmp/email_queue/"$userName"_email.txt
+@
+
+
+1.9
+log
+@added a loop counter so only 1 in every 100 emails goes to BCC box
+@
+text
+@d84 6
+a90 2
+select="select concat(concat('mailshard',shlutshard), '|',  uid,'|',  trim(email),'|', trim(username)) from user natural join account_settings join mailbox_shlut on mod(uid,100) = slotNumber"
+where="where accSettingName='emailFrequency' and value ="$type 
+@
+
+
+1.8
+log
+@changed "userEmail" to "email2Use" at bottom of script.   This allows for testing.  it was a small good where
+i changed it on admin02 and not in ovulator
+(note: "good" = "goof" above!  :-)
+@
+text
+@d96 2
+d100 1
+d156 1
+a156 1
+mailDetails="From:$mailFrom
+d164 1
+a164 1
+From:$mailFrom2
+d173 1
+a173 1
+From:$mailFrom3
+d182 1
+a182 1
+From:$mailFrom4
+d191 1
+a191 1
+From:$mailFrom5
+d209 5
+a213 1
+$mailCanSpam1"
+d235 7
+a241 2
+#now send the BCC
+/usr/local/manhunt/cron/treet_pusher.py -ev4BCC@@online-buddies.com -f/tmp/email_queue/"$userName"_email.txt -i$userID -u$userName -s"$subject2Use"
+a244 1
+
+@
+
+
+1.7
+log
+@moved the "mailbuilder" variables out of the inner loop.  they are at the top of teh script now
+@
+text
+@d226 1
+a226 1
+/usr/local/manhunt/cron/treet_pusher.py -e$userEmail -f/tmp/email_queue/"$userName"_email.txt -i$userID -u$userName -s"$subject2Use"
+@
+
+
+1.6
+log
+@*** empty log message ***
+@
+text
+@d36 2
+a37 1
+echo "Need Two Parameters!!"  
+d41 1
+d48 21
+a132 21
+
+
+email_templ=`mysql -u $USER -p$PASS -h $MAILSERVER $MAILDB -s -e "select concat(Salutation, '|', SingIntro, '|', PlurIntro, '|', SingIntroFinish, '|', PlurIntroFinish, '|', WindDown, '|', webURL, '|',Signoff, '|', SignoffName, '|', SingSubject, '|', PlurSubject, '|', canSpam1, '|', canSpam2, '|', canSpam3) from emailTemplate where lang = 'en'"`
+
+mailSalutation=`cut -d"|" -f1 <<< $email_templ`
+mailSingIntro=`cut -d"|" -f2 <<< $email_templ`
+mailPlurIntro=`cut -d"|" -f3 <<< $email_templ`
+mailSingFinish=`cut -d"|" -f4 <<< $email_templ`
+mailPlurFinish=`cut -d"|" -f5 <<< $email_templ`
+mailWindDown=`cut -d"|" -f6 <<< $email_templ`
+mailURL=`cut -d"|" -f7 <<< $email_templ`
+mailSignoff=`cut -d"|" -f8 <<< $email_templ`
+mailSignoffName=`cut -d"|" -f9 <<< $email_templ`
+mailSingSubject=`cut -d"|" -f10 <<< $email_templ`
+mailPlurSubject=`cut -d"|" -f11 <<< $email_templ`
+mailCanSpam1=`cut -d"|" -f12 <<< $email_templ`
+mailCanSpam2=`cut -d"|" -f13 <<< $email_templ`
+mailCanSpam3=`cut -d"|" -f14 <<< $email_templ`
+
+
+
+d196 1
+a196 2
+full_email="
+$mailSalutation**$userName**,
+d206 1
+a206 2
+$mailCanSpam1
+"
+@
+
+
+1.5
+log
+@a few touch ups. added "start:" and "end" for log file
+@
+text
+@d226 1
+a226 1
+sudo /usr/local/manhunt/cron/treet_pusher.py -e$userEmail -f/tmp/email_queue/"$userName"_email.txt -i$userID -u$userName -s"$subject2Use"
+d229 1
+a229 1
+sudo /usr/local/manhunt/cron/treet_pusher.py -ev4BCC@@online-buddies.com -f/tmp/email_queue/"$userName"_email.txt -i$userID -u$userName -s"$subject2Use"
+@
+
+
+1.4
+log
+@"protected" my variables at the top (mailPlurSUbject et al) so I can pass them to Treet Pusher!  THANKS TOM!
+@
+text
+@d44 5
+a48 1
+### Are we sending weekly or daily notices?
+d62 1
+a62 1
+select="select concat(concat('mailshard',shlutshard), '|',  uid,'|',  email,'|', username) from user natural join account_settings join mailbox_shlut on mod(uid,100) = slotNumber"
+d235 1
+d237 1
+a237 1
+done
+@
+
+
+1.3
+log
+@added care and log checkers.    removed "order by"
+@
+text
+@d129 2
+a130 2
+Intro2Use=$mailPlurIntro$userUnreadCount$mailPlurFinish
+subject2Use=$mailPlurSubject
+d132 2
+a133 2
+Intro2Use=$mailSingIntro$userUnreadCount$mailSingFinish
+subject2Use=$mailSingSubject
+d222 1
+a222 1
+sudo /usr/local/manhunt/cron/treet_pusher.py -e$userEmail -f/tmp/email_queue/"$userName"_email.txt -i$userID -u$userName -s\'"$subject2Use"\'
+d225 1
+a225 1
+sudo /usr/local/manhunt/cron/treet_pusher.py -ev4BCC@@online-buddies.com -f/tmp/email_queue/"$userName"_email.txt -i$userID -u$userName -s\'"$subject2Use"\'
+@
+
+
+1.2
+log
+@added a few extra things.  mostly logging at bottom of script
+@
+text
+@d17 9
+a25 1
+if [ -z "$1" -o -z "$2" -o -z "$3" ]
+d27 2
+a28 1
+echo "Hey Dro"
+d31 3
+d61 1
+a61 1
+if [ "$2" = "0" ] 
+d63 1
+a63 3
+  limit=" order by uid " 
+else
+  limit=" order by uid limit $2"
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d44 1
+a44 1
+
+a180 2
+$subject2Use
+
+d201 7
+d212 1
+a212 1
+sudo /usr/local/manhunt/cron/treet_pusher.py -e$3 -f/tmp/email_queue/"$userName"_email.txt -i$userID -u$userName -s"Sample Notification Message"
+d215 1
+a215 1
+sudo /usr/local/manhunt/cron/treet_pusher.py -ev4BCC@@online-buddies.com -f/tmp/email_queue/"$userName"_email.txt -i$userID -u$userName -s"Sample Notification Message"
+@

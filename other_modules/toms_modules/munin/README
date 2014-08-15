@@ -1,0 +1,22 @@
+Puppet module: munin
+
+# Written by Tom McGonagle #
+# mcgonagle@gmail.com
+# Google Voice (617)229-5185
+# http://www.puppetll.com
+
+
+DESCRIPTION:
+This module installs and manages munin software
+Standard and extended classes are available.
+Decide and customize how you want to define configation files: static files, templates, infile modifications...
+
+
+USAGE:
+# Standard Classes 
+include munin              # Install and run munin with standard configurations.
+include munin::disable     # Disable munin service.
+include munin::disableboot # Disable munin service at boot time, but don't stop if it's running.
+include munin::absent      # Remove munin package.
+
+DEPENDENCIES:

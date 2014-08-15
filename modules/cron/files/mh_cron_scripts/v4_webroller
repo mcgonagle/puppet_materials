@@ -1,0 +1,36 @@
+#!/bin/bash
+# v4_webroller
+#
+# $Id: v4_webroller,v 1.4 2009/12/04 19:16:51 rbraun Exp $
+#
+# Created 03/2009 by wflynn
+#
+# Script for cron to zip, backup and delete web logs
+#
+if [ ! ${1} -ge 0  ]
+then
+    echo "Usage: $0 <daysago>"
+    echo "       Compress and archive <daysago> days ago's logs"
+    exit 1
+fi
+DAYSAGO=$1
+RUNAS="logs"
+ZIP_COMMAND="bzip2"
+ZIP_EXTENSION="bz2"
+LOGDIR="/etc/httpd/logs"
+TODAY=`date +%Y.%m.%d`
+YESTERDAY=`date +%Y.%m.%d -d "yesterday"`
+LOGFILEDATE=`date +%Y.%m.%d -d "${DAYSAGO} days ago"`
+LOGDIRDATE=`date +%Y%m%d -d "${DAYSAGO} days ago"`
+SOURCEDIR=${LOGDIR}
+DESTDIR="/manhunt/www"
+REMOTEHOST="sawmill"
+
+# Zip em
+find -L ${LOGDIR} -name "*${LOGFILEDATE}.log" -exec ${ZIP_COMMAND} {} \;
+# Archive em
+su ${RUNAS} -c "ssh ${REMOTEHOST} mkdir -p ${DESTDIR}/${HOSTNAME}/${LOGDIRDATE}"
+su ${RUNAS} -c "rsync -ac --include \"*${LOGFILEDATE}*.${ZIP_EXTENSION}\" --bwlimit=500 --exclude \"*\" --partial --partial-dir=${DESTDIR}/temp ${SOURCEDIR}/ ${REMOTEHOST}:${DESTDIR}/${HOSTNAME}/${LOGDIRDATE}"
+# Delete successfully transferred files
+for logfile in `su ${RUNAS} -c "ssh ${REMOTEHOST} ls ${DESTDIR}/${HOSTNAME}/${LOGDIRDATE}"`; do rm -f ${SOURCEDIR}/${logfile}; done
+exit

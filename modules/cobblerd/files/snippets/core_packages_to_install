@@ -1,0 +1,6 @@
+%packages --nobase
+@core
+puppet
+xen
+sudo
+virt-manager 

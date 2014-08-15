@@ -1,0 +1,52 @@
+head	1.2;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.2
+date	2010.05.06.17.20.31;	author sfrattura;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2010.05.05.17.16.03;	author sfrattura;	state Exp;
+branches;
+next	;
+
+
+desc
+@Find and SMS Phone Number in v4
+@
+
+
+1.2
+log
+@no changes. this is a v2 script
+@
+text
+@#!/bin/sh
+# SMSFind.sh
+# $Id: SMSFind.sh,v 1.1 2010/05/05 17:16:03 sfrattura Exp sfrattura $
+#
+. /etc/manhunt/source.sh
+
+echo finding information for phone number like $1
+sleep 2;
+$MYSQL -u $DBUSER -p$DBPASSWD -h $V4_USERSERVER -vv $MANHUNTDB -e "SELECT Users.uid,username,email,smsEmail,phonenumber FROM Users INNER JOIN MobilePrefs USING (uid) WHERE smsEmail like '$1%' or phonenumber like '$1%'\G";
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d3 1
+a3 1
+# $Id: $
+d9 1
+a9 1
+$MYSQL -u $DBUSER -p$DBPASSWD -h $MHMASTERDBHOST -vv $MANHUNTDB -e "SELECT Users.uid,username,email,smsEmail,phonenumber FROM Users INNER JOIN MobilePrefs USING (uid) WHERE smsEmail like '$1%' or phonenumber like '$1%'\G";
+@

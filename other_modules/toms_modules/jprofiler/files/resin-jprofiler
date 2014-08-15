@@ -1,0 +1,68 @@
+#!/bin/sh
+#
+# Linux startup script for Resin
+#
+# chkconfig: 345 85 15
+# description: Resin is a Java Web server.
+# processname: wrapper.pl
+#
+# To install, configure this file as needed and copy init.resin
+# to /etc/rc.d/init.d as resin.  Then use "# /sbin/chkconfig resin reset"
+#
+JAVA_HOME=/usr/local/java
+RESIN_HOME=/usr/local/resin
+PID=$RESIN_HOME/resin.pid
+
+export JAVA_HOME RESIN_HOME
+
+
+#LD_ASSUME_KERNEL=2.2.5
+#export LD_ASSUME_KERNEL
+
+#LD_LIBRARY_PATH="/opt/jprofiler5/bin/linux-x86:$LD_LIBRARY_PATH"
+#export LD_LIBRARY_PATH
+#
+# If you want to start the entire Resin process as a different user,
+# set this to the user name.  If you need to bind to a protected port,
+# e.g. port 80, you can't use USER, but will need to use bin/resin.
+#
+USER=
+#
+# You can change this to $RESIN_HOME/bin/resin if you need Resin to
+# bind to port 80, but run as a different user.
+#
+EXE=$RESIN_HOME/bin/httpd.sh
+
+ARGS="-java_home $JAVA_HOME -resin_home $RESIN_HOME -J-d64 -J-Xmx2400m -J-XX:MaxPermSize=256m -J-verbosegc -J-XX:+PrintGCDetails -J-XX:+PrintGCTimeStamps -J-XX:+PrintGCApplicationStoppedTime -J-Dnetworkaddress.cache.ttl=30 -stdout /var/log/resin/stdout.log -stderr /var/log/resin/stderr.log -verbose -J-Xdebug -J-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5432 -J-Dcom.sun.management.jmxremote.port=5000 -J-Dcom.sun.management.jmxremote.authenticate=false -J-Dcom.sun.management.jmxremote.ssl=false -J -Dnetworkaddress.cache.ttl=30 -Dsun.net.inetaddr.ttl=30"
+ARGS="$ARGS -J-agentlib:jprofilerti=port=8849 -J-Xbootclasspath/a:/opt/jprofiler5/bin/agent.jar -J-d64 -J-Xmx2400m"
+
+CLASSPATH=$CLASSPATH:/var/www/pool-config/:/var/www/parking/ROOT/WEB-INF/lib/sqljdbc-2005.1.1.jar:/var/www/parking/ROOT/WEB-INF/lib/commons-dbcp-1.2.1.jar:/var/www/parking/ROOT/WEB-INF/lib/commons-collections-3.1.jar:/var/www/parking/ROOT/WEB-INF/lib/commons-pool-1.2.jar:/var/www/parking/ROOT/WEB-INF/lib/mysql-connector-java-3.1.14.jar
+export CLASSPATH
+
+case "$1" in
+  start)
+        echo -n "Starting resin: "
+        if test -n "$USER"; then
+          su $USER -c "$EXE -pid $PID start -classpath $CLASSPATH $ARGS"
+        else
+          $EXE -pid $PID start $ARGS
+        fi
+        echo
+        ;;
+  stop)
+        echo -n "Shutting down resin: "
+        $EXE -pid $PID stop
+        echo
+        rm -f $PID
+        rm -rf /tmp/127.0.0.1_6802
+        ;;
+  restart)
+        $0 stop
+        $0 start
+        ;;
+  *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+esac
+
+exit 0

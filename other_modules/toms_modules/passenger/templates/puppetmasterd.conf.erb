@@ -1,0 +1,62 @@
+LoadModule passenger_module /usr/lib/ruby/gems/1.8/gems/passenger-2.2.11/ext/apache2/mod_passenger.so 
+PassengerRoot /usr/lib/ruby/gems/1.8/gems/passenger-2.2.11
+PassengerRuby /usr/bin/ruby
+PassengerLogLevel 3
+
+# you probably want to tune these settings
+#Suggested Tweaks from puppetlabs http://docs.puppetlabs.com/guides/passenger.html
+
+#PassengerPoolIdleTime 300 - Set to 5 min (300 seconds) or less. 
+##The shorting this option allows for puppetmasterd to get refreshed at some interval. 
+##This option is also somewhat dependent upon the amount of puppetd nodes connecting and at what interval.
+
+#PassengerMaxPoolSize 15 - to 15% more instances than what’s needed. 
+##This will allow idle puppetmasterd to get recycled. 
+##The net effect is less memory will be used, not more.
+
+#PassengerUseGlobalQueue on - Since communication with the puppetmaster 
+##from puppetd is a long process (more than 20 seconds in most cases) 
+##and will allow for processes to get recycled better
+
+#PassengerHighPerformance on - The additional Passenger features for apache compatibility are not needed with Puppet.
+
+PassengerHighPerformance on
+PassengerMaxPoolSize 15
+PassengerPoolIdleTime 300
+PassengerUseGlobalQueue on
+
+PassengerMaxRequests 1000
+PassengerStatThrottleRate 120
+RackAutoDetect Off
+RailsAutoDetect Off
+
+Listen 8140
+
+LoadModule ssl_module modules/mod_ssl.so
+
+<VirtualHost *:8140>
+     SSLEngine on
+        SSLProtocol -ALL +SSLv3 +TLSv1
+        SSLCipherSuite ALL:!ADH:RC4+RSA:+HIGH:+MEDIUM:-LOW:-SSLv2:-EXP
+
+        SSLCertificateFile      /var/lib/puppet/ssl/certs/<%= fqdn %>.pem
+        SSLCertificateKeyFile   /var/lib/puppet/ssl/private_keys/<%= fqdn %>.pem
+        SSLCertificateChainFile /var/lib/puppet/ssl/ca/ca_crt.pem
+        SSLCACertificateFile    /var/lib/puppet/ssl/ca/ca_crt.pem
+        # If Apache complains about invalid signatures on the CRL, you can try disabling
+        # CRL checking by commenting the next line, but this is not recommended.
+        SSLCARevocationFile     /var/lib/puppet/ssl/ca/ca_crl.pem
+        SSLVerifyClient optional
+        SSLVerifyDepth  1
+        SSLOptions +StdEnvVars
+
+        DocumentRoot /etc/puppet/rack/public/
+        RackBaseURI /
+        <Directory /etc/puppet/rack/>
+                Options None
+                AllowOverride None
+                #http://markmail.org/message/ye3luydwm3yfjert#query:phusion%20Permission%20denied%3A%20access+page:1+mid:ye3luydwm3yfjert+state:results
+                #Order allow,deny
+                #allow from all
+        </Directory>
+</VirtualHost>

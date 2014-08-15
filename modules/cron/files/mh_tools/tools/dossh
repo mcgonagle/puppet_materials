@@ -1,0 +1,10 @@
+HOST=$1
+cd /var/lib/puppet/files/manhunt/keys
+mkdir $HOST
+cd $HOST
+scp $HOST:/tmp/ssh.tar .
+tar xf ssh.tar
+mv ssh_host_rsa_key id_rsa
+mv ssh_host_dsa_key id_dsa
+chmod 644 *
+rm ssh.tar

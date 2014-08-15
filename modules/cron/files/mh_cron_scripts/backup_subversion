@@ -1,0 +1,13 @@
+#!/bin/bash
+#
+# Created 3/08 by rbraun
+#
+# Run this from the backup server as user care
+# Files will be sync'ed to /var/backup/subversion
+
+DESTDIR=/var/backup/subversion
+HOST=$1
+
+[ -d $DESTDIR/$HOST ] || mkdir -p $DESTDIR/$HOST
+rsync -a --delete $HOST:/var/svn $DESTDIR/$HOST
+

@@ -1,0 +1,9 @@
+# Properties for DList QA environment^M
+dlistServer = www-qa.dlist.com
+media.root = /media
+songs.directory = /home/dlist/public_html/songs/
+songs.url = http://www-qa.dlist.com/songs/
+#invite.facebook = 99dc2704086d24414c02bb681da9b3e0
+apns.mode = sandbox
+apns.key.passphrase = sb_iPh0n3
+build.extraVersion = \ (QA)

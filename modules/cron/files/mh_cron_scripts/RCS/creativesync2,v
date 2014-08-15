@@ -1,0 +1,71 @@
+head	1.3;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.3
+date	2009.04.15.16.39.39;	author wflynn;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2008.11.11.22.35.43;	author wflynn;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2008.07.03.19.40.51;	author rbraun;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.3
+log
+@Force deletes on remote server SYS-1620
+@
+text
+@#!/bin/bash
+# $Id: creativesync2,v 1.2 2008/11/11 22:35:43 wflynn Exp wflynn $
+
+# chmod -R g+w /mnt/manhunt/other/banners/creative
+
+#for host in 2 3 4 5 7 8 9 10 11 12 15 16 17 18 19 20 21 22 23 24 25 131 132 133 157
+for host in 4 
+do
+  rsync -a --delete-before --force --ignore-errors /mnt/manhunt/other/banners/creative/. www$host:/var/www/creative
+done
+@
+
+
+1.2
+log
+@Remove chmod, which is filling up mail spoool for deploy SYS-1037
+@
+text
+@d2 1
+a2 1
+# $Id: creativesync2,v 1.1 2008/07/03 19:40:51 rbraun Exp wflynn $
+d9 1
+a9 1
+  rsync -a --delete /mnt/manhunt/other/banners/creative/. www$host:/var/www/creative
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 1
+a2 1
+# $Id: creativesync,v 1.11 2008/06/25 15:16:58 rbraun Exp $
+d4 1
+a4 1
+chmod -R g+w /mnt/manhunt/other/banners/creative
+@

@@ -1,0 +1,43 @@
+#!/bin/bash
+# $Id: backup_mysql_cambridge,v 1.4 2008/07/01 18:37:13 rbraun Exp $
+#
+# Created 2/08 by rbraun
+#
+# -----
+# NOTE:  this file should be phased out, it replicates a lot of the functions
+#  of backup_mysql_all
+# -----
+#
+#
+# This will keep daily dumps of each production database in subdirectories
+# of /var/backup/mysql, by hostname and day of week.
+
+USER=bkp
+PSWD=807d854bq
+# MySQL command syntax for creating this user: 
+#  GRANT SELECT,RELOAD,SUPER,REPLICATION CLIENT ON *.* TO
+#    'bkp'@'192.168.1.228' IDENTIFIED BY '$PSWD'
+
+DESTDIR=/var/backup/mysql
+DUMPOPTS="--skip-opt --quick --single-transaction --add-drop-table --set-charset --create-options"
+COMPRESS="bzip2 -c"
+COMPRESS_EXT="bz2"
+OLD_EXT="gz"
+
+# The --master-data option is also useful but only when taking a dump
+# directly from a master server.
+for HOST in $1 $2 $3 $4 $5 $6 $7 $8 $9
+do
+ [ -d $DESTDIR/$HOST/`date +%a` ] || mkdir -p $DESTDIR/$HOST/`date +%a`
+ # Schema only
+ # Delete any lingering files from a previous incarnation of this script, compressed or otherwise:
+ rm -f $DESTDIR/$HOST/`date +%a`/$HOST-schema.sql.$OLD_EXT
+ rm -f $DESTDIR/$HOST/`date +%a`/$HOST-schema.sql
+ mysqldump -u $USER -p$PSWD -d --all-databases $DUMPOPTS -h $HOST | $COMPRESS >$DESTDIR/$HOST/`date +%a`/$HOST-schema.sql.$COMPRESS_EXT
+ # Data
+ # Delete any lingering files from a previous incarnation of this script, compressed or otherwise:
+ rm -f $DESTDIR/$HOST/`date +%a`/$HOST-backup.sql.$OLD_EXT
+ rm -f $DESTDIR/$HOST/`date +%a`/$HOST-backup.sql
+ mysqldump -u $USER -p$PSWD --all-databases $DUMPOPTS -h $HOST | $COMPRESS >$DESTDIR/$HOST/`date +%a`/$HOST-backup.sql.$COMPRESS_EXT
+done
+

@@ -1,0 +1,8 @@
+* Append content of puppet.conf to the /etc/puppet.conf on the server.
+* cp /etc/puppet/manifests/site.pp /etc/puppet/manifests/site.pp.bak.
+* Examine the provided yaml files and notice that puppetclient and puppetserver inherit from base.
+* Create your own yaml files adding classes and setting parameters.
+* Besure to use the provided motd module so that you can see that node assignment is working.
+* Restart puppet master.
+* Restart puppet agent.
+* Examine the content of /etc/motd.

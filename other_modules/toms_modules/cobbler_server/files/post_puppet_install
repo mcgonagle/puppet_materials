@@ -1,0 +1,71 @@
+# Start post_puppet_install generated code
+#moved to package install section
+#yum install -y ruby ruby-libs puppet facter ruby-shadow rubygems
+
+/bin/cat <<EOFF > /etc/profile.d/facter.sh
+#!/bin/bash
+export FACTER_LIB="/var/lib/puppet/lib/facter"
+EOFF
+
+/bin/echo "$server $func_master puppet" >> /etc/hosts
+
+/bin/cat <<EOSP > /etc/sysconfig/puppet
+###########################################
+# This file is mananged by cobbler. 
+###########################################
+#The puppetmaster server
+PUPPET_SERVER=$func_master
+
+# If you wish to specify the port to connect to do so here
+#PUPPET_PORT=8140
+
+# Where to log to. Specify syslog to send log messages to the system log.
+#PUPPET_LOG=/var/log/puppet/puppet.log
+PUPPET_LOG=syslog
+
+# You may specify other parameters to the puppet client here
+#PUPPET_EXTRA_OPTS=--waitforcert=500
+EOSP
+
+/bin/cat <<EOPP > /etc/puppet/puppet.conf
+###########################################
+# This file is mananged by cobbler. 
+###########################################
+[main]
+    #if $varExists('environment') 
+    #environmnent variable $environment supplied in cobbler ksmeta
+    environment = $environment
+    #else
+
+    #end if                        
+    # The Puppet log directory.
+    # The default value is '/var/lib/puppet/log'.
+    logdir = /var/log/puppet
+
+    # Where SSL certificates are kept.
+    ssldir = /var/lib/puppet/ssl
+
+    ##pluginsyncing for syncing custom facts
+    pluginsync = true
+    factpath = /var/lib/puppet/lib/facter
+
+[puppetd]
+    # The file in which puppetd stores a list of the classes
+    # associated with the retrieved configuratiion.  Can be loaded in
+    # the separate ``puppet`` executable using the ``--loadclasses``
+    # option.
+    classfile = /var/lib/puppet/classes.txt
+
+    # Where puppetd caches the local configuration.  An
+    # extension indicating the cache format is added automatically.
+    localconfig = /var/lib/puppet/localconfig
+    report = true
+
+    #Turning on Graphing Support
+    graph = true
+    graphdir = /var/lib/puppet/state/graphs
+EOPP
+
+#/sbin/chkconfig --level 345 puppet on
+
+# End post_puppet_install generated code

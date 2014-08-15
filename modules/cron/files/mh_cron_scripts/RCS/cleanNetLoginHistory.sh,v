@@ -1,0 +1,381 @@
+head	1.13;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.13
+date	2008.12.03.14.58.39;	author sfrattura;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	2008.11.26.18.56.56;	author sfrattura;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	2008.11.25.16.15.44;	author sfrattura;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	2008.11.25.15.54.28;	author sfrattura;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	2008.10.09.14.35.15;	author sfrattura;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	2008.09.26.16.45.05;	author sfrattura;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	2008.09.24.15.38.11;	author sfrattura;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	2008.08.15.16.47.10;	author wflynn;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	2008.07.15.18.58.49;	author rbraun;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	2008.07.15.18.55.04;	author rbraun;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2008.07.15.16.34.01;	author tmcgonagle;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2008.07.03.13.25.56;	author tmcgonagle;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2008.07.03.13.18.33;	author tmcgonagle;	state Exp;
+branches;
+next	;
+
+
+desc
+@Changed $MANHUNTDBUSER -p$MANHUNTDBPASSWD to $DBUSER and $DBPASSWD
+@
+
+
+1.13
+log
+@moved teh backup on NLH higher in the script
+@
+text
+@#!/bin/sh
+# cleanNetLoginHistory.sh
+# $Id: cleanNetLoginHistory.sh,v 1.12 2008/11/26 18:56:56 sfrattura Exp sfrattura $
+#
+
+. /etc/manhunt/source.sh
+
+LOG=$CARE_LOG
+VERBOSITY="-vv"
+
+# Run as care.
+if [ "$UID" -ne "$CARE_UID" ]
+then
+ echo "Must be care to run this script."
+  exit $ERROR
+fi
+
+if [ "`touch $LOG`" != "" ]
+then
+echo "Cannot write to logfile."
+exit $ERROR
+fi
+
+echo START $APPNAME `date` >> $LOG
+
+mysql -u $DBUSER -p$DBPASSWD -h $MHMASTERDBHOST $MANHUNTDB $VERBOSITY -e "SELECT count(*) from NetLoginHistory" >> $LOG
+mysql -u $DBUSER -p$DBPASSWD -h $MHMASTERDBHOST $MANHUNTDB $VERBOSITY -e "SET @@week:=NOW()-INTERVAL 7 DAY; SELECT count(*) from NetLoginHistory where login>@@week" >> $LOG
+
+
+mysql -u $DBUSER -p$DBPASSWD -h $MHMASTERDBHOST $MANHUNTDB $VERBOSITY >> $LOG <<EOF
+drop table if exists NetLoginHistoryTemp;
+
+CREATE TABLE NetLoginHistoryTemp ( login datetime NOT NULL default '0000-00-00 00:00:00',  uid int(10) unsigned NOT NULL default 0,   logout datetime default NULL,  logoutReason varchar(10) default NULL,  state_code varchar(5) NOT NULL default '' ,  PRIMARY KEY  (uid,login) )  ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+INSERT INTO NetLoginHistoryTemp (login,uid,logout,logoutReason,state_code) SELECT login,uid,logout,logoutReason,state_code FROM NetLoginHistory WHERE logout IS NULL;
+
+
+######
+## re-added by Sandro 11/25/2008 to keep a "hot backup" of the NetLoginHistory table 
+## this will help us deal with the times when NLH triggers stop firing inexplicably
+## essentially, we make a copy of NetLoginHistory before wiping it out
+drop table if exists NetLoginHistory_Old;
+create table NetLoginHistory_Old like NetLoginHistory;
+insert into NetLoginHistory_Old select * from NetLoginHistory;
+#####
+
+delete from NetLoginHistory;
+
+
+INSERT INTO NetLoginHistory (login,uid,logout,logoutReason,state_code) SELECT login,uid,logout,logoutReason,state_code FROM NetLoginHistoryTemp;
+
+DROP TABLE NetLoginHistoryTemp;
+
+EOF
+
+# rbraun 7/15/08 - the above INSERT INTO line just puts data back into
+# the same place.  Shouldn't it go to the data warehouse?
+#
+# Also - can't this use the ARCHIVE engine instead of InnoDB?
+
+mysql -u $DBUSER -p$DBPASSWD -h $MHMASTERDBHOST $MANHUNTDB $VERBOSITY -e "SELECT count(*) from NetLoginHistory" >> $LOG
+mysql -u $DBUSER -p$DBPASSWD -h $MHMASTERDBHOST $MANHUNTDB $VERBOSITY -e "SET @@week:=NOW()-INTERVAL 7 DAY; SELECT count(*) from NetLoginHistory where login>@@week" >> $LOG
+
+echo FINISH $APPNAME `date` >> $LOG
+echo >> $LOG
+
+exit 0;
+@
+
+
+1.12
+log
+@removed my rename/rename lines, and re-implemented the "delete from NetLoginHistory;" line
+@
+text
+@d3 1
+a3 1
+# $Id: cleanNetLoginHistory.sh,v 1.11 2008/11/25 16:15:44 sfrattura Exp sfrattura $
+a36 5
+delete from NetLoginHistory;
+
+
+INSERT INTO NetLoginHistory (login,uid,logout,logoutReason,state_code) SELECT login,uid,logout,logoutReason,state_code FROM NetLoginHistoryTemp;
+
+d41 1
+d47 4
+@
+
+
+1.11
+log
+@commented out the "delete from NLH" in favor of a rename mechanism, which will be faster.  ONE DAY CHANGE...
+@
+text
+@d3 1
+a3 1
+# $Id: cleanNetLoginHistory.sh,v 1.10 2008/11/25 15:54:28 sfrattura Exp sfrattura $
+d37 1
+a37 3
+#delete from NetLoginHistory;
+rename table NetLoginHistory To OldRenamedNLH;
+rename table NLH to NetLoginHistory;
+@
+
+
+1.10
+log
+@re-added my stuff to keep a hotbackup of NetLoginHistory.  There ware two semicolons missing before...
+@
+text
+@d3 1
+a3 1
+# $Id: cleanNetLoginHistory.sh,v 1.9 2008/10/09 14:35:15 sfrattura Exp sfrattura $
+d37 4
+a40 1
+delete from NetLoginHistory;
+@
+
+
+1.9
+log
+@changed "truncate NetLoginHistory" to "delete from NetLoginHistory" - Sandro
+@
+text
+@d3 1
+a3 1
+# $Id: cleanNetLoginHistory.sh,v 1.8 2008/09/26 16:45:05 sfrattura Exp sfrattura $
+d41 10
+@
+
+
+1.8
+log
+@set back to "truncate" and removed the two "rename" lines
+@
+text
+@d3 1
+a3 1
+# $Id: cleanNetLoginHistory.sh,v 1.7 2008/09/24 15:38:11 sfrattura Exp sfrattura $
+d37 1
+a37 1
+TRUNCATE NetLoginHistory;
+@
+
+
+1.7
+log
+@made modifications per JIRA DB-497
+@
+text
+@d3 1
+a3 1
+# $Id: cleanNetLoginHistory.sh,v 1.6 2008/08/15 16:47:10 wflynn Exp sfrattura $
+d37 1
+a37 3
+#TRUNCATE NetLoginHistory;
+rename table NetLoginHistory To OldRenamedNLH;
+rename table NLH to NetLoginHistory;
+@
+
+
+1.6
+log
+@Fixed some problems.  JIRA: DB-345
+@
+text
+@d3 1
+a3 1
+# $Id: cleanNetLoginHistory.sh,v 1.5 2008/07/15 18:58:49 rbraun Exp wflynn $
+d31 2
+d37 3
+a39 1
+TRUNCATE NetLoginHistory;
+@
+
+
+1.5
+log
+@standardize header, pull the external sql script into this bash script.
+@
+text
+@d3 1
+a3 1
+# $Id: cleanNetLoginHistory.sh,v 1.4 2008/07/15 18:55:04 rbraun Exp rbraun $
+d16 1
+a16 1
+fi  
+d26 3
+a28 2
+mysql -u $DBUSER -p$DBPASSWD -h $MHMASTERDBHOST $MANHUNTDB $VERBOSITY -e "SELECT count(*) from NetLoginHistory"; >> $LOG
+mysql -u $DBUSER -p$DBPASSWD -h $MHMASTERDBHOST $MANHUNTDB $VERBOSITY -e "SET @@week:=NOW()-INTERVAL 7 DAY; SELECT count(*) from LoginHistory where login>@@week;"; >> $LOG
+d31 1
+a31 8
+CREATE TABLE `NetLoginHistoryTemp` (
+  `login` datetime NOT NULL default '0000-00-00 00:00:00',
+  `uid` int(10) unsigned NOT NULL default '0',
+  `logout` datetime default NULL,
+  `logoutReason` varchar(10) default NULL,
+  `state_code` varchar(5) NOT NULL default '',
+  PRIMARY KEY  (`uid`,`login`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+d48 2
+a49 2
+mysql -u $DBUSER -p$DBPASSWD -h $MHMASTERDBHOST $MANHUNTDB $VERBOSITY -e "SELECT count(*) from NetLoginHistory"; >> $LOG
+mysql -u $DBUSER -p$DBPASSWD -h $MHMASTERDBHOST $MANHUNTDB $VERBOSITY -e "SET @@week:=NOW()-INTERVAL 7 DAY; SELECT count(*) from LoginHistory where login>@@week;"; >> $LOG
+@
+
+
+1.4
+log
+@*** empty log message ***
+@
+text
+@d3 1
+a3 1
+# $Id: cleanNetLoginHistory.sh,v 1.3 2008/07/15 16:34:01 tmcgonagle Exp rbraun $
+d7 1
+d11 14
+a24 2
+echo starting cleanNetLoginHistory.sh run >> $LOG
+echo `date` >> $LOG
+d57 2
+a58 1
+echo `date` >> $LOG
+d60 1
+@
+
+
+1.3
+log
+@Changed the occurrences of DWHOST to MHMASTERHOST
+Changed the central line from MASTERHOST to MHMASTERHOST
+@
+text
+@d3 1
+a3 1
+# $Id: cleanNetLoginHistory.sh,v 1.2 2008/07/03 13:25:56 tmcgonagle Exp tmcgonagle $
+d16 24
+a39 1
+mysql -u $DBUSER -p$DBPASSWD -h $MHMASTERDBHOST $MANHUNTDB < /usr/local/manhunt/cron/cleanNetLoginHistory.sql 
+@
+
+
+1.2
+log
+@Added an append to the $LOG variable for the middle statement that does the truncation
+@
+text
+@d3 1
+a3 1
+# $Id: cleanNetLoginHistory.sh,v 1.1 2008/07/03 13:18:33 tmcgonagle Exp tmcgonagle $
+d7 2
+d13 2
+a14 2
+mysql -u $DBUSER -p$DBPASSWD -h $DWHOST $MANHUNTDB -vv -e "SELECT count(*) from NetLoginHistory";
+mysql -u $DBUSER -p$DBPASSWD -h $DWHOST $MANHUNTDB -vv -e "SET @@week:=NOW()-INTERVAL 7 DAY; SELECT count(*) from LoginHistory where login>@@week;";
+d16 1
+a16 1
+##mysql -u $MANHUNTDBUSER -p$MANHUNTDBPASSWD -h $MASTERDBHOST $MANHUNTDB < /usr/local/bin/cleanNetLoginHistory.sql 
+d18 2
+a19 21
+mysql -u $DBUSER -p$DBPASSWD -h $MASTERDBHOST $MANHUNTDB -e "
+use manhunt;
+CREATE TABLE `NetLoginHistoryTemp` (
+  `login` datetime NOT NULL default '0000-00-00 00:00:00',
+  `uid` int(10) unsigned NOT NULL default '0',
+  `logout` datetime default NULL,
+  `logoutReason` varchar(10) default NULL,
+  `state_code` varchar(5) NOT NULL default '',
+  PRIMARY KEY  (`uid`,`login`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+INSERT INTO NetLoginHistoryTemp (login,uid,logout,logoutReason,state_code) SELECT login,uid,logout,logoutReason,state_code FROM NetLoginHistory WHERE logout IS NULL;
+
+TRUNCATE NetLoginHistory;
+
+INSERT INTO NetLoginHistory (login,uid,logout,logoutReason,state_code) SELECT login,uid,logout,logoutReason,state_code FROM NetLoginHistoryTemp;
+
+DROP TABLE NetLoginHistoryTemp;
+" >> $LOG
+mysql -u $DBUSER -p$DBPASSWD -h $DWHOST $MANHUNTDB -vv -e "SELECT count(*) from NetLoginHistory"; >> $LOG
+mysql -u $DBUSER -p$DBPASSWD -h $DWHOST $MANHUNTDB -vv -e "SET @@week:=NOW()-INTERVAL 7 DAY; SELECT count(*) from LoginHistory where login>@@week;"; >> $LOG
+d22 1
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d3 1
+a3 1
+# $Id: $
+d34 1
+a34 1
+"
+@

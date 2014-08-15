@@ -1,0 +1,62 @@
+head	1.2;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.2
+date	2008.07.09.15.16.05;	author rbraun;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2008.03.17.22.26.31;	author rbraun;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.2
+log
+@Keep a week's worth
+@
+text
+@#!/bin/bash
+# $Id: backup_dns,v 1.1 2008/03/17 22:26:31 rbraun Exp rbraun $
+#
+# Created 3/08 by rbraun
+#
+# This backs up the BIND9 (DNS) configuration and zone information
+# from one or more DNS servers (specify on command line).  It should be
+# invoked as user 'care' which should be a member of the group 'named'
+# on the DNS server host(s).
+
+DESTDIR=/var/backup/dns
+DAY=`date +%a`
+
+for HOST in $1 $2 $3 $4 $5 $6 $7 $8
+do
+  [ -d $DESTDIR/$HOST/$DAY ] || mkdir -p $DESTDIR/$HOST/$DAY
+  rsync --delete --exclude "Kman*" -a $HOST:"/var/named/chroot/{etc,var}" $DESTDIR/$HOST/$DAY
+done
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 1
+a2 1
+# $Id: backup_mysql_all,v 1.5 2008/03/16 21:04:06 rbraun Exp $
+d12 1
+d16 2
+a17 2
+  [ -d $DESTDIR/$HOST ] || mkdir -p $DESTDIR/$HOST
+  rsync --delete --exclude "Kman*" -a $HOST:"/var/named/chroot/{etc,var}" $DESTDIR/$HOST
+@

@@ -1,0 +1,8 @@
+--- 
+parameters: 
+  bee: baz
+  foo: bar
+classes: 
+- base
+- testing
+environment: development

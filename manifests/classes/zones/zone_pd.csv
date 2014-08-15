@@ -1,0 +1,8 @@
+#resin.conf.erb settings
+pd::jdbc_url_master,jdbc:mysql://dlmdb01.waltham.manhunt.net:3306/dlist
+pd::jdbc_url_slave,jdbc:mysql://dlsdb00.waltham.manhunt.net:3306/dlist
+pd::jdbc_url_admin,jdbc:mysql://dlmdb01.waltham.manhunt.net:3306/dlist
+pd::main_domain,www.dlist.com
+pd::media_domain,media.dlist.com
+pd::connector_domain,connector.dlist.com
+pd::main_domain,www.dlist.com

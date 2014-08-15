@@ -1,0 +1,7 @@
+check process mcollective
+   with pidfile "/var/run/mcollectived.pid"
+   start program = "/etc/init.d/mcollective start"
+   stop program = "/etc/init.d/mcollective stop"
+   if 2 restarts within 3 cycles then timeout
+   if totalmem > 100 Mb then alert
+   if cpu usage > 95% for 3 cycles then restart

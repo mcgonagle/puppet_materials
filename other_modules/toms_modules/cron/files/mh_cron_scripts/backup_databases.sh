@@ -1,0 +1,122 @@
+BACKUP_ADMIN_EMAIL="aalexander@online-buddy.com"
+BACKUP_MAIL_SUBJECT="`hostname`: SQL Backup Synchronization Result"
+BACKUP_DATE=`date +"%b-%d-%y-%H-%M-%S"`
+BACKUP_USER="backup_user" # User at remote storage
+MYSQL_USER="root" # MySQL user
+DATABASE=manhunt_v4
+BACKUP_DIR=/var/backup/maindb02_manhunt_v4_$BACKUP_DATE
+BIG_TABLES_DIR=/var/backup/maindb02_manhunt_v4_$BACKUP_DATE/bigtables
+SMALL_TABLES_DIR=/var/backup/maindb02_manhunt_v4_$BACKUP_DATE/smalltables
+PHPKB_DIR=/var/backup/maindb02_manhunt_v4_$BACKUP_DATE/phpkb
+MANHAUSE_DIR=/var/backup/maindb02_manhunt_v4_$BACKUP_DATE/MANHAUS
+MYSQL_DIR=/var/backup/maindb02_manhunt_v4_$BACKUP_DATE/mysql
+FEDERATED_DIR=/var/backup/maindb02_manhunt_v4_$BACKUP_DATE/federated
+
+#MYSQL_PASSWD=`cat /etc/psa/.psa.shadow`
+MYSQL_PASSWD=Pdn1uL+p
+BACKUP_LOG=/var/backup/maindb02_manhunt_v4_$BACKUP_DATE/log/maindb02_manhunt_v4_$BACKUP_DATE-backup-sql.log
+
+mkdir /var/backup/maindb02_manhunt_v4_$BACKUP_DATE
+mkdir /var/backup/maindb02_manhunt_v4_$BACKUP_DATE/bigtables
+mkdir /var/backup/maindb02_manhunt_v4_$BACKUP_DATE/smalltables
+mkdir /var/backup/maindb02_manhunt_v4_$BACKUP_DATE/phpkb
+mkdir /var/backup/maindb02_manhunt_v4_$BACKUP_DATE/MANHAUS
+mkdir /var/backup/maindb02_manhunt_v4_$BACKUP_DATE/federated
+mkdir /var/backup/maindb02_manhunt_v4_$BACKUP_DATE/mysql
+mkdir /var/backup/maindb02_manhunt_v4_$BACKUP_DATE/log
+
+cd /var/backup
+
+# Dump
+echo "Backup Started at `date`" > $BACKUP_LOG
+load_average=`uptime|awk '{print $10" "$11" "$12}'`
+echo "Load overage at start: $load_average" >> $BACKUP_LOG
+echo "BackingUP $Database database:" >> $BACKUP_LOG
+
+echo "Stopping Slave `date`" >> $BACKUP_LOG
+/data02/multi_mysql/mysql_B/bin/mysql -u root  -pPdn1uL+p --batch   -S /data02/multi_mysql/mysql_B/mysql.sock $DATABASE --silent -e "slave stop"
+echo "Slave Stopped `date`" >> $BACKUP_LOG
+
+echo "Locking Tables `date`" >> $BACKUP_LOG
+/data02/multi_mysql/mysql_B/bin/mysql -u root  -pPdn1uL+p --batch   -S /data02/multi_mysql/mysql_B/mysql.sock $DATABASE --silent -e "flush tables with read lock"
+echo "Tables locked `date`" >> $BACKUP_LOG
+
+BACKUP_ADMIN_EMAIL="aalexander@online-buddy.com"
+BACKUP_MAIL_SUBJECT="`hostname`: SQL Backup Synchronization Result"
+BACKUP_DATE=`date +"%b-%d-%y-%H-%M-%S"`
+BACKUP_USER="backup_user" # User at remote storage
+MYSQL_USER="root" # MySQL user
+DATABASE=manhunt_v4
+BACKUP_DIR=/var/backup/maindb02_manhunt_v4_$BACKUP_DATE
+BIG_TABLES_DIR=/var/backup/maindb02_manhunt_v4_$BACKUP_DATE/bigtables
+SMALL_TABLES_DIR=/var/backup/maindb02_manhunt_v4_$BACKUP_DATE/smalltables
+PHPKB_DIR=/var/backup/maindb02_manhunt_v4_$BACKUP_DATE/phpkb
+MANHAUSE_DIR=/var/backup/maindb02_manhunt_v4_$BACKUP_DATE/MANHAUS
+MYSQL_DIR=/var/backup/maindb02_manhunt_v4_$BACKUP_DATE/mysql
+FEDERATED_DIR=/var/backup/maindb02_manhunt_v4_$BACKUP_DATE/federated
+
+#MYSQL_PASSWD=`cat /etc/psa/.psa.shadow`
+MYSQL_PASSWD=Pdn1uL+p
+BACKUP_LOG=/var/backup/maindb02_manhunt_v4_$BACKUP_DATE/log/maindb02_manhunt_v4_$BACKUP_DATE-backup-sql.log
+
+mkdir /var/backup/maindb02_manhunt_v4_$BACKUP_DATE
+mkdir /var/backup/maindb02_manhunt_v4_$BACKUP_DATE/bigtables
+mkdir /var/backup/maindb02_manhunt_v4_$BACKUP_DATE/smalltables
+mkdir /var/backup/maindb02_manhunt_v4_$BACKUP_DATE/phpkb
+mkdir /var/backup/maindb02_manhunt_v4_$BACKUP_DATE/MANHAUS
+mkdir /var/backup/maindb02_manhunt_v4_$BACKUP_DATE/federated
+mkdir /var/backup/maindb02_manhunt_v4_$BACKUP_DATE/mysql
+mkdir /var/backup/maindb02_manhunt_v4_$BACKUP_DATE/log
+
+cd /var/backup
+
+# Dump
+echo "Backup Started at `date`" > $BACKUP_LOG
+load_average=`uptime|awk '{print $10" "$11" "$12}'`
+echo "Load overage at start: $load_average" >> $BACKUP_LOG
+echo "BackingUP $Database database:" >> $BACKUP_LOG
+
+echo "Stopping Slave `date`" >> $BACKUP_LOG
+/data02/multi_mysql/mysql_B/bin/mysql -u root  -pPdn1uL+p --batch   -S /data02/multi_mysql/mysql_B/mysql.sock $DATABASE --silent -e "slave stop"
+echo "Slave Stopped `date`" >> $BACKUP_LOG
+
+echo "Locking Tables `date`" >> $BACKUP_LOG
+/data02/multi_mysql/mysql_B/bin/mysql -u root  -pPdn1uL+p --batch   -S /data02/multi_mysql/mysql_B/mysql.sock $DATABASE --silent -e "flush tables with read lock"
+echo "Tables locked `date`" >> $BACKUP_LOG
+
+echo "Capturing Slave Position `date`" >> $BACKUP_LOG
+/data02/multi_mysql/mysql_B/bin/mysql -u root  -pPdn1uL+p --batch   -S /data02/multi_mysql/mysql_B/mysql.sock $DATABASE --silent -e "show slave status\G" >> $BACKUP_LOG
+
+echo "MySQL dump started at `date`" >> $BACKUP_LOG
+
+touch $BACKUP_DIR/xxxlock
+
+for i in `/data02/multi_mysql/mysql_B/bin/mysql -u root  -pPdn1uL+p --batch   -S /data02/multi_mysql/mysql_B/mysql.sock information_schema  --silent -e "select table_name from tables where table_name in ('entitlement_user_tokens', 'routines_log', 'buddies', 'profile_entries') "`; do echo "Dumping table --->> $i..." >> $BACKUP_LOG ; /data02/multi_mysql/mysql_B/bin/mysqldump --single-transaction -S /data02/multi_mysql/mysql_B/mysql.sock --insert-ignore --quick --opt --skip-extended-insert -u$MYSQL_USER -p$MYSQL_PASSWD $DATABASE $i > $BIG_TABLES_DIR/$i.dump; done &
+
+/data02/multi_mysql/mysql_B/bin/mysqldump --single-transaction -S /data02/multi_mysql/mysql_B/mysql.sock --insert-ignore --quick --opt --skip-extended-insert -u$MYSQL_USER -p$MYSQL_PASSWD mysql > $MYSQL_DIR/mysql.dump &
+
+/data02/multi_mysql/mysql_B/bin/mysqldump --single-transaction -R -S /data02/multi_mysql/mysql_B/mysql.sock --insert-ignore --quick --opt --skip-extended-insert -u$MYSQL_USER -p$MYSQL_PASSWD phpkb > $PHPKB_DIR/phpkb.dump &
+
+/data02/multi_mysql/mysql_B/bin/mysqldump --single-transaction -R -S /data02/multi_mysql/mysql_B/mysql.sock --insert-ignore --quick --opt --skip-extended-insert -u$MYSQL_USER -p$MYSQL_PASSWD MANHAUS > $MANHAUSE_DIR/MANHAUS.dump &
+
+/data02/multi_mysql/mysql_B/bin/mysqldump --no-data  -S /data02/multi_mysql/mysql_B/mysql.sock --opt  -u$MYSQL_USER -p$MYSQL_PASSWD federated_v4  > $FEDERATED_DIR/federated_v4.dump &
+
+for i in `/data02/multi_mysql/mysql_B/bin/mysql -u root  -pPdn1uL+p --batch   -S /data02/multi_mysql/mysql_B/mysql.sock information_schema  --silent -e "select table_name from tables where table_name not in ('entitlement_user_tokens', 'routines_log', 'buddies', 'profile_entries') and table_schema='manhunt_v4' and engine in ('InnoDB', 'MyISAM', 'MEMORY') "`; do echo "Dumping table --->> $i..." >> $BACKUP_LOG ; /data02/multi_mysql/mysql_B/bin/mysqldump --single-transaction -S /data02/multi_mysql/mysql_B/mysql.sock --insert-ignore --quick --opt --skip-extended-insert -u$MYSQL_USER -p$MYSQL_PASSWD $DATABASE $i > $SMALL_TABLES_DIR/$i.dump; done
+
+echo "Dumping Database Routines `date`" >> $BACKUP_LOG
+/data02/multi_mysql/mysql_B/bin/mysqldump -u root  -pPdn1uL+p  -S /data02/multi_mysql/mysql_B/mysql.sock --no-create-info --no-data -R $DATABASE > $SMALL_TABLES_DIR/routines.dump
+
+echo "Unlocking Tables `date`" >> $BACKUP_LOG
+/data02/multi_mysql/mysql_B/bin/mysql -u root  -pPdn1uL+p --batch   -S /data02/multi_mysql/mysql_B/mysql.sock $DATABASE --silent -e "unlock tables"
+echo "Tables unlocked `date`" >> $BACKUP_LOG
+
+echo "Starting Slave `date`" >> $BACKUP_LOG
+/data02/multi_mysql/mysql_B/bin/mysql -u root  -pPdn1uL+p --batch   -S /data02/multi_mysql/mysql_B/mysql.sock $DATABASE --silent -e "slave start"
+echo "Slave started `date`" >> $BACKUP_LOG
+echo "MySQL dump completed at `date`" >> $BACKUP_LOG
+load_average=`uptime|awk '{print $10" "$11" "$12}'`
+echo "\nLoad overage after MySQL dumps: $load_average\n" >> $BACKUP_LOG
+echo "Done" >> $BACKUP_LOG
+echo "Backup completed at `date`" >> $BACKUP_LOG
+load_average=`uptime|awk '{print $10" "$11" "$12}'`
+echo "\nLoad overage after rdiff-backup: $load_average\n" >> $BACKUP_LOG

@@ -1,0 +1,6 @@
+#!/bin/sh
+#
+TERM=linux
+links -source http://localhost/updatecount.php
+
+

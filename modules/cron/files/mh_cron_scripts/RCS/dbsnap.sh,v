@@ -1,0 +1,94 @@
+head	1.3;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.3
+date	2008.07.01.02.07.37;	author rbraun;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2008.06.30.23.00.26;	author rbraun;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2008.06.30.18.51.45;	author rbraun;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.3
+log
+@moved the InnoDB log files to vollib to reduce I/O requirement
+@
+text
+@#!/bin/sh
+# $Id: dbsnap.sh,v 1.2 2008/06/30 23:00:26 rbraun Exp rbraun $
+#
+# dbsnap.sh
+#
+# Created 6/08 by rbraun
+#   Invoke this from cron on an offline slave DB server.  This will
+#   suspend the slave, record the pointers, take two snapshots (log and lib),
+#   then resume the slave.  Takes 4 parameters: database user and pw,
+#   snapshot storage, and number to retain
+
+#. /etc/manhunt/source.sh
+
+# Run as root
+if [ "$UID" -ne 0 ]
+then
+ echo "Must be root to run this script."
+  exit $ERROR
+fi  
+
+DBUSER=$1
+DBPASS=$2
+SNAPSIZE=$3
+SNAPNUM=$4
+
+SCRIPTS=/usr/local/manhunt/cron
+
+mysql -u $DBUSER -p$DBPASS -e "SLAVE STOP;"
+sleep 1
+mysql -u $DBUSER -p$DBPASS -e "SHOW MASTER STATUS\G SHOW SLAVE STATUS\G" > /var/lib/mysql/snap-pointers
+
+$SCRIPTS/lvsnap.sh vollib db $SNAPSIZE $SNAPNUM
+
+mysql -u $DBUSER -p$DBPASS -e "SLAVE START;"
+@
+
+
+1.2
+log
+@*** empty log message ***
+@
+text
+@d2 1
+a2 1
+# $Id: dbsnap.sh,v 1.1 2008/06/30 18:51:45 rbraun Exp rbraun $
+a32 1
+$SCRIPTS/lvsnap.sh vollog db $SNAPSIZE $SNAPNUM
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 1
+a2 1
+# $Id$
+d30 1
+a30 1
+mysql -u $DBUSER -p$DBPASS -e "SHOW SLAVE STATUS\G" > /var/lib/mysql/snap-pointers
+@

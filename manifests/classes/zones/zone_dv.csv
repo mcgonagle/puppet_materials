@@ -1,0 +1,8 @@
+#resin.conf.erb settings
+dv::jdbc_url_master,jdbc:mysql://devdbmain.dev.manhunt.net:3306/dlist_dev
+dv::jdbc_url_slave,jdbc:mysql://devdbmain.dev.manhunt.net:3306/dlist_dev
+dv::jdbc_url_admin,jdbc:mysql://devdbmain.dev.manhunt.net:3306/dlist_dev
+dv::main_domain,www-dev.dlist.com
+dv::media_domain,www-dev.dlist.com
+dv::connector_domain,connector.dev.dlist.com
+dv::main_domain,www-dev.dlist.com

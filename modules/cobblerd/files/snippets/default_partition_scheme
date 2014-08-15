@@ -1,0 +1,13 @@
+# Clear the Master Boot Record
+zerombr
+# Allow anaconda to partition the system as needed
+autopart
+part /boot --fstype ext3 --size=200 --asprimary
+part swap --recommended 
+part pv.01 --size=1024 --grow 
+volgroup vg00 pv.01 
+logvol / --fstype ext3 --size=5120 --vgname=vg00 --name=lvRoot00  
+logvol /var --fstype ext3 --size=5120 --vgname=vg00 --name=lvVar00
+logvol /var/log --fstype ext3 --size=10240 --vgname=vg00 --name=lvVarLog00 
+logvol /opt --fstype ext3 --size=5120 --vgname=vg00 --name=lvOpt00 
+logvol /tmp --fstype ext3 --size=5120 --vgname=vg00 --name=lvTmp00  

@@ -1,0 +1,26 @@
+head	1.1;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.1
+date	2008.02.10.03.56.18;	author rbraun;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@cp $1 $1.txt
+tr -d '\015' > $1 < $1.txt
+rm $1.txt
+@

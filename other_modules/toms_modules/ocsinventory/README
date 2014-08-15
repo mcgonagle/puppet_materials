@@ -1,0 +1,22 @@
+Puppet module: ocsinventory
+
+# Written by Tom McGonagle #
+# mcgonagle@gmail.com
+# Google Voice (617)229-5185
+# http://www.puppetll.com
+
+
+DESCRIPTION:
+This module installs and manages ocsinventory software
+Standard and extended classes are available.
+Decide and customize how you want to define configation files: static files, templates, infile modifications...
+
+
+USAGE:
+# Standard Classes 
+include ocsinventory              # Install and run ocsinventory with standard configurations.
+include ocsinventory::disable     # Disable ocsinventory service.
+include ocsinventory::disableboot # Disable ocsinventory service at boot time, but don't stop if it's running.
+include ocsinventory::absent      # Remove ocsinventory package.
+
+DEPENDENCIES:

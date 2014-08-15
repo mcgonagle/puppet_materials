@@ -1,0 +1,9 @@
+# Properties for DList DEV environment
+
+dlistServer = www-dev.dlist.com
+media.root = /media
+songs.directory = /home/dlist/public_html/songs/
+songs.url = http://www-dev.dlist.com/songs/
+apns.mode = disabled
+apns.key.passphrase = sb_iPh0n3
+build.extraVersion = \ (DEV)

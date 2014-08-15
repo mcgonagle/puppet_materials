@@ -1,0 +1,14 @@
+#!/bin/bash
+# $Id: creativesyncv4,v 1.12 2009/12/02 17:39:29 rbraun Exp $
+MH_CRON_HOME=/usr/local/manhunt/cron/
+
+#chmod -R g+w /mnt/manhunt/other/banners/creative
+
+##  HACK --- Make this not hard coded later
+# See creativesync and the http_check.sh kludge for v2
+
+for host in 01 02 03 04 05 06 07 08 09 10 11 12 14 15 15 17 18 19 20 21 22 23 24 25 26
+do
+    # --exclude excludes the v4 tour, which comes from timmy, elsewhere.
+    rsync -a --delete-before --force --ignore-errors /mnt/manhunt/other/banners/creative/. www${host}.v4.waltham.manhunt.net:/var/www/html/mh
+done

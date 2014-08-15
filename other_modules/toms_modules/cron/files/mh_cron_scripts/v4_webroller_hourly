@@ -1,0 +1,70 @@
+#!/usr/bin/perl
+# $Id: v4_webroller_hourly,v 1.8 2010/04/20 14:12:16 rbraun Exp $
+
+use strict;
+use warnings;
+
+my $dir = "/var/log/httpd/";
+my $remote_dir = "/data01/www";
+my $remote_host = "sawmill";
+my %files;
+
+my $hostname = `hostname -s`;
+chomp $hostname;
+
+my $file_timestamp = `date +\%Y\.\%m\.\%d\.\%H\.\%Z -d "3 hours ago"`;
+
+print "Running on: $hostname\n\n";
+print "Targeting: $file_timestamp\n\n";
+
+print "bzip2'ing files ...\n";
+my $testout =  system("find","-L","$dir","-name","*.log","-mmin","+120","-exec","bzip2","{}","\;");
+
+print "The files I see are:\n\n";
+
+opendir (my $dir_handle, $dir) or die "Cannot open directory! $!\n";
+while(my $file = readdir($dir_handle)) {
+    my $check = $file;
+    if ($check =~ m/\.bz2$/) {
+        my ($year,$month,$date,$hour,$dst) = $check =~ m/^.*?\.(....)\.(..)\.(..)\.(..)\.(...)/;
+        my $dirname = $year.".".$month.".".$date.".".$hour.".".$dst;
+        $files{$dirname} = "$year$month$date$hour$dst";
+        print "$file\n";
+    }
+}
+
+print "\nNow cleaning up relevent files ...\n";
+
+my $mkdir_www_output = `ssh $remote_host "if [ -d $remote_dir/$hostname ] ; then echo 'Using $hostname'; else echo 'Making $hostname Directory.' ; mkdir $remote_dir/$hostname; fi"`;
+
+foreach (sort(keys(%files))) {
+    next if $_ eq "....";
+    print "$_\n";
+    my $du_output = `ssh $remote_host "df -h $remote_dir/$hostname"`;
+    chomp $du_output;
+    sleep 3;
+    ## To Do, check the DU output and stop this process if something wrong happens.
+ 
+    my $ssh_output = `ssh $remote_host "if [ -d $remote_dir/$hostname/$files{$_} ] ; then echo 'Using already existing directory'; else echo 'Making Directory.' ; mkdir $remote_dir/$hostname/$files{$_}; fi"`;   
+    print "$ssh_output\n"; 
+    $ssh_output = `scp $dir*$_*.bz2  $remote_host://$remote_dir/$hostname/$files{$_}`;
+
+    my @file_list = `ssh $remote_host "ls -1 $remote_dir/$hostname/$files{$_}"`;
+
+    foreach (@file_list) {
+        chomp;
+        if ( m/\.bz2$/ ) {
+            system("rm -f $dir/$_");
+        }
+    }      
+ 
+}    
+
+print "Completed.\n\n";
+
+sub source_parse() {  ## I'll complete this part shortly.
+    open(my $source, "/etc/manhunt/source.sh") or die "Cannot open source file: $!\n";
+    while(<$source>) {
+        next if m/^#/;
+    }
+}

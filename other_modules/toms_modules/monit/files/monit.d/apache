@@ -1,0 +1,9 @@
+check process apache
+   with pidfile "/var/run/httpd.pid"
+   start program = "/etc/init.d/httpd start"
+   stop program = "/etc/init.d/httpd stop"
+   if 2 restarts within 3 cycles then timeout
+   if totalmem > 80% then alert
+   if children > 255 for 5 cycles then stop
+   if cpu usage > 95% for 3 cycles then restart
+   if failed port 80 protocol http then restart

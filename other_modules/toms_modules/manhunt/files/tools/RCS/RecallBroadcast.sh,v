@@ -1,0 +1,100 @@
+head	1.2;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.2
+date	2008.12.24.18.47.00;	author sfrattura;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2008.12.24.18.46.11;	author sfrattura;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.2
+log
+@added a couple of notes
+@
+text
+@#!/bin/sh
+# Base Variables
+
+. /etc/manhunt/source.sh
+
+# YOU SHOULD ALTER THESE VARIABLES
+#### note: % sign at end for wildcard search!  Can be in front too!
+subject="%Private PIX Unlocked!%"
+fromUid=753682
+beginDate='2008-12-22 09:00'
+
+
+# DO NOT TOUCH VARIABLES BELOW.  THEY ARE STANDARD!
+TESTBIN=$MYSQL
+DB=$MESSAGEDB
+PASS=$DBPASSWD
+USER=$DBUSER
+LOG=$CARE_LOG
+HOSTS="$MAILDBHOSTS_S"
+VERBOSITY=-vv
+ERROR=1
+
+
+for h in $HOSTS
+do
+if [ "`$TESTBIN -u $DBUSER -h $h -p$PASS $DB -e 'show databases'`" == "" ]
+then
+echo "Cannot connect to database."
+exit $ERROR
+fi
+done
+
+
+if [ "`touch $LOG`" != "" ]
+then
+echo "Cannot write to logfile."
+exit $ERROR
+fi
+
+
+echo "START $APPNAME `date`" >> $LOG
+for h in $HOSTS
+do
+echo "deleting from $h  -- `date`" >> $LOG
+
+  # all tables that match Inbox should have old records deleted
+  for t in `$TESTBIN -u $DBUSER -h $h -p$PASS $DB -e 'show tables'`
+  do
+    for i in `echo $t | /bin/awk '/Inbox/ {print $1}'`
+    do
+    $TESTBIN -u $USER -h $h -p$PASS $DB $VERBOSITY -e "delete from $i where subject like '$subject' and fromUid=$fromUid and date>='$beginDate'"  >> $LOG
+    done
+  done
+done # end of go through hosts
+
+echo "END $APPNAME `date`" >> $LOG
+exit 0
+
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d7 1
+a7 1
+# note: % sign at end for wildcard search!  Can be in front too!
+d13 1
+a13 1
+# DO NOT TOUCH VARIABLES BELOW
+@

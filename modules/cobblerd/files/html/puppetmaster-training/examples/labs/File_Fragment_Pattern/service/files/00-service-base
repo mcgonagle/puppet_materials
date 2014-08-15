@@ -1,0 +1,20 @@
+# /etc/services:
+# $Id: services,v 1.42 2006/02/23 13:09:23 pknirsch Exp $
+#
+# Network services, Internet style
+#
+# Note that it is presently the policy of IANA to assign a single well-known
+# port number for both TCP and UDP; hence, most entries here have two entries
+# even if the protocol doesn't support UDP operations.
+# Updated from RFC 1700, ``Assigned Numbers'' (October 1994).  Not all ports
+# are included, only the more common ones.
+#
+# The latest IANA port assignments can be gotten from
+#       http://www.iana.org/assignments/port-numbers
+# The Well Known Ports are those from 0 through 1023.
+# The Registered Ports are those from 1024 through 49151
+# The Dynamic and/or Private Ports are those from 49152 through 65535
+#
+# Each line describes one service, and is of the form:
+# 
+# service-name  port/protocol  [aliases ...]   [# comment]

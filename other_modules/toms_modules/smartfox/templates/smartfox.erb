@@ -1,0 +1,69 @@
+#!/bin/bash
+#
+# Smartfox Server Start Script
+#
+# chkconfig: - 85 15
+# description: Smartfox Chat and Group Chat Servers
+
+# processname: httpd
+
+#
+# source function library
+. /etc/rc.d/init.d/functions
+
+SERVER_PATH=/opt/SmartFoxServer_PRO_1.6.6/Server
+
+prog=sfs
+
+start()
+{
+	echo -n $"Starting $prog: "
+	$SERVER_PATH/$prog start
+	
+        echo
+}
+
+stop()
+{
+	echo -n $"Stopping $prog: "
+        $SERVER_PATH/$prog stop
+	echo
+}
+
+reload()
+{
+	echo -n $"Reloading $prog: "
+	$SERVER_PATH/$prog reload
+	echo
+}
+
+status()
+{
+        echo -n $"Status of $prog: "
+        $SERVER_PATH/$prog status
+        echo
+}
+
+case "$1" in
+	start)
+		start
+		;;
+	stop)
+		stop
+		;;
+	restart)
+		stop
+		start
+		;;
+	reload)
+		reload
+		;;
+	status)
+		status $SSHD
+		RETVAL=$?
+		;;
+	*)
+		echo $"Usage: $0 {start|stop|restart|reload|status}"
+		RETVAL=1
+esac
+exit $RETVAL

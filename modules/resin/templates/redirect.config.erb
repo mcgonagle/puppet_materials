@@ -1,0 +1,14 @@
+<!-- 
+   - Resin 3.1 redirects file created for <%= fqdn %> by puppet.
+  --> 
+<server xmlns="http://caucho.com/ns/resin">
+ <host id="rewrite" root-directory="hosts/rewrite">
+      <host-alias><%= scope.lookupvar("redirect_host_alias") %></host-alias>
+      <web-app id="/">
+        <rewrite-dispatch>
+          <<%= scope.lookupvar("redirect_type") %> regexp="<%= scope.lookupvar("redirect_regexp") %>" target="<%= scope.lookupvar("redirect_target") %>"/>
+        </rewrite-dispatch>
+      </web-app>
+    </host>
+
+</server>

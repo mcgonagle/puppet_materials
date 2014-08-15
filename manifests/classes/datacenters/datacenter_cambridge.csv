@@ -1,0 +1,8 @@
+#nfs vars
+nfs_home_server,lrmedia01.qa.manhunt.net
+nfs_home_path,/home
+nfs_media_server,lrmedia01.qa.manhunt.net
+#ntp servers 
+primary_ntp_server,dick.cambridge.manhunt.net
+secondary_ntp_server,cock.cambridge.manhunt.net
+tertiary_ntp_server,time.apple.com

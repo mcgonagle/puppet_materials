@@ -1,0 +1,149 @@
+head	1.4;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.4
+date	2009.12.04.19.16.51;	author rbraun;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2009.09.25.15.02.29;	author wflynn;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2009.03.03.20.37.09;	author wflynn;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2009.03.03.16.17.19;	author wflynn;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.4
+log
+@changed syntax of 'su' so it will run under openSUSE
+@
+text
+@#!/bin/bash
+# v4_webroller
+#
+# $Id: v4_webroller,v 1.3 2009/09/25 15:02:29 wflynn Exp rbraun $
+#
+# Created 03/2009 by wflynn
+#
+# Script for cron to zip, backup and delete web logs
+#
+if [ ! ${1} -ge 0  ]
+then
+    echo "Usage: $0 <daysago>"
+    echo "       Compress and archive <daysago> days ago's logs"
+    exit 1
+fi
+DAYSAGO=$1
+RUNAS="logs"
+ZIP_COMMAND="bzip2"
+ZIP_EXTENSION="bz2"
+LOGDIR="/etc/httpd/logs"
+TODAY=`date +%Y.%m.%d`
+YESTERDAY=`date +%Y.%m.%d -d "yesterday"`
+LOGFILEDATE=`date +%Y.%m.%d -d "${DAYSAGO} days ago"`
+LOGDIRDATE=`date +%Y%m%d -d "${DAYSAGO} days ago"`
+SOURCEDIR=${LOGDIR}
+DESTDIR="/manhunt/www"
+REMOTEHOST="sawmill"
+
+# Zip em
+find -L ${LOGDIR} -name "*${LOGFILEDATE}.log" -exec ${ZIP_COMMAND} {} \;
+# Archive em
+su ${RUNAS} -c "ssh ${REMOTEHOST} mkdir -p ${DESTDIR}/${HOSTNAME}/${LOGDIRDATE}"
+su ${RUNAS} -c "rsync -ac --include \"*${LOGFILEDATE}*.${ZIP_EXTENSION}\" --bwlimit=500 --exclude \"*\" --partial --partial-dir=${DESTDIR}/temp ${SOURCEDIR}/ ${REMOTEHOST}:${DESTDIR}/${HOSTNAME}/${LOGDIRDATE}"
+# Delete successfully transferred files
+for logfile in `su ${RUNAS} -c "ssh ${REMOTEHOST} ls ${DESTDIR}/${HOSTNAME}/${LOGDIRDATE}"`; do rm -f ${SOURCEDIR}/${logfile}; done
+exit
+@
+
+
+1.3
+log
+@make sure this won't collide with new HOURLY logs
+@
+text
+@d4 1
+a4 1
+# $Id: v4_webroller,v 1.2 2009/03/03 20:37:09 wflynn Exp wflynn $
+d32 2
+a33 2
+su - ${RUNAS} -c "ssh ${REMOTEHOST} mkdir -p ${DESTDIR}/${HOSTNAME}/${LOGDIRDATE}"
+su - ${RUNAS} -c "rsync -ac --include \"*${LOGFILEDATE}*.${ZIP_EXTENSION}\" --bwlimit=500 --exclude \"*\" --partial --partial-dir=${DESTDIR}/temp ${SOURCEDIR}/ ${REMOTEHOST}:${DESTDIR}/${HOSTNAME}/${LOGDIRDATE}"
+d35 1
+a35 1
+for logfile in `su - ${RUNAS} -c "ssh ${REMOTEHOST} ls ${DESTDIR}/${HOSTNAME}/${LOGDIRDATE}"`; do rm -f ${SOURCEDIR}/${logfile}; done
+@
+
+
+1.2
+log
+@Log Roller script for V4
+@
+text
+@d4 1
+a4 1
+# $Id: v4_webroller,v 1.1 2009/03/03 16:17:19 wflynn Exp wflynn $
+d30 1
+a30 1
+find -L ${LOGDIR} -name "*${LOGFILEDATE}*.log" -exec ${ZIP_COMMAND} {} \;
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 1
+a2 2
+# dclk_logroller
+# $Id: dclk_logroller,v 1.1 2008/06/25 18:45:17 wflynn Exp $
+d4 1
+a4 1
+# Created 06/2008 by wflynn
+d6 1
+a6 1
+# Script for cron to archive and then roll off doubleclick logs
+d8 3
+a10 1
+if [ ${1} -ge ${2} ]
+d12 2
+a13 2
+    echo "Usage: $0 <raw_retention_days> <zip_retention_days>"
+    echo "       <raw_retention_days> must be less than <zip_retention_days>"
+d16 2
+a17 3
+RAW_RETENTION_DAYS=$1
+ZIP_RETENTION_DAYS=$2
+
+d20 8
+a27 5
+LOGDIR="/usr/local/doubleclick/logs"
+TODAY=`date +%C%y%m%d`
+YESTERDAY=`date +%C%y%m%d -d "yesterday"`
+ZIP_DATE=`date +%C%y%m%d -d "${RAW_RETENTION_DAYS} days ago"`
+DELETE_DATE=`date +%C%y%m%d -d "${ZIP_RETENTION_DAYS} days ago"`
+d29 7
+a35 4
+# Delete oldest logs
+find ${LOGDIR} -name "*${DELETE_DATE}*.log.${ZIP_EXTENSION}" -delete
+# Archive old logs
+find ${LOGDIR} -name "*${ZIP_DATE}*.log" -exec ${ZIP_COMMAND} {} \;
+@

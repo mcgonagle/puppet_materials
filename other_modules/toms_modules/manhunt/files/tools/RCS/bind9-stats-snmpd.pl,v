@@ -1,0 +1,221 @@
+head	1.1;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.1
+date	2008.10.14.21.13.40;	author rbraun;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@#!/usr/bin/perl
+
+#
+# Script to parse bind9 stats file for net-snmp snmpd agent
+#
+# Created By: Cory Powers <cory@@uversaconsulting.net>
+#
+#
+# Include in snmpd.conf
+# pass .1.3.6.1.4.1.2021.55 /usr/bin/perl /usr/local/bind9-stats-snmpd.pl
+#
+#
+# This will create the following MIB trees
+#
+# .1.3.6.1.4.1.2021.55.1 = Indexes
+# .1.3.6.1.4.1.2021.55.2 = Names
+# .1.3.6.1.4.1.2021.55.3 = Succesful query count
+# .1.3.6.1.4.1.2021.55.4 = Failed query count
+# .1.3.6.1.4.1.2021.55.5 = NXDOMAIN query count
+# .1.3.6.1.4.1.2021.55.6 = NXRRSET query count
+# .1.3.6.1.4.1.2021.55.7 = Referred query count
+# .1.3.6.1.4.1.2021.55.8 = Recursive query count
+#
+# To get the global name server stats you would consult the following oids
+#
+# .1.3.6.1.4.1.2021.55.1.1 = INTEGER: 1
+# .1.3.6.1.4.1.2021.55.2.1 = STRING: GLOBAL
+# .1.3.6.1.4.1.2021.55.3.1 = INTEGER: 0
+# .1.3.6.1.4.1.2021.55.4.1 = INTEGER: 0
+# .1.3.6.1.4.1.2021.55.5.1 = INTEGER: 0
+# .1.3.6.1.4.1.2021.55.6.1 = INTEGER: 0
+# .1.3.6.1.4.1.2021.55.7.1 = INTEGER: 0
+# .1.3.6.1.4.1.2021.55.8.1 = INTEGER: 0
+# 
+# If per zone statistics are enabled you will receive a tree like
+# the one above for each zone. The string will be the zone name and
+# view name with an underscore (_) between them.
+#
+# mydomain.com_internal - zone = mydomain.com, view = internal
+#
+# 
+
+$STAT_FILE = "/tmp/named_stats.txt";
+$OID = ".1.3.6.1.4.1.2021.55";
+use constant DEBUG => 0;
+
+%count_ids = (
+	"index" => 1,
+	"name" => 2,
+	"success" => 3,
+	"failure" => 4,
+	"nxdomain" => 5,
+	"nxrrset" => 6,
+	"referral" => 7,
+	"recursion" => 8
+);
+%indexes=();
+%stats=();
+
+process_stats();
+
+#`echo "Called snmpd handler: @@ARGV">>/var/log/bind9-stats.log`;
+$mode = shift(@@ARGV);
+if($mode eq "-n"){
+	$REQ_OID=getnextoid(shift(@@ARGV));
+	getoid($REQ_OID);
+}elsif($mode eq "-s"){
+	print("not-writable\n");
+}elsif($mode eq "-t"){
+	dumpdata();
+}elsif($mode eq "-g"){
+	$REQ_OID=shift(@@ARGV);
+	getoid($REQ_OID);
+}else{
+	$REQ_OID=$mode;
+	getoid($REQ_OID);
+}
+
+exit(0);
+
+sub process_stats{
+	# Die unless we can locate the stats file
+	if (!open(STATS,$STAT_FILE)) {
+		die "Failed to open $STAT_FILE: $!\n";
+	}
+
+	$counter=2;
+	$indexes{"GLOBAL"} = 1;
+	$stats{"$OID.1.1"} = 1;
+	$stats{"$OID.2.1"} = "GLOBAL";
+	while(<STATS>){
+		next if /^[\-\+]/; 
+		next if /^\s*$/;
+		if (/^([^\s]+) (\d+)\s*$/) {
+			$INDEX=1;
+			$COUNT_ID=$count_ids{$1};
+			$VALUE=$2;
+		}elsif (/^([^\s]+) (\d+) (.*)$/) {
+			$zone = formatzone($3);
+			if(!exists($indexes{$zone})){
+				$indexes{$zone} = $counter;
+				$stats{"$OID.1.$counter"}=$counter;
+				$stats{"$OID.2.$counter"}=$zone;
+				print("Adding Index $OID.1.$counter: $counter\n") if(DEBUG);
+				print("Adding Name $OID.2.$counter: $zone\n") if(DEBUG);
+				$counter++;
+			}
+			$INDEX=$indexes{$zone};
+			$COUNT_ID=$count_ids{$1};
+			$VALUE=$2;
+		}else{
+			next;
+		}
+		print("Adding stat $OID.$COUNT_ID.$INDEX: $VALUE\n") if(DEBUG);
+		$stats{"$OID.$COUNT_ID.$INDEX"}=$VALUE;
+	}
+	close(STATS);
+}
+
+sub getnextoid{
+	$FIRST_OID=shift(@@_);
+	$NEXT_OID='';
+
+	if($FIRST_OID =~ /$OID\.(\d+)\.(\d+).*/){
+		print("getnextoid($FIRST_OID): index: $2, count_id: $1\n") if(DEBUG);
+		if($2+1 > scalar(keys(%indexes))){
+			$COUNT_ID=$1+1;
+			$INDEX=1;
+		}else{
+			$INDEX=$2+1;
+			$COUNT_ID=$1;
+		}
+		print("getnextoid($FIRST_OID): NEW - index: $INDEX, count_id: $COUNT_ID\n") if(DEBUG);
+		$NEXT_OID="$OID.$COUNT_ID.$INDEX";
+	}elsif($FIRST_OID =~ /$OID\.(\d+).*/){
+		$NEXT_OID="$OID.$1.1";
+	}elsif($FIRST_OID eq $OID){
+		$NEXT_OID="$OID.1.1";
+	}
+	print("getnextoid($FIRST_OID): returning $NEXT_OID\n") if(DEBUG);
+	return $NEXT_OID;
+}
+
+sub getoid{
+	$REQ_OID=shift(@@_);
+	
+	print("getoid($REQ_OID): Checking in stats\n") if(DEBUG);
+	if($REQ_OID =~ /^$OID\.(\d+)\.(\d+).*/ && exists($stats{$REQ_OID})){
+		print("$REQ_OID\n");
+		if($1 == 2){
+			print("string\n");
+		}else{
+			print("integer\n");
+		}
+		print $stats{$REQ_OID}."\n";
+		return 0;
+	}
+	return 1;
+}
+
+sub formatzone{
+	$input = shift @@_;
+
+	for ($input) {
+		s/^\s+//;
+		s/\s+$//;
+		s/\s/_/;
+	}
+	return $input
+}
+
+sub dumpdata{
+	print("Dumping count_ids\n");
+	foreach $key (sort(keys(%count_ids))){
+		print("$key: $count_ids{$key}\n");
+	}
+
+	print("Dumping indexes\n");
+	foreach $key (sort(keys(%indexes))){
+		print("$key: $indexes{$key}\n");
+	}
+
+	print("Dumping stats\n");
+	foreach $key (sort(keys(%stats))){
+		print("$key: $stats{$key}\n");
+	}
+
+	$oid = $OID;
+	$stop = 0;
+	while($stop == 0){
+		print("Getting next oid for: $oid\n");
+		$oid = getnextoid($oid);
+		print("Checking oid: $oid\n");
+		if(getoid($oid) == 1){
+			$stop = 1;
+		}
+	}
+}
+@

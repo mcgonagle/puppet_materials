@@ -1,0 +1,4 @@
+* export RUBYLIB=/etc/puppet/modules/myfunctions/plugins
+* mkdir -p $RUBYLIB/puppet/parser/functions/
+* cp the example functions (echo.rb, mastername.rb, mycrypt.rb ) into $RUBYLIB//puppet/parser/functions/.
+* execute puppet --verbose test.pp using the provided test.pp file. 

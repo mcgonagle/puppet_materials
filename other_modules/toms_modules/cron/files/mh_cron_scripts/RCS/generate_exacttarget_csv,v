@@ -1,0 +1,196 @@
+head	1.3;
+access;
+symbols;
+locks
+	jjoy:1.3; strict;
+comment	@# @;
+
+
+1.3
+date	2010.06.16.18.47.49;	author jjoy;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2010.06.09.20.39.59;	author jjoy;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2010.06.09.17.23.32;	author jjoy;	state Exp;
+branches;
+next	;
+
+
+desc
+@Moved from generate_email_list.
+@
+
+
+1.3
+log
+@Updated SQL to include states.
+@
+text
+@#!/bin/bash
+
+. /etc/manhunt/source.sh
+
+DATE=`date +%Y_%m_%d`
+OUTFILE="MANHUNT_sub_${DATE}.csv"
+PATH="/home/care/exacttarget/"
+
+OUTFILE_PATH="${PATH}/${OUTFILE}"
+PASS=${V4_PW}
+USER=${V4_USER}
+USERDB=${V4_USERDB}
+MYSQL="/usr/bin/mysql" ## Special Override
+SOCKET="/data02/multi_mysql/mysql_B/mysql.sock"
+EXACT_USER=${EXACT_TARGET_USER}
+LOG=$CARE_LOG.$DATE
+
+cd ${PATH}
+
+if [ "$UID" -ne "$CARE_UID" ]
+    then
+      echo "Must be care to run this script."
+      exit $ERROR
+fi
+   
+
+echo "Starting ExactTarget Email List." >> $LOG
+echo START `date` >> $LOG
+
+cd ${PATH}
+
+## We can't use this line:
+## INTO OUTFILE '/tmp/foo' FIELDS TERMINATED BY ','  OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\n'
+## and we have to do something like this...
+## sed 's/\t/","/g;s/^/"/;s/$/"/;s/\n//g'
+
+echo "Creating user dump from mysql query." >> $LOG
+${CAT} <<ENDSQL | ${MYSQL} -u ${USER} -p${PASS} -B -D ${USERDB} -h ${EXACT_TARGET_DATABASE_CLIENT} > ${OUTFILE_PATH}
+
+SELECT
+  u.uid,
+  username,
+  email,
+  u.shortLocaleID AS 'Language',
+  l.iso_alpha2 AS 'Country', 
+  l.state_shortform AS "State",
+  IF(n.uid is NULL, "N","Y") AS subscribed,
+  a.lastLogin AS lastlogin,
+  u.userJoinDate AS joindate,
+  IF(max(deactivationDate) IS NULL, "", 
+  max(deactivationDate)) AS lastSubEndDate, 
+  IF(max(deactivationDate) < CURRENT_DATE() OR  max(deactivationDate) IS NULL, "N", "Y") AS IsCurrentlyPaid, 
+  IF(n.uid is NULL,"Unsubscribed","Active") AS 'subscriberStatus' 
+  FROM user u
+  INNER JOIN profile_locations p ON p.profileID = u.uid
+  INNER JOIN locations_fulltext l ON (l.id= p.locationID AND l.depth = 3 and l.seed_flag='M')
+  INNER JOIN as_search a ON a.uid = u.uid
+  INNER JOIN user_email_verification uev ON u.uid = uev.uid
+  LEFT OUTER join notification_user n ON n.uid = u.uid and ntypID=2 
+  LEFT OUTER join billing_subscription b ON u.uid = b.uid   
+WHERE 
+a.abuse = 0 AND
+a.lastLogin > NOW() - INTERVAL 730 DAY AND
+uevIsVerified = 'Y' AND 
+email != '' AND
+NOT isnull(email) 
+GROUP BY uid;
+    
+ENDSQL
+
+## Less Dumb Hack.  Still slightly dumb.
+
+/bin/sed 's/\t/","/g;s/^/"/;s/$/"/;s/\n//g' ${OUTFILE_PATH} > ${OUTFILE}.out 
+
+if [ -e ${OUTFILE}.out ] ; then
+    echo "Encrypting the email list." >> $LOG
+    ${GPG} -a --encrypt -r info@@exacttarget.com ${OUTFILE}.out >> $LOG
+else 
+    echo "${OUTFILE_PATH} was not able to be written." >> $LOG
+    exit;
+fi
+
+${MV} ${OUTFILE_PATH}.out.asc ${OUTFILE_PATH}.gpg >> $LOG
+
+if [ -e ${OUTFILE}.gpg ] ; then
+    echo "Sending email list to ExactTarget." >> $LOG
+    echo "put ${OUTFILE_PATH}.gpg" | ${SFTP} ${EXACT_USER}@@ftp1.exacttarget.com:/Import
+    cp ${LOG} ${PATH}/current_log
+else 
+    echo "GPG file not created." >> $LOG
+    exit;
+fi
+
+echo END `date` >> $LOG
+
+cp $LOG $PATH/current_log
+
+
+@
+
+
+1.2
+log
+@Changed database call from socket to a specific machine.
+@
+text
+@d7 1
+a7 3
+PATH="/data02/exacttarget/"
+
+OUTFILE_PATH="${PATH}${OUTFILE}"
+d9 1
+d13 1
+a13 1
+MYSQL="/data02/multi_mysql/mysql_B/bin/mysql" ## Special Override
+d16 13
+d32 7
+a38 2
+echo "Creating user dump from mysql query."
+${CAT} <<ENDSQL | ${MYSQL} -u ${USER} -p${PASS} -D ${USERDB} -h ${EXACT_TARGET_DATABASE_CLIENT}
+d46 1
+a53 1
+INTO OUTFILE '${OUTFILE_PATH}' FIELDS TERMINATED BY ','  OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\n'
+d56 1
+a56 1
+  INNER JOIN locations_fulltext l ON (l.id= p.locationID AND l.depth = 2)
+d68 1
+d71 3
+a73 3
+## Dumb Hack.
+echo "uid,username,email,Language,Country,subscribed,lastlogin,joindate,lastSubEndDate,IsCurrentlyPaid,subscriberStatus" > ${OUTFILE}.out
+${CAT} ${OUTFILE} >> ${OUTFILE}.out
+d76 2
+a77 2
+    echo "Encrypting the email list."
+    ${GPG} -a --encrypt -r info@@exacttarget.com ${OUTFILE}.out
+d79 1
+a79 1
+    echo "${OUTFILE_PATH} was not able to be written."
+d83 1
+a83 1
+${MV} ${OUTFILE_PATH}.out.asc ${OUTFILE_PATH}.gpg
+d86 1
+a86 1
+    echo "Sending email list to ExactTarget."
+d88 1
+d90 1
+a90 1
+    echo "GPG file not created."
+d93 5
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d21 1
+a21 1
+${CAT} <<ENDSQL | ${MYSQL} -u ${USER} -p${PASS} -D ${USERDB} -S ${SOCKET} 
+@

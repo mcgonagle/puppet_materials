@@ -1,0 +1,38 @@
+#!/bin/bash
+#
+# $Id: backup_atlassian,v 1.3 2008/10/06 22:16:06 wflynn Exp $
+#
+# Run this from the backup server as user care
+# First arg is atlassian host, remainder are individual directories for atlassian apps
+# Files will be sync'ed to /var/backup/atlassian/appdir
+
+DESTDIR=/var/backup/atlassian
+HOST=$1
+APPROOT=$2
+LOG=/var/tmp/backup_$1.log
+VERBOSITY=-v
+shift
+shift
+
+if [ "`touch $LOG`" != "" ]
+then
+    echo "Cannot write to logfile."
+    exit $ERROR
+fi
+
+# Interlock - check to see if script still running from previous instance
+[ -e /var/tmp/atlassian_$1.pid ] && [ -e /proc/`cat /var/tmp/atlassian_$1.pid` ] && exit 0
+echo $$ > /var/tmp/atlassian_$1.pid
+
+[ "$VERBOSITY" = "" ] || echo START atlassian_$1 `date` >> $LOG
+
+for APPDIR in ${@}; do
+    [ -d $DESTDIR/$HOST/$APPDIR ] || mkdir -p $DESTDIR/$HOST/$APPDIR
+    rsync -a --delete $HOST:"$APPROOT/$APPDIR/." $DESTDIR/$HOST/$APPDIR
+done
+
+rm /var/tmp/atlassian_$1.pid
+
+[ "$VERBOSITY" = "" ] || echo FINISH atlassian_$1 `date` >> $LOG
+
+exit 0

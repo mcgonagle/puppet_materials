@@ -1,0 +1,7 @@
+# File managed by Puppet <%= puppetversion %> on <%= fqdn %>
+
+CREATE DATABASE IF NOT EXISTS <%= mysql_db %> default character set utf8 collate utf8_bin;
+
+GRANT <%= mysql_privileges %> ON <%= mysql_db %>.<%= mysql_tables %> TO '<%= mysql_user %>'@'<%= mysql_host %>' IDENTIFIED BY '<%= mysql_password %>' with grant option;
+FLUSH PRIVILEGES ;
+

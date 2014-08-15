@@ -1,0 +1,39 @@
+head	1.1;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.1
+date	2008.09.10.21.22.07;	author sfrattura;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@#!/bin/sh -x
+# $Id: Daily_Clean_Master.sh,v 1.5 2008/08/19 14:23:03 sfrattura Exp $
+# Created 9/10/08 by sfrattura
+
+# Base Variables
+. /etc/manhunt/source.sh
+
+echo "FINISH $APPNAME `date`" >> $LOG
+
+$CRON_DIR/DailyClean_A.sh
+$CRON_DIR/DailyClean_B.sh
+$CRON_DIR/DailyClean_C.sh
+
+echo "FINISH $APPNAME `date`" >> $LOG
+exit 0;
+
+@

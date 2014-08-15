@@ -1,0 +1,303 @@
+head	1.7;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.7
+date	2008.11.06.20.25.02;	author sfrattura;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	2008.11.06.20.04.04;	author sfrattura;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	2008.08.19.14.23.03;	author sfrattura;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	2008.07.09.14.20.46;	author rbraun;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2008.07.09.14.16.28;	author rbraun;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2008.07.09.13.37.30;	author rbraun;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2008.07.03.19.40.51;	author rbraun;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.7
+log
+@changed the table name to PhiSpammaJamma (removed the sf), and added a condition create statement in case it is not there
+@
+text
+@#!/bin/sh
+# $Id: PhiSpammaJamma.sh,v 1.6 2008/11/06 20:04:04 sfrattura Exp sfrattura $
+# Created 2/08 by sfrattura
+
+# Base Variables
+
+. /etc/manhunt/source.sh
+
+DB=$MESSAGEDB
+BIN=$MYSQLDUMP
+TESTBIN=$MYSQL
+LOG=$CARE_LOG
+
+MYRESULTS=""
+SQL1=""
+ERROR=1
+
+# Threshold is number of messages; timeframe is number of hours
+
+SPAM_THRESHOLD=$1
+SPAM_TIMEFRAME=$2
+
+# Run as care.
+if [ "$UID" -ne "$CARE_UID" ]
+then
+ echo "Must be care to run this script."
+  exit $ERROR
+fi  
+
+if [ "`touch $LOG`" != "" ]
+then 
+echo "Cannot write to logfile."
+exit $ERROR
+fi
+echo "START $APPNAME `date`" >> $LOG
+
+for h in $MAILDBHOSTS_S
+do
+  if [ "`$TESTBIN -u $DBUSER -h $h -p$DBPASSWD $DB -e 'show databases'`" == "" ]
+  then
+    echo "Cannot connect to database."
+    exit $ERROR
+  fi
+done
+
+
+for h in $MAILDBHOSTS_S
+do
+
+
+$TESTBIN -u $DBUSER -h $h -p$DBPASSWD $DB -e "create table if not exists PhiSpammaJamma (fromUid int(10), TotalSent int (10), subj varchar(50), Body text )"
+$TESTBIN -u $DBUSER -h $h -p$DBPASSWD $DB -e "truncate TABLE PhiSpammaJamma "
+
+
+echo " `date +%H:%M:%S` -- Server: $h" >> $LOG
+
+  # all tables that match Inbox should have old records deleted
+  for t in `$TESTBIN -u $DBUSER -h $h -p$DBPASSWD  $DB -e 'show tables'`
+  do
+    for i in `echo $t | /bin/awk '/Sent/ {print $1}'`
+    do
+
+      SQL1="insert PhiSpammaJamma select fromUid, count(distinct toUid) as MyTot, subject, body  from $t where fromUid not in (1,2,588516,2338977,1458169,2338986,2653350,1458175,2338928,513808,1773532,2338890,588516,958964,1498198,1514710) and date >= date_sub(now(), INTERVAL $SPAM_TIMEFRAME HOUR) group by fromUid, subject having MyTot > $SPAM_THRESHOLD;" 
+
+      $TESTBIN -u $DBUSER -h $h -p$DBPASSWD  $DB  -e "$SQL1" 
+      done
+  done
+
+#--before emailing, check to see if this record exists in the PhiSpammaJamma database
+$TESTBIN -u $DBUSER -h $h -p$DBPASSWD $DB -e  "insert ignore into SpamThrottle select fromUid, subj, now() from PhiSpammaJamma group by fromuid, subj\G"
+
+#--now email the results, if necessary
+$TESTBIN -u $DBUSER -h $h -p$DBPASSWD $DB -e  "select fromUid, TotalSent, subj, body from PhiSpammaJamma where fromuid not in (select fromUid from SpamThrottle where NotifyDate < date_sub(now(), INTERVAL 2 minute)) group by fromuid, subj\G;" | tee --append $LOG
+
+done # end of go through hosts
+echo "FINISH $APPNAME `date`" >> $LOG
+
+exit 0;
+
+
+@
+
+
+1.6
+log
+@added a line to create the table if it did not exist
+create table if not exists sfPhiSpammajamma (fromUid int(10), TotalSent int (10), sub\
+j varchar(50), Body text )
+@
+text
+@d2 1
+a2 1
+# $Id: PhiSpammaJamma.sh,v 1.5 2008/08/19 14:23:03 sfrattura Exp sfrattura $
+d51 2
+a52 2
+$TESTBIN -u $DBUSER -h $h -p$DBPASSWD $DB -e "create table if not exists sfPhiSpammajamma (fromUid int(10), TotalSent int (10), subj varchar(50), Body text )"
+$TESTBIN -u $DBUSER -h $h -p$DBPASSWD $DB -e "truncate TABLE sfPhiSpammaJamma "
+d63 1
+a63 1
+      SQL1="insert sfPhiSpammaJamma select fromUid, count(distinct toUid) as MyTot, subject, body  from $t where fromUid not in (1,2,588516,2338977,1458169,2338986,2653350,1458175,2338928,513808,1773532,2338890,588516,958964,1498198,1514710) and date >= date_sub(now(), INTERVAL $SPAM_TIMEFRAME HOUR) group by fromUid, subject having MyTot > $SPAM_THRESHOLD;" 
+d70 1
+a70 1
+$TESTBIN -u $DBUSER -h $h -p$DBPASSWD $DB -e  "insert ignore into SpamThrottle select fromUid, subj, now() from sfPhiSpammaJamma group by fromuid, subj\G"
+d73 1
+a73 1
+$TESTBIN -u $DBUSER -h $h -p$DBPASSWD $DB -e  "select fromUid, TotalSent, subj, body from sfPhiSpammaJamma where fromuid not in (select fromUid from SpamThrottle where NotifyDate < date_sub(now(), INTERVAL 2 minute)) group by fromuid, subj\G;" | tee --append $LOG
+@
+
+
+1.5
+log
+@the script currently has the following for table sfPhiSpammaJamma in the script
+
+drop table...
+create table...
+drop table...
+
+I removed all of that, and instead at the top of the script I simply have
+
+truncate table...
+@
+text
+@d2 1
+a2 1
+# $Id: PhiSpammaJamma.sh,v 1.4 2008/07/09 14:20:46 rbraun Exp sfrattura $
+d50 2
+@
+
+
+1.4
+log
+@tee the output to log file
+@
+text
+@d2 1
+a2 1
+# $Id: PhiSpammaJamma.sh,v 1.3 2008/07/09 14:16:28 rbraun Exp rbraun $
+d50 2
+a51 2
+$TESTBIN -u $DBUSER -h $h -p$DBPASSWD $DB -e "DROP TABLE IF EXISTS sfPhiSpammaJamma "
+$TESTBIN -u $DBUSER -h $h -p$DBPASSWD $DB -e "CREATE TABLE sfPhiSpammaJamma (fromUid int(10), TotalSent int (10), subj varchar(50), Body text )"
+d72 1
+a72 1
+$TESTBIN -u $DBUSER -h $h -p$DBPASSWD $DB  -e  "drop table sfPhiSpammaJamma"
+@
+
+
+1.3
+log
+@parameterize the threshold and timeframe
+@
+text
+@d2 1
+a2 1
+# $Id: PhiSpammaJamma.sh,v 1.2 2008/07/09 13:37:30 rbraun Exp rbraun $
+d71 1
+a71 1
+$TESTBIN -u $DBUSER -h $h -p$DBPASSWD $DB -e  "select fromUid, TotalSent, subj, body from sfPhiSpammaJamma where fromuid not in (select fromUid from SpamThrottle where NotifyDate < date_sub(now(), INTERVAL 2 minute)) group by fromuid, subj\G;"
+@
+
+
+1.2
+log
+@Incorporate source.sh vars
+@
+text
+@d2 1
+a2 1
+# $Id$
+d18 1
+a18 2
+for h in $MAILDBHOSTS 
+do
+d20 2
+d23 2
+a24 1
+if [ "`$TESTBIN -u $DBUSER -h $h -p$DBPASSWD $DB -e 'show databases'`" == "" ]
+d26 3
+a28 4
+echo "Cannot connect to database."
+exit $ERROR
+fi
+done
+d37 8
+d47 1
+a47 1
+for h in $MAILDBHOSTS
+d53 1
+a53 1
+echo " `date`-- First Server: $h" >> $LOG
+d61 1
+a61 1
+      SQL1="insert sfPhiSpammaJamma select fromUid, count(distinct toUid) as MyTot, subject, body  from $t where fromUid not in (1,2,588516,2338977,1458169,2338986,2653350,1458175,2338928,513808,1773532,2338890,588516,958964,1498198,1514710) and date >= date_sub(now(), INTERVAL 3 HOUR) group by fromUid, subject having MyTot > 200;" 
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 3
+a5 7
+PASS="LQSyM"
+DBUSER="apache"
+DB="messages"
+BIN=/usr/bin/mysqldump
+TESTBIN=/usr/bin/mysql
+LOG=/tmp/PhiSpammaJamma.log
+#HOSTS="192.168.1.213 192.168.1.215"
+d7 7
+a13 2
+#note: cant connect to maildb03 by name because of the socket issue
+HOSTS="maildb01 maildb04"
+d18 1
+a18 1
+for h in $HOSTS 
+d22 1
+a22 2
+
+if [ "`$TESTBIN -u $DBUSER -h $h -p$PASS $DB -e 'show databases'`" == "" ]
+d34 1
+d38 1
+a38 1
+for h in $HOSTS
+d41 2
+a42 2
+$TESTBIN -u $DBUSER -h $h -p$PASS $DB -e "DROP TABLE IF EXISTS sfPhiSpammaJamma "
+$TESTBIN -u $DBUSER -h $h -p$PASS $DB -e "CREATE TABLE sfPhiSpammaJamma (fromUid int(10), TotalSent int (10), subj varchar(50), Body text )"
+d44 1
+a44 2
+echo "First Server: $h" >> $LOG
+echo `date` >> $LOG
+d47 1
+a47 1
+  for t in `$TESTBIN -u $DBUSER -h $h -p$PASS  $DB -e 'show tables'`
+d54 1
+a54 1
+      $TESTBIN -u $DBUSER -h $h -p$PASS  $DB  -e "$SQL1" 
+d59 1
+a59 1
+$TESTBIN -u $DBUSER -h $h -p$PASS $DB -e  "insert ignore into SpamThrottle select fromUid, subj, now() from sfPhiSpammaJamma group by fromuid, subj\G"
+d62 2
+a63 2
+$TESTBIN -u $DBUSER -h $h -p$PASS $DB -e  "select fromUid, TotalSent, subj, body from sfPhiSpammaJamma where fromuid not in (select fromUid from SpamThrottle where NotifyDate < date_sub(now(), INTERVAL 2 minute)) group by fromuid, subj\G;"
+$TESTBIN -u $DBUSER -h $h -p$PASS $DB  -e  "drop table sfPhiSpammaJamma"
+d65 1
+a65 2
+echo "Done..." >> $LOG
+echo `date` >> $LOG
+@

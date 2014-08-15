@@ -1,0 +1,1 @@
+$somearray = [ 'one', 'two', 'three' ]

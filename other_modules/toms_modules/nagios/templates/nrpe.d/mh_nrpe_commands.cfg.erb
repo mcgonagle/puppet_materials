@@ -1,0 +1,29 @@
+#commands with options
+command[check_disk_status]=/usr/local/manhunt/nagios/check_disk_status
+command[check_valid_time]=/usr/local/manhunt/nagios/check_valid_time 
+command[check_mysql_isam_table_sizes]=/usr/local/manhunt/nagios/check_mysql_isam_table_sizes
+command[check_load_web]=/usr/local/manhunt/nagios/check_load_web  -w 20.0,15.0,15.0 -c 40.0,40.0,40.0
+command[check_local_ntp]=/usr/local/manhunt/nagios/check_local_ntp -H dick.waltham.manhunt.net
+command[mysqlinnodbfree]=/usr/local/manhunt/nagios/mysqlinnodbfree -w 1000000 -c 200000
+command[mysqlinnodbfree_jp]=/usr/local/manhunt/nagios/mysqlinnodbfree_jp -w 1000000 -c 200000 
+command[innodb_space_utilization]=/usr/local/manhunt/nagios/innodb_space_utilization -u nagmon -p m0n1t0rM3 -w 8 -c 4
+command[mysqlrep]=/usr/local/manhunt/nagios/mysqlrep 
+command[mysql_top_process]=/usr/local/manhunt/nagios/mysql_top_process
+command[check_delivery_access]=/usr/local/manhunt/nagios/check_delivery_access
+command[check_procs_dhcpd]=/usr/local/manhunt/nagios/check_procs_dhcpd -a /usr/sbin/dhcpd -c 1:2
+command[check_drbd_primary]=/usr/local/manhunt/nagios/check_drbd_primary -r Primary
+command[check_drbd_secondary]=/usr/local/manhunt/nagios/check_drbd_secondary -r Secondary
+command[check_logfiles]=/usr/local/manhunt/nagios/check_logfiles --logfile /var/log/dailydownload/current --type virtual --criticalpattern='DailyDownload has complete Failure.'
+command[check_file_age]=/usr/local/manhunt/nagios/check_file_age -w 86400 -c 100000 -f /var/log/dailydownload/current
+command[check_chat_checker]=/usr/local/manhunt/nagios/check_chat_checker -w 60 -c 90 -f /var/log/smartfox_healthcheck
+command[check_procs_redbox]=/usr/local/manhunt/nagios/check_procs_redbox -c 1:1 -a red5.jar
+command[check_exacttarget_file]=/usr/local/manhunt/nagios/check_exacttarget_file -w 90000 -c 93600 -f /home/care/exacttarget/current_log
+command[check_xe_file]=/usr/local/manhunt/nagios/check_xe_file -w 90000 -c 93600 -f `ls -1t /home/garsenault/xe_rate_data | head -n 1`
+command[check_procs_groupchat_checker]=/usr/local/manhunt/nagios/check_procs_groupchat_checker -a groupchat_check -w 1:2
+command[check_vindicia_unlock]=/usr/local/manhunt/nagios/check_vindicia_unlock
+command[check_cron_tester]=/usr/local/manhunt/nagios/check_log_completion --statusfile /var/tmp/cron_tester.status --warning 300 --critical 600
+command[check_importexchangerates]=/usr/local/manhunt/nagios/check_log_completion --statusfile /var/tmp/ImportExchangeRates.status --warning 86400 --critical 90000
+command[check_creativesync_full]=/usr/local/manhunt/nagios/check_log_completion --statusfile /var/tmp/creativesync.status.full --warning 86400 --critical 90000
+command[check_creativesync_delta]=/usr/local/manhunt/nagios/check_log_completion --statusfile /var/tmp/creativesync.status.delta --warning 900 --critical 1800
+command[check_http_integrity]=/usr/local/manhunt/nagios/check_http_integrity /tmp/last_http_request 5000 25000
+command[check_http_logs]=/usr/local/manhunt/nagios/check_http_logs www

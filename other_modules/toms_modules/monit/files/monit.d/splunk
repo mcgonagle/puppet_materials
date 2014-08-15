@@ -1,0 +1,8 @@
+check process splunk 
+   with pidfile "/opt/splunk/var/run/splunk/splunkd.pid"
+   start program = "/etc/init.d/splunk start"
+   stop program = "/etc/init.d/splunk stop"
+   if 2 restarts within 3 cycles then timeout
+   if totalmem > 100 Mb then alert
+   if cpu usage > 95% for 3 cycles then restart
+   #if failed port 22 protocol ssh then restart

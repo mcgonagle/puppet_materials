@@ -1,0 +1,44 @@
+head	1.2;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.2
+date	2010.08.09.17.17.36;	author rbraun;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2008.02.06.19.56.38;	author rbraun;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.2
+log
+@*** empty log message ***
+@
+text
+@#!/bin/sh
+#
+TERM=linux
+links -source http://localhost/rollStatusDaily.php
+
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d4 1
+a4 1
+links -source http://www.manhunt.jp/rollStatusDaily.php
+@

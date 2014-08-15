@@ -1,0 +1,65 @@
+#!/bin/sh
+# $Id: MessageTotalsUpdate,v 1.2 2008/07/11 14:32:29 rbraun Exp $
+
+. /etc/manhunt/source.sh
+
+# Base Variables
+LOG=$CARE_LOG
+VERBOSITY=-vv
+ERROR=1
+
+
+# Run as care.
+if [ "$UID" -ne "$CARE_UID" ]
+then
+ echo "Must be care to run this script."
+  exit $ERROR
+fi
+
+if [ "`touch $LOG`" != "" ]
+then
+echo "Cannot write to logfile."
+exit $ERROR
+fi
+
+echo START $APPNAME `date` >> $LOG
+
+for h in $MAILDBHOSTS
+do
+echo " -- starting message update on $h at " `date` >> $LOG
+
+for t in `$MYSQL -u $DBUSER -h $h -p$DBPASSWD $MESSAGEDB -e 'show tables'`
+do
+  for i in `echo $t | /bin/awk '/Inbox/ {print $1}'`
+  do
+    echo " --- totalMsgs for $t" >> $LOG
+    SQL1="UPDATE MessageTotals S, (SELECT toUid, count(msgid) AS MyCntr FROM $t GROUP BY toUid) AS I SET S.totalMsgs = I.MyCntr WHERE S.uid = I.toUid;"
+    $MYSQL -u $DBUSER -h $h -p$DBPASSWD $MESSAGEDB  $VERBOSITY -e "$SQL1" >> $LOG
+    echo " --- unreadMsgs for $t" >> $LOG
+    SQL2="UPDATE MessageTotals S, (SELECT toUid, count(msgid) AS MyCntr FROM $t where seen = 0  GROUP BY toUid) AS I SET S.unreadMsgs = I.MyCntr WHERE S.uid = I .toUid;"
+    $MYSQL -u $DBUSER -h $h -p$DBPASSWD $MESSAGEDB  $VERBOSITY -e "$SQL2" >> $LOG
+  done
+
+  for i in `echo $t | /bin/awk '/Sent/ {print $1}'`
+  do
+    echo " --- sentMsgs for $t" >> $LOG
+    SQL1="UPDATE MessageTotals S, (SELECT fromUid, count(sentmsgid) AS MyCntr FROM $t GROUP BY fromUid) AS I SET S.totalSent = I.MyCntr WHERE S.uid = I.fromUid;"
+    $MYSQL -u $DBUSER -h $h -p$DBPASSWD $MESSAGEDB  $VERBOSITY -e "$SQL1" >> $LOG
+
+    SQL2="UPDATE MessageTotals S, (SELECT fromUid, count(sentmsgid) AS MyCntr FROM $t where seen = 0 GROUP BY fromUid) AS I SET S.unreadSent = I.MyCntr WHERE S.uid = I.fromUid;"
+    $MYSQL -u $DBUSER -h $h -p$DBPASSWD $MESSAGEDB  $VERBOSITY -e "$SQL2" >> $LOG
+  done
+
+  for i in `echo $t | /bin/awk '/Saved/ {print $1}'`
+  do
+    echo " --- savedMsgs for $t" >> $LOG
+    SQL1="UPDATE MessageTotals S, (SELECT toUid, count(msgid) AS MyCntr FROM $t GROUP BY toUid) AS I SET S.totalSaved = I.MyCntr WHERE S.uid = I.toUid;"
+    $MYSQL -u $DBUSER -h $h -p$DBPASSWD $MESSAGEDB  $VERBOSITY -e "$SQL1" >> $LOG
+  done
+done
+
+done # end of go through hosts
+
+echo FINISH $APPNAME at `date` >> $LOG
+
+exit 0;

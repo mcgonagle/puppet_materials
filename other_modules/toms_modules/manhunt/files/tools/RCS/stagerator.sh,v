@@ -1,0 +1,867 @@
+head	1.37;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.37
+date	2010.10.13.19.38.56;	author wflynn;	state Exp;
+branches;
+next	1.36;
+
+1.36
+date	2010.09.24.21.50.00;	author apradhan;	state Exp;
+branches;
+next	1.35;
+
+1.35
+date	2010.09.17.18.53.08;	author dcote;	state Exp;
+branches;
+next	1.34;
+
+1.34
+date	2010.09.17.18.51.01;	author dcote;	state Exp;
+branches;
+next	1.33;
+
+1.33
+date	2010.09.08.20.46.37;	author apradhan;	state Exp;
+branches;
+next	1.32;
+
+1.32
+date	2010.09.08.20.45.18;	author jjoy;	state Exp;
+branches;
+next	1.31;
+
+1.31
+date	2010.08.16.15.00.15;	author jjoy;	state Exp;
+branches;
+next	1.30;
+
+1.30
+date	2010.07.09.14.59.02;	author jjoy;	state Exp;
+branches;
+next	1.29;
+
+1.29
+date	2010.07.08.22.04.06;	author rtodd;	state Exp;
+branches;
+next	1.28;
+
+1.28
+date	2010.06.09.01.50.35;	author dcote;	state Exp;
+branches;
+next	1.27;
+
+1.27
+date	2010.06.09.01.33.36;	author dcote;	state Exp;
+branches;
+next	1.26;
+
+1.26
+date	2010.05.26.21.09.06;	author jjoy;	state Exp;
+branches;
+next	1.25;
+
+1.25
+date	2010.03.17.21.17.59;	author dcote;	state Exp;
+branches;
+next	1.24;
+
+1.24
+date	2010.02.09.19.06.43;	author dcote;	state Exp;
+branches;
+next	1.23;
+
+1.23
+date	2009.12.07.21.11.28;	author dcote;	state Exp;
+branches;
+next	1.22;
+
+1.22
+date	2009.10.05.18.42.56;	author wflynn;	state Exp;
+branches;
+next	1.21;
+
+1.21
+date	2009.10.02.20.53.23;	author wflynn;	state Exp;
+branches;
+next	1.20;
+
+1.20
+date	2009.10.02.16.50.43;	author wflynn;	state Exp;
+branches;
+next	1.19;
+
+1.19
+date	2009.10.01.21.40.46;	author wflynn;	state Exp;
+branches;
+next	1.18;
+
+1.18
+date	2009.09.30.19.54.21;	author wflynn;	state Exp;
+branches;
+next	1.17;
+
+1.17
+date	2009.09.30.18.42.17;	author wflynn;	state Exp;
+branches;
+next	1.16;
+
+1.16
+date	2009.09.30.15.53.44;	author wflynn;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	2009.09.30.15.50.53;	author wflynn;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	2009.09.29.16.03.16;	author wflynn;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	2009.09.28.20.33.58;	author wflynn;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	2009.08.27.18.28.01;	author wflynn;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	2009.08.24.20.20.24;	author wflynn;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	2009.07.28.23.33.35;	author wflynn;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	2009.07.27.23.38.28;	author wflynn;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	2009.07.16.23.29.59;	author wflynn;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	2009.07.16.14.09.32;	author wflynn;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	2009.06.25.17.28.22;	author wflynn;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	2009.06.25.17.03.36;	author wflynn;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	2009.06.24.22.43.54;	author wflynn;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2009.06.24.19.52.00;	author wflynn;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2009.06.23.19.47.52;	author wflynn;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2009.06.23.18.54.36;	author wflynn;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.37
+log
+@TOOL-38  Added xmlmobile
+@
+text
+@#!/bin/bash
+#
+# stagerator.sh
+#
+# $Id: stagerator.sh 67 2010-10-13 19:37:49Z wflynn $
+#
+# WFlynn 06/09
+#
+# Stupid script for configuring app.yml files for staging v4 releases until we get something reasonable in place.
+
+WGET="/usr/bin/wget --no-check-certificate -q -O-"
+
+echo "And his momma cries..."
+/bin/cp -fv app.yml.mh app.yml.staging.mh
+/bin/cp -fv app.yml.mo app.yml.staging.mo
+/bin/cp -fv app.yml.af app.yml.staging.af
+/bin/cp -fv app.yml.xml app.yml.staging.xml
+/bin/cp -fv app.yml.admin app.yml.staging.admin
+for ymlfile in app.yml.staging.mh app.yml.staging.mo app.yml.staging.admin app.yml.staging.af app.yml.staging.xml; do
+    if [ -f ${ymlfile} ]
+    then
+	dos2unix $ymlfile
+	## ORDER CAN BE IMPORTANT HERE, BE CAREFUL
+	sed -i 's/\=mailshard01/\=stg-mailshard01.v4/g' $ymlfile
+	sed -i 's/\=mailshard02/\=stg-mailshard02.v4/g' $ymlfile
+	sed -i 's/\=mailshard03b/\=stg-mailshard03.v4/g' $ymlfile
+	sed -i 's/\=mailshard04b/\=stg-mailshard04.v4/g' $ymlfile
+	sed -i 's/.v4b./.v4./g' $ymlfile
+	sed -i 's/gps.manhunt.net/gps-staging.manhunt.net/g' $ymlfile
+	sed -i 's/admindb00/mainro03/g' $ymlfile
+	sed -i 's/admindb01/mainro03/g' $ymlfile
+	sed -i 's/billing-backend.v4.waltham.manhunt.net/billing05.v4.waltham.manhunt.net/g' $ymlfile
+	#  ....net/billing... before ...net/
+	sed -i 's/billing.manhunt.net\/billing/billing-staging.manhunt.net\/billing/g' $ymlfile
+	sed -i 's/billing.manhunt.net/billing-staging.manhunt.net/g' $ymlfile
+	sed -i 's/billing.v4.manhunt.net/billing05.v4.waltham.manhunt.net/g' $ymlfile
+        sed -i 's/cache07.waltham.manhunt.net:11231/cache04.v4.waltham.manhunt.net:11215/g' $ymlfile
+	sed -i 's/cache01/cache04/g' $ymlfile
+	sed -i 's/cache02.waltham/cache05.v4.waltham/g' $ymlfile
+	sed -i 's/cache03/cache05/g' $ymlfile
+	sed -i 's/cache06/cache05/g' $ymlfile
+	sed -i 's/cache07.waltham/cache04.v4.waltham/g' $ymlfile
+	sed -i 's/janusdb01/maindb03/g' $ymlfile
+	sed -i 's/maindb00/maindb03/g' $ymlfile
+	sed -i 's/mainro00/mainro03/g' $ymlfile
+	sed -i 's/trackdb00/maindb03/g' $ymlfile
+	sed -i 's/userplanev4/userplanev4-staging/g' $ymlfile
+	sed -i 's/www.manhunt.net/www-staging.manhunt.net/g' $ymlfile
+        ## Smartfox/GroupChat Related Things
+        sed -i 's/cache08.waltham/cache05.v4.waltham/g' $ymlfile
+        sed -i 's/209.67.254.143/209.67.254.144/g' $ymlfile  
+        sed -i 's/66.151.184.201/209.67.254.144/g' $ymlfile 
+        sed -i 's/UA-5700973-8/UA-5700973-24/g' $ymlfile
+#	sed -i 's/v4_media/v4_media_staging/g' $ymlfile
+
+## ADMERIS  Live to Prodtest
+# 	sed -i 's/10039/10145/g' $ymlfile
+# 	sed -i 's/50024/50018/g' $ymlfile
+# 	sed -i 's/ec1.admeris.com/test.admeris.com/g' $ymlfile
+# 	sed -i 's/pQI1otN4Hkt8Ax4m/L6GsvY6fZSU5Dj9w/g' $ymlfile
+## ADMERIS -- We don't do anything with this yet.
+
+    fi
+done
+
+if [ -f /usr/local/src/manhunt/apps/frontend/config/app.yml ]
+then
+    /bin/cp -fv /tmp/app.yml.staging.mh /usr/local/src/manhunt/apps/frontend/config/app.yml
+fi
+
+if [ -f /usr/local/src/manhunt_mobile/apps/frontend/config/app.yml ]
+then
+    /bin/cp -fv /tmp/app.yml.staging.mo /usr/local/src/manhunt_mobile/apps/frontend/config/app.yml
+fi
+
+if [ -f /usr/local/src/manhunt_gps/apps/assfinder/config/app.yml ]
+then
+    /bin/cp -fv /tmp/app.yml.staging.af /usr/local/src/manhunt_gps/apps/assfinder/config/app.yml
+fi
+
+if [ -f /usr/local/src/manhunt_xmlmobile/apps/xmlmobile/config/app.yml ]
+then
+    /bin/cp -fv /tmp/app.yml.staging.xml /usr/local/src/manhunt_xmlmobile/apps/xmlmobile/config/app.yml
+fi
+
+if [ -f /usr/local/src/manhunt/apps/admin/config/app.yml ]
+then
+    /bin/cp -fv /tmp/app.yml.staging.admin /usr/local/src/manhunt/apps/admin/config/app.yml
+fi
+
+if [ -L /usr/local/src/manhunt ]
+then
+    cd /usr/local/src/manhunt && symfony cc
+fi
+
+if [ -L /usr/local/src/manhunt_mobile ]
+then
+    cd /usr/local/src/manhunt_mobile && symfony cc
+fi
+
+if [ -L /usr/local/src/manhunt_xmlmobile ]
+then
+    cd /usr/local/src/manhunt_xmlmobile && symfony cc
+fi
+
+if [ -L /uss/local/src/manhunt_gps ]
+then
+    cd /usr/loca/src/manhunt_gps && symfony cc
+fi
+
+# ##  Use the cacherator
+# if [ -d /usr/local/src/manhunt/apps/frontend ]
+# then
+# # Clear the system cache (Frontend)
+#     ${WGET} https://`hostname -f`/user/apcClear/pass/w74byru4r416dfphj7jm2f || ${WGET} http://`hostname -f`/user/apcClear/pass/w74byru4r416dfphj7jm2f
+# fi
+
+# if [ -d /usr/local/src/manhunt/apps/admin ]
+# then
+# # Clear the system cache (Admin)
+#     ${WGET} https://`hostname -f`/admin.php/home/apcClear/pass/w74byru4r416dfphj7jm2f
+# fi
+
+exit;
+@
+
+
+1.36
+log
+@changed mailshard
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.35 2010/09/17 18:53:08 dcote Exp apradhan $
+d99 5
+@
+
+
+1.35
+log
+@had to fix an error DC made :)
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.34 2010/09/17 18:51:01 dcote Exp dcote $
+d25 1
+a25 1
+	sed -i 's/\=mailshard02b/\=stg-mailshard02.v4/g' $ymlfile
+@
+
+
+1.34
+log
+@added app.yml.staging.xml
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.33 2010/09/08 20:46:37 apradhan Exp dcote $
+d24 1
+a24 2
+	sed -i 's/\=mailshard01/\=stg-mai
+	lshard01.v4/g' $ymlfile
+@
+
+
+1.33
+log
+@SYS-3414
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.32 2010/09/08 20:45:18 jjoy Exp apradhan $
+d19 1
+a19 1
+for ymlfile in app.yml.staging.mh app.yml.staging.mo app.yml.staging.admin app.yml.staging.af; do
+d24 2
+a25 1
+	sed -i 's/\=mailshard01/\=stg-mailshard01.v4/g' $ymlfile
+@
+
+
+1.32
+log
+@Checkpoint.
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.31 2010/08/16 15:00:15 jjoy Exp jjoy $
+d53 1
+a53 1
+        
+@
+
+
+1.31
+log
+@s/cache07.waltham.manhunt.net:11231/cache04.v4.waltham.manhunt.net.../g;
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.30 2010/07/09 14:59:02 jjoy Exp jjoy $
+d17 1
+d37 2
+a38 2
+        sed -i 's/cache07.waltham.manhunt.net:11231/cache04.v4.waltham.manhunt.net:11215' $ymlfile
+[A	sed -i 's/cache01/cache04/g' $ymlfile
+d81 1
+a81 1
+if [ -f /usr/local/src/xmlmobile/apps/xmlmobile/config/app.yml ]
+d83 1
+a83 1
+    /bin/cp -fv /tmp/app.yml.staging.xl /usr/local/src/xmlmobile/apps/xmlmobile/config/app.yml
+@
+
+
+1.30
+log
+@Fixing the v4b bug and changing gps.manhunt.net to gps-staging.manhunt.net.
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.29 2010/07/08 22:04:06 rtodd Exp jjoy $
+d36 2
+a37 1
+	sed -i 's/cache01/cache04/g' $ymlfile
+@
+
+
+1.29
+log
+@Added xmlmobile
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.28 2010/06/09 01:50:35 dcote Exp rtodd $
+d27 2
+@
+
+
+1.28
+log
+@modification to copy for assfinder
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.27 2010/06/09 01:33:36 dcote Exp dcote $
+d75 5
+@
+
+
+1.27
+log
+@added app.yml.af
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.26 2010/05/26 21:09:06 jjoy Exp dcote $
+d74 1
+a74 1
+    /bin/cp -fv /tmp/app.yml.staging.af /usr/loca/src/manhunt_gps/apps/assfinder/config/app.yml
+@
+
+
+1.26
+log
+@Added other conditional statements for stagerator that takes our chat product into consideration.
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.25 2010/03/17 21:17:59 dcote Exp jjoy $
+d16 1
+d18 1
+a18 1
+for ymlfile in app.yml.staging.mh app.yml.staging.mo app.yml.staging.admin; do
+d72 5
+d90 5
+@
+
+
+1.25
+log
+@changed billing04.v4.waltham.manhunt.net to billing-staging.manhunt.net
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.24 2010/02/09 19:06:43 dcote Exp dcote $
+d44 5
+@
+
+
+1.24
+log
+@changes to script to reflect the correct dns changed made for the mailshards
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.23 2009/12/07 21:11:28 dcote Exp dcote $
+d23 1
+a23 1
+	sed -i 's/\=mailshard02/\=stg-mailshard02.v4/g' $ymlfile
+d31 1
+a31 1
+	sed -i 's/billing.manhunt.net/billing04.v4.waltham.manhunt.net/g' $ymlfile
+@
+
+
+1.23
+log
+@I changed mainro05 to be mainro03 sys-2516
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.22 2009/10/05 18:42:56 wflynn Exp dcote $
+d22 4
+a25 4
+	sed -i 's/\=mailshard01/\=stg-mailshard01/g' $ymlfile
+	sed -i 's/\=mailshard02/\=stg-mailshard02/g' $ymlfile
+	sed -i 's/\=mailshard03/\=stg-mailshard03/g' $ymlfile
+	sed -i 's/\=mailshard04/\=stg-mailshard04/g' $ymlfile
+@
+
+
+1.22
+log
+@Fix apc bouncer
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.21 2009/10/02 20:53:23 wflynn Exp wflynn $
+d26 2
+a27 2
+	sed -i 's/admindb00/mainro05/g' $ymlfile
+	sed -i 's/admindb01/mainro05/g' $ymlfile
+d40 1
+a40 1
+	sed -i 's/mainro00/mainro05/g' $ymlfile
+@
+
+
+1.21
+log
+@Disable cache clearing in the stagerator
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.20 2009/10/02 16:50:43 wflynn Exp wflynn $
+d11 2
+d45 1
+a45 1
+	
+d51 2
+a52 2
+## ADMERIS -- We don't do anything with this yet.	
+	
+d81 1
+a81 1
+##  Use the cacherator
+d84 2
+a85 2
+#     # Clear the system cache (Frontend)
+#     /usr/bin/lynx -localhost -dump -accept_all_cookies  http://`hostname -f`/index.php/user/apcClear/pass/w74byru4r416dfphj7jm2f
+d90 2
+a91 2
+#     # Clear the system cache (Admin)
+#     /usr/bin/lynx -localhost -dump -accept_all_cookies  https://`hostname -f`/admin.php/home/apcClear/pass/w74byru4r416dfphj7jm2f
+@
+
+
+1.20
+log
+@Added commented lines for converting admeris production to prodtest.
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.19 2009/10/01 21:40:46 wflynn Exp wflynn $
+d79 12
+a90 11
+if [ -d /usr/local/src/manhunt/apps/frontend ]
+then
+    # Clear the system cache (Frontend)
+    /usr/bin/lynx -localhost -dump -accept_all_cookies  http://`hostname -f`/index.php/user/apcClear/pass/w74byru4r416dfphj7jm2f
+fi
+
+if [ -d /usr/local/src/manhunt/apps/admin ]
+then
+    # Clear the system cache (Admin)
+    /usr/bin/lynx -localhost -dump -accept_all_cookies  https://`hostname -f`/admin.php/admin.php/home/apcClear/pass/w74byru4r416dfphj7jm2f
+fi
+@
+
+
+1.19
+log
+@New staging hosts to be supported  SYS-2203
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.18 2009/09/30 19:54:21 wflynn Exp wflynn $
+d43 8
+@
+
+
+1.18
+log
+@More work around billing staging
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.17 2009/09/30 18:42:17 wflynn Exp wflynn $
+d27 2
+a28 4
+#  Once the billing-staging hostname is up replace the next line with the one below it.
+	sed -i 's/billing.manhunt.net\/billing/media08.manhunt.net\/billing/g' $ymlfile
+#	sed -i 's/billing.manhunt.net\/billing/billing-staging.manhunt.net\/billing/g' $ymlfile
+#
+@
+
+
+1.17
+log
+@media08 hack
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.16 2009/09/30 15:53:44 wflynn Exp wflynn $
+d19 1
+d27 4
+a31 2
+#	sed -i 's/billing.manhunt.net/billing-staging.manhunt.net/g' $ymlfile
+	sed -i 's/billing.manhunt.net\/billing/media08.manhunt.net\/billing/g' $ymlfile
+@
+
+
+1.16
+log
+@placeholder for new "billing-staging"
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.15 2009/09/30 15:50:53 wflynn Exp wflynn $
+d28 1
+@
+
+
+1.15
+log
+@Closer to production versions of admeris changes.  Also move billing backend
+to billing-backend  SYS-2203
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.14 2009/09/29 16:03:16 wflynn Exp wflynn $
+d26 2
+a27 1
+	sed -i 's/billing.manhunt.net/billing-staging.manhunt.net/g' $ymlfile
+a39 1
+#	sed -i 's/billing.manhunt.net/billing04.v4.waltham.manhunt.net/g' $ymlfile
+@
+
+
+1.14
+log
+@Added new "billing-backend" host to stagerator. SYS-2106
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.13 2009/09/28 20:33:58 wflynn Exp wflynn $
+d26 1
+a26 1
+	sed -i 's/billing.manhunt.net/billing04.v4.waltham.manhunt.net/g' $ymlfile
+d38 2
+@
+
+
+1.13
+log
+@Added cache07 to stagerator
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.12 2009/08/27 18:28:01 wflynn Exp wflynn $
+d25 1
+@
+
+
+1.12
+log
+@add admin cache clearing
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.11 2009/08/24 20:20:24 wflynn Exp wflynn $
+d28 1
+d31 1
+a31 1
+	sed -i 's/cache02.waltham/cache05.v4.waltham/g' $ymlfile
+@
+
+
+1.11
+log
+@added cache02
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.10 2009/07/28 23:33:35 wflynn Exp wflynn $
+d67 1
+a67 2
+# Clear the system cache (Not required on admin hosts)
+    #/usr/bin/lynx -localhost -dump -accept_all_cookies  http://`hostname -f`/user/clear?pass=w74byru4r416dfphj7jm2f
+d71 6
+@
+
+
+1.10
+log
+@added line to stage admindb00
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.9 2009/07/27 23:38:28 wflynn Exp wflynn $
+d30 1
+@
+
+
+1.9
+log
+@updated to just run kevin's apc clearing web call
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.8 2009/07/16 23:29:59 wflynn Exp wflynn $
+d23 1
+@
+
+
+1.8
+log
+@added hook for v4 media staging
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.7 2009/07/16 14:09:32 wflynn Exp wflynn $
+d66 2
+a67 1
+    /usr/bin/lynx -localhost -dump -accept_all_cookies  http://`hostname -f`/user/clear?pass=w74byru4r416dfphj7jm2f
+@
+
+
+1.7
+log
+@Add a translation from janusdb01 to maindb03
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.6 2009/06/25 17:28:22 wflynn Exp wflynn $
+d34 1
+@
+
+
+1.6
+log
+@Split memcaches better
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.5 2009/06/25 17:03:36 wflynn Exp wflynn $
+d29 1
+@
+
+
+1.5
+log
+@Update staging cache settings SYS-1756
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.4 2009/06/24 22:43:54 wflynn Exp wflynn $
+d27 1
+a27 1
+	sed -i 's/cache03/cache04/g' $ymlfile
+@
+
+
+1.4
+log
+@Added a sed line for userplane staging
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.3 2009/06/24 19:52:00 wflynn Exp wflynn $
+d27 2
+a28 2
+	sed -i 's/cache02/cache04/g' $ymlfile
+	sed -i 's/cache03/cache05/g' $ymlfile
+@
+
+
+1.3
+log
+@Put the admin app.yml in the right place, also do a symfony CC afterwards
+@
+text
+@d5 1
+a5 1
+# $Id: stagerator.sh,v 1.2 2009/06/23 19:47:52 wflynn Exp wflynn $
+d32 1
+d61 6
+@
+
+
+1.2
+log
+@Until something better comes along.....
+@
+text
+@d5 1
+a5 1
+# $Id: $
+d47 11
+a57 1
+    /bin/cp -fv /tmp/app.yml.staging.admin /usr/local/src/manhunt/apps/frontend/config/app.yml
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 50
+@

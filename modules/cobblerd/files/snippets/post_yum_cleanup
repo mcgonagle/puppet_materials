@@ -1,0 +1,9 @@
+# Start post_yum_cleanup
+
+rm /etc/yum.repos.d/CentOS-Base.repo
+rm /etc/yum.repos.d/CentOS-Media.repo
+rm /etc/yum.repos.d/CentOS-Debuginfo.repo
+rm /etc/yum.repos.d/CentOS-Vault.repo
+
+
+# End post_yum_cleanup

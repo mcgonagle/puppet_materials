@@ -1,0 +1,71 @@
+##############################################################################
+# This file is mananged by puppet.  Do NOT edit on the server, your changes  #
+# will be blown away on the next puppet run.                                 #
+##############################################################################
+#!/bin/bash
+
+# scribe startup script for the scribe logging server 
+#
+# chkconfig: - 90 15
+# description: scribe logging server
+
+
+# Source function library.
+. /etc/init.d/functions
+RETVAL=0
+
+start() {
+	echo -n "Starting scribed: "
+        daemon /usr/local/sbin/scribed -c /etc/scribed/scribed.conf 2>> /var/log/scribed.log &
+	RETVAL=$? 
+	echo
+	[ $? -eq 0 ] && touch /var/lock/subsys/scribed
+}	
+
+stop() {
+	echo -n "Stopping scribed: "
+	killproc scribed
+	echo
+	[ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/scribed
+}
+
+status() {
+	echo "Scribed Status Report: "
+	echo "Scribed Name: "        $(/usr/local/bin/scribe_ctrl name)
+ 	echo "Scribed Version: "     $(/usr/local/bin/scribe_ctrl version)
+ 	echo "Scribed Counters: "    $(/usr/local/bin/scribe_ctrl counters)
+ 	echo "Scribed Alive: "       $(/usr/local/bin/scribe_ctrl alive)
+ 	echo "Scribed Status: "      $(/usr/local/bin/scribe_ctrl status)
+	return $?
+}
+
+reload() {
+	echo "Scribed Reloads Config File without restarting Server"
+	echo "This is not working in our current version of scribe"
+	echo "Will continue to watch for this functionality"
+	echo "Command to reload is /usr/local/bin/scribe_ctrl reload"
+}	
+
+case "$1" in
+    start)
+	start
+	;;
+    stop)
+	stop
+	;;
+    status)
+	status
+	;;
+    restart)
+    	stop
+	start
+	;;
+    reload)
+	reload
+	;;
+    *)
+	echo "Usage: scribed {start|stop|status|restart|reload}"
+	exit 1
+	;;
+esac
+exit $?

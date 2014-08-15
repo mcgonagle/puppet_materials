@@ -1,0 +1,65 @@
+%packages
+# These Package Groups are installed by default
+@admin-tools
+@base
+@base-x
+@core
+@dialup
+@editors
+@gnome-desktop
+@graphical-internet
+@graphics
+@java
+@legacy-software-support
+@office
+@printing
+@sound-and-video
+@text-internet
+
+# Individual packages not installed by default
+emacs
+# CCE-14068-1 (row 223)
+postfix
+# CCE-3910-7 (row 99)
+vlock 
+# CCE-4209-3  (row 13)
+aide
+## Added to support Puppet
+ruby
+# Make sure we are using a desktop package set
+redhat-release-5Client
+
+# Individual packages to be removed from the groups
+-xinetd
+-telnet-server
+-telnet
+-krb5-workstation
+-rsh-server
+-rsh
+-tftp-server
+# CCE-14495-6 (row 222)
+-sendmail
+# CCE-4464-4 (row 219)
+-dhcp
+# CCE-14881-7 (row 240)
+-vsftpd
+# CCE-4514-6 (row 241)
+-httpd
+-gnome-user-share
+# CCE-14825-4 (row 178)
+-isdn4k-utils
+# CCE-17504-2 (row 255)
+-irda-utils
+# CCE-18200-6 (row 253)
+-talk
+## If you have a 32 bit system, comment out the next line
+-*.i?86
+# CCE-18031-5 (row 250)
+-ipsec-tools
+# CCE-17250-2 (row 251)
+-pam_ccreds
+# FIXME: need row
+openswan
+# CCE-17742-8 (row 134)
+-sysklogd
+rsyslog

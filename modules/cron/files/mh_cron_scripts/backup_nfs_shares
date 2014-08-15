@@ -1,0 +1,23 @@
+#!/bin/bash
+#
+# Created 3/08 by rbraun
+#
+# Run this from the backup server as user care
+# Files will be sync'ed to /var/backup/nfs_shares/{dir}
+
+DESTDIR=/var/backup/nfs_shares
+HOST1=nfs02
+HOST2=nfs06
+
+for DIR in gallery japan
+do
+ [ -d $DESTDIR/$DIR ] || mkdir -p $DESTDIR/$DIR
+ rsync -a --delete --bwlimit=7000 $HOST1:/var/manhunt/$DIR $DESTDIR/
+done
+
+for DIR in banners common
+do
+ [ -d $DESTDIR/$DIR ] || mkdir -p $DESTDIR/$DIR
+ rsync -a --delete --bwlimit=7000 $HOST2:/var/manhunt/$DIR $DESTDIR/
+done
+

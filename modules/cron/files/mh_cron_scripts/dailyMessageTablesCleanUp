@@ -1,0 +1,6 @@
+#!/bin/sh
+#
+TERM=linux
+lynx -auth=auto:MHadmin -source 'http://localhost/admin/dailyMessageTablesCleanUp.php?debug=0'
+
+

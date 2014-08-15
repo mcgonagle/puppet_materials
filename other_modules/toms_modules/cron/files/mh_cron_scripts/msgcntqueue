@@ -1,0 +1,36 @@
+#!/bin/sh
+# msgcntqueue
+# $Id: msgcntqueue,v 1.2 2008/07/24 14:10:25 rbraun Exp $
+#
+# created 7/08 by sfrattura
+#
+# This iterates through the mail hosts (call from cron every few minutes)
+# to invoke the MessageTotals synchronization procedure
+
+. /etc/manhunt/source.sh
+
+LOG=$CARE_LOG
+VERBOSITY=-v
+
+# Run as care.
+if [ "$UID" -ne "$CARE_UID" ]
+then
+ echo "Must be care to run this script."
+  exit $ERROR
+fi  
+
+if [ "`touch $LOG`" != "" ]
+then 
+echo "Cannot write to logfile."
+exit $ERROR
+fi
+echo START $APPNAME `date` >> $LOG
+
+for h in $MAILDBHOSTS
+do
+  $MYSQL -u $DBUSER -h $h -p$DBPASSWD $MESSAGEDB $VERBOSITY -e "call spCurMsgCntQueue()" >> $LOG
+done
+
+echo FINISH $APPNAME `date` >> $LOG
+
+exit 0;

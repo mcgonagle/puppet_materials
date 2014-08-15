@@ -1,0 +1,3416 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <title>Puppet Training</title>
+   
+   
+
+<style>
+html, body { margin: 0; padding: 0; }
+
+body { font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; }
+
+a:link, a:visited { color: black; }
+
+h1 { font-size: 30pt;  }
+h2 { font-size: 28pt;  }
+h3 { font-size: 25pt;  }
+p, li, dt, dd, td, th { font-size: 18pt; }
+
+pre { font-size: 14pt;  }
+pre.small { font-size: 11pt; }
+
+pre.code {
+        background-color: azure;
+        padding: 5px;
+      }
+     
+ul { list-style-type: square; }    
+   
+.center { text-align: center; }   
+     
+.slide { page-break-after: always;
+         min-height: 100mm;
+         padding: 40px;
+         
+         border: 1px dotted black;
+
+/*      
+  background: -moz-linear-gradient( top, maroon, red);
+*/
+       }
+
+
+
+/*
+for princexml (CSS3 paged media support)
+@page { size: A4 landscape }
+*/
+</style>
+
+</head>
+<body>
+
+<div class="presentation">
+
+<div class='slide '>
+<h1>Introduction to Puppet</h1><div style="text-align: center;">
+<p><br/>
+<img src="images/puppetlabs.png" /></p>
+</div>
+
+</div>
+<div class='slide '>
+<h1>Introduction to Puppet</h1><h2>Puppet:</h2>
+<ul>
+	<li>Open Source model-driven framework that centrally manages IT Systems</li>
+	<li>Policy enforced consistency and auditing</li>
+	<li>Modular solution allowing for work-load distribution and collaboration</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Introduction to Puppet</h1><h2>Benefits:</h2>
+<h3>Scalability:</h3>
+<ul>
+	<li>Manage thousands of systems from a central point</li>
+	<li>Reliably distribute system administrative tasks to staff</li>
+</ul>
+<h3>Consistency</h3>
+<ul>
+	<li>Ensure that systems are in the intended state</li>
+	<li>Eliminate inconsistency &#8211; QA/Staging/Production</li>
+	<li>Improve velocity of new service delivery</li>
+	<li>Security &amp; Regulation Compliance</li>
+</ul>
+<h3>Operational efficiency</h3>
+<ul>
+	<li>Less time spent tracking system drift.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Introduction to Puppet</h1><h2>Community:</h2>
+<h2>Distribution:</h2>
+
+	<ul>
+		<li>Redhat (epel)</li>
+		<li>Debian (stable)</li>
+		<li>Ubuntu (main)</li>
+		<li>Solaris (opencsw)</li>
+		<li>Mac OSX (macports)</li>
+	</ul><h3>Activity:</h3>
+<ul>
+	<li>active 3000 person mailing list
+	<ul>
+		<li>puppet-users@googlegroups.com</li>
+	</ul></li>
+	<li>regularily ~350 people in IRC
+	<ul>
+		<li>#puppet on freenet.net</li>
+	</ul></li>
+</ul>
+<h3>contributions:</h3>
+<ul>
+	<li>100+ community members involved in project.</li>
+	<li>100+ modules committed to module forge.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Introduction to Puppet</h1><h2>Pervasive:</h2>
+<ul>
+	<li>Redhat</li>
+	<li>Rackspace hosting</li>
+	<li>Ebay</li>
+	<li>NYSE</li>
+	<li>Twitter</li>
+	<li>Digg</li>
+	<li>Zynga</li>
+	<li>match.com</li>
+	<li>citrix online</li>
+	<li>&#8230;</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Introduction to Puppet</h1><h3>Puppet Assigns and Maintains a Machine&#8217;s Desired Role</h3>
+<div style="text-align: center;">
+<p><br/>
+<img src="images/provision_configure_puppet.png" /></p>
+</div>
+
+</div>
+<div class='slide '>
+<h1>Introduction to Puppet</h1><h3>Managing Configuration Drift</h3>
+<div style="text-align: center;">
+<p><br/>
+<img src="images/config_drift.png" /></p>
+</div>
+
+</div>
+<div class='slide '>
+<h1>Course Overview</h1><ul>
+	<li>The Resource Model</li>
+	<li>Language and Expression</li>
+	<li>Architecture and Installation</li>
+	<li>Customization</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Course Overview</h1><h3>Goals:</h3>
+<ul>
+	<li>Understand how to model systems configurations as resources using the Puppet language.</li>
+	<li>Learn some common patterns of expression using the Puppet language.</li>
+	<li>Practice debugging issues within your Puppet code.</li>
+	<li>Develop an understanding of the architecture of the Puppet framework.</li>
+	<li>Install and configure a working Puppet client/server environment.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Course Overview</h1><h3>Puppet Executables that we will employ:</h3>
+<ul>
+	<li><code>facter</code> &#8211; Executable and library that discovers facts about client systems.</li>
+	<li><code>puppet resource</code> <code>{ralsh}</code> &#8211; The Resource Abstraction Layer Shell.</li>
+	<li><code>puppet apply</code> <code>{puppet}</code> &#8211; Executable that interprets Puppet manifests, compiles the catalog, and applies the catalog locally.</li>
+	<li><code>puppet master</code> <code>{puppetmasterd}</code> &#8211; Centralized daemon that authenticates client connections, serves files, compiles templates, and provides puppet clients with a catalog.</li>
+	<li><code>puppet agent</code> <code>{puppetd}</code> &#8211; Puppet daemon that runs on client machines, makes connections to the puppetmaster, retrieves the catalog, and applies that catalog locally.</li>
+	<li><code>puppet cert</code> <code>{puppetca}</code> &#8211; Puppet&#8217;s built-in certificate authority.</li>
+	<li><code>puppet filebucket</code> <code>{filebucket}</code> &#8211; Puppet utility for sending files to a local or central filebucket.</li>
+	<li><code>puppet kick</code> <code>{puppetrun}</code> &#8211; Puppet utility for remote contact of puppet agent to trigger puppet execution.</li>
+	<li><code>puppet doc</code> <code>{puppetdoc}</code> &#8211; Command line tool for printing Puppet reference documentation.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Resources</h1></div>
+<div class='slide '>
+<h1>Resources</h1><h3>Resources are the building blocks Puppet uses to model system configurations.</h3>
+<h3>Simple <code>user</code> resource declaration.</h3>
+<pre class='code'>
+user { 'elvis':
+  ensure =&gt; present,
+  gid    =&gt; 'sysadmin',
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Resource Abstraction Layer</h1><h4>The Resource Abstration Layer (RAL) provides a consistent model for resources across supported platforms.</h4>
+<div style="text-align: center;">
+<p><br/>
+<img src="images/resource_abstraction_layer.png" /></p>
+</div>
+
+</div>
+<div class='slide '>
+<h1>Resource Abstraction Layer</h1><h3>Resource types depend on providers to translate specification into implementation.</h3>
+<pre class='code'>
+package { 'httpd':
+  ensure =&gt; present,
+}
+</pre>
+<h3><code>Package</code> is just one of the many native Puppet resource types.</h3>
+
+</div>
+<div class='slide '>
+<h1>Resource Abstraction Layer</h1><h4>Each resource type has one or more providers.</h4>
+<div style="text-align: center;">
+<p><br/>
+<img src="images/RAL_resource-types.png" /></p>
+</div>
+
+</div>
+<div class='slide '>
+<h1>Resource Abstraction Layer</h1><h4>Providers are the interface between the underlying OS and the resource types.</h4>
+<div style="text-align: center;">
+<p><br/>
+<img src="images/RAL_providers.png" /></p>
+</div>
+
+</div>
+<div class='slide '>
+<h1>Resource Abstraction Layer</h1><h3>The package resource type has 29 providers:</h3>
+<pre class='code'>
+ls -1 /usr/lib/ruby/site_ruby/1.8/puppet/provider/package
+</pre>
+
+<pre class='code'>
+aix.rb      blastwave.rb  hpux.rb     ports.rb        up2date.rb
+appdmg.rb   darwinport.rb nim.rb      portupgrade.rb  urpmi.rb
+apple.rb    dpkg.rb       openbsd.rb  rpm.rb          yum.rb
+apt.rb      fink.rb       pkg.rb      rug.rb          yumhelper.py
+aptitude.rb freebsd.rb    pkgdmg.rb   sun.rb          zypper.rb
+aptrpm.rb   gem.rb        portage.rb  sunfreeware.rb
+</pre>
+
+</div>
+<div class='slide '>
+<h1>The User Resource</h1><h3>Some basic attributes for the user resource type:</h3>
+<ul>
+	<li><code>name</code>: OS specified limits apply. (<code>namevar</code>)</li>
+	<li><code>ensure</code>:  Sets the basic state of the user resource.  Valid values are <code>absent</code>, <code>present</code>.</li>
+	<li><code>uid</code>: Explicitly set the user&#8217;s uid number.</li>
+	<li><code>gid</code>: The user&#8217;s primary group.  Can be specified numerically or by name.</li>
+	<li><code>groups</code>: The secondary group or groups to which the user is assigned.  The primary group should not be listed.  Multiple groups should be specified as an array.</li>
+	<li><code>home</code>: The users home directory.</li>
+	<li><code>managehome</code>: Whether to manage the home directory when managing the user.  Valid values are <code>true</code>, <code>false</code>.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Namevar</h1><h3>Each resource has a special attribute called a <code>namevar</code>.</h3>
+<pre class='code'>
+user { 'elvis-presley':
+  name   =&gt; 'elvis',
+  ensure =&gt; present,
+  gid    =&gt; 'sysadmin',
+}
+</pre>
+<h3>The <code>namevar</code> for the user resource is the <code>name</code> attribute.</h3>
+
+</div>
+<div class='slide '>
+<h1>Namevar</h1><h3>The <code>namevar</code> is the unique identifier for a resource.</h3>
+<pre class='code'>
+user { 'elvis':
+  ensure =&gt; present,
+  gid    =&gt; 'sysadmin',
+}
+</pre>
+<h3>When omitted the <code>namevar</code> is set to the <code>title</code>.</h3>
+
+</div>
+<div class='slide '>
+<h1>The Group Resource</h1><h3>Basic Attributes for the <code>group</code> resource type:</h3>
+<ul>
+	<li><code>name</code>: The group name. (<code>namevar</code>)</li>
+	<li><code>ensure</code>: Ensures that the group is present or absent. Valid values are <code>present</code>, <code>absent</code>.</li>
+	<li><code>gid</code>: The numerical group ID.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>The Group Resource</h1><h3>A simple group resource declaration</h3>
+<pre class='code'>
+group { 'sysadmin':
+  ensure =&gt; present,
+  gid    =&gt; '5000',
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Puppet Resource</h1></div>
+<div class='slide '>
+<h1>Puppet Resource</h1><p>Puppet resource is an executable that interacts directly with the Resource Abstraction Layer (RAL).</p>
+
+</div>
+<div class='slide '>
+<h1>Puppet Resource</h1><h3>Executing <code>puppet resource</code> and providing a resource and a title returns the state of a resource.</h3>
+<pre class='code'>
+root@puppetclient:~$ puppet resource user elvis
+</pre>
+
+<pre class='code'>
+user { 'elvis':
+  ensure =&gt; 'absent'
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Puppet Resource</h1><h3>Executing <code>puppet resource</code> and providing a resource, a title, and specifying an attribute alters the resource.</h3>
+<pre class='code'>
+root@puppetclient:~$ puppet resource user elvis ensure=present
+</pre>
+
+<pre class='code'>
+notice: /User[elvis]/ensure: created
+user { 'elvis':
+    ensure =&gt; 'present',
+}
+</pre>
+
+<pre class='code'>
+root@puppetclient:~$ puppet resource user elvis
+</pre>
+
+<pre class='code'>
+user { 'elvis':
+    home =&gt; '/home/elvis',
+    uid =&gt; '501',
+    gid =&gt; '501',
+    shell =&gt; '/bin/bash',
+    ensure =&gt; 'present',
+    password =&gt; '!!'
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Puppet Resource</h1><h3>Executing <code>puppet resource</code> with the -e flag allows you to edit the resource declaration.</h3>
+<pre class='code'>
+root@puppetclient:~$ puppet resource -e user elvis
+</pre>
+
+<pre class='code'>
+user { 'elvis':
+  home =&gt; '/home/elvis',
+  uid =&gt; '501',
+  gid =&gt; '501',
+  shell =&gt; '/bin/sh',
+  ensure =&gt; 'present',
+  password =&gt; '!!'
+}
+</pre>
+<h3>Edit the generated Puppet code and save the file to make changes to a resource.</h3>
+
+</div>
+<div class='slide '>
+<h1>Parade of Resources</h1></div>
+<div class='slide '>
+<h1>Native Resource Types</h1><h3>Core Resource types:</h3>
+<ul>
+	<li>user</li>
+	<li>group</li>
+	<li>host</li>
+	<li>cron</li>
+	<li>exec</li>
+	<li>file</li>
+	<li>package</li>
+	<li>service</li>
+	<li>mount</li>
+	<li>tidy</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Native Resource Types</h1><h3>Meta Resource Types:</h3>
+<ul>
+	<li>filebucket</li>
+	<li>notify</li>
+	<li>resources</li>
+	<li>schedule</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Native Resource Types</h1><h3>Component specific Resource types:</h3>
+<ul>
+	<li>augeas</li>
+	<li>k5login</li>
+	<li>selboolean</li>
+	<li>selmodule</li>
+	<li>mailalias</li>
+	<li>maillist</li>
+	<li>sshkey</li>
+	<li>ssh_authorized_key</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Native Resource Types</h1><h3>Platform specific Resource types:</h3>
+<ul>
+	<li>component</li>
+	<li>macauthorization</li>
+	<li>mcx</li>
+	<li>yumrepo</li>
+	<li>zfs</li>
+	<li>zone</li>
+	<li>zpool</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Native Resource Types</h1><h3>Resources are limited by the features available in their providers</h3>
+<table>
+	<tr>
+		<th>Provider </th>
+		<td> </td>
+		<th>duplicates </th>
+		<th>homedir </th>
+		<th>passwords </th>
+		<th>solaris_rbac </th>
+	</tr>
+	<tr>
+		<td> directoryservice </td>
+		<td> </td>
+		<td> n </td>
+		<td> n </td>
+		<td> y </td>
+		<td> n </td>
+	</tr>
+	<tr>
+		<td> hpuxuseradd </td>
+		<td> </td>
+		<td> y </td>
+		<td> y </td>
+		<td> n </td>
+		<td> n </td>
+	</tr>
+	<tr>
+		<td> ldap </td>
+		<td> </td>
+		<td> n </td>
+		<td> n </td>
+		<td> y </td>
+		<td> n </td>
+	</tr>
+	<tr>
+		<td> netinfo </td>
+		<td> </td>
+		<td> n </td>
+		<td> n </td>
+		<td> y </td>
+		<td> n </td>
+	</tr>
+	<tr>
+		<td> pw </td>
+		<td> </td>
+		<td> y </td>
+		<td> y </td>
+		<td> n </td>
+		<td> n </td>
+	</tr>
+	<tr>
+		<td> user_role_add </td>
+		<td> </td>
+		<td> y </td>
+		<td> y </td>
+		<td> y </td>
+		<td> y </td>
+	</tr>
+	<tr>
+		<td> useradd </td>
+		<td> </td>
+		<td> y </td>
+		<td> y </td>
+		<td> y </td>
+		<td> n </td>
+	</tr>
+</table>
+
+</div>
+<div class='slide '>
+<h1>Native Resource Types</h1><h3>Documentation can be generated:</h3>
+<pre class='code'>
+puppet describe &lt;type&gt; -s
+</pre>
+<pre class='code'>
+puppet doc -r type
+</pre>
+<h3>The type reference documentation can also be found on the Puppet Labs website.</h3>
+<p>http://docs.puppetlabs.com/guides/types/index.html</p>
+
+</div>
+<div class='slide '>
+<h1>The Host Resource</h1><h3>Attributes:</h3>
+<ul>
+	<li><code>name</code>: The host name (<code>namevar</code>).</li>
+	<li><code>host_aliases</code>: Sets host alias(es) (array).</li>
+	<li><code>ensure</code>: Can be <code>present</code> or <code>absent</code>.</li>
+	<li><code>ip</code>: Sets the ip address for the host entry.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>The Host Resource</h1><h3>Simple host resource declaration example.</h3>
+<pre class='code'>
+host { 'training.puppetlabs.com':
+  ensure       =&gt; 'present',
+  host_aliases =&gt; 'labs',
+  ip           =&gt; '172.16.238.131',
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>The Host Resource</h1><h3>Exercise: Using The Host Resource Type</h3>
+<p>Use puppet resource to:</p>
+<ul>
+	<li>Inspect the host entries in <code>/etc/hosts</code>.</li>
+	<li>Add an entry to the host file.</li>
+	<li>Delete an entry from <code>/etc/hosts</code>.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>The Package Resource</h1><h3>Attributes:</h3>
+<ul>
+	<li><code>name</code>: The package name. (<code>namevar</code>)</li>
+	<li><code>ensure</code>: Valid values are <code>present</code>, <code>absent</code>, <code>latest</code>, <code>purge</code>, version</li>
+	<li><code>provider</code>: Override the default package provider for your platform.</li>
+	<li><code>source</code>: Mounted filesystem or source that a particular package system understands.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>The Package Resource</h1><h3>Simple package resource declaration.</h3>
+<pre class='code'>
+package { 'ssh':
+  name   =&gt; 'openssh-clients',
+  ensure =&gt; present,
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>The Package Resource</h1><h3>Exercise: The Package Resource Type</h3>
+<ul>
+	<li>Use <code>puppet resource</code> to inspect all packages installed on the system.</li>
+	<li>Use <code>puppet resource</code> to install apache.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>The Package Resource</h1><h3>How does <code>puppet resource</code> know implicitly which provider to use for the package resource type?</h3>
+
+</div>
+<div class='slide '>
+<h1>Puppet client</h1></div>
+<div class='slide '>
+<h1>Client Side Abstraction Layer</h1><div style="text-align: center;">
+<p><br/>
+<img src="images/ral_facter.png" /></p>
+</div>
+
+</div>
+<div class='slide '>
+<h1>Facter</h1><h3>Puppet uses <code>facter</code> to gather information about the host system.</h3>
+
+</div>
+<div class='slide '>
+<h1>Facter</h1><h3>Executing the <code>facter</code> command returns a list of key value pairs.</h3>
+<pre class='code'>
+root@puppetclient:~$ facter
+architecture =&gt; x86_64
+domain =&gt; puppetlabs.com
+facterversion =&gt; 1.5.2
+fqdn =&gt; puppetclient.puppetlabs.com
+hardwaremodel =&gt; x86_64
+hostname =&gt; aku
+interfaces =&gt; eth0
+ipaddress =&gt; 172.16.10.1
+kernel =&gt; Linux
+operatingsystem =&gt; Ubuntu
+...
+</pre>
+<h3>The returned  key value pairs are <code>facts</code>.</h3>
+
+</div>
+<div class='slide '>
+<h1>Facter</h1><h3>Exercise: Execute <code>facter</code> from the command line and examine the facts that are returned on your platform.</h3>
+<ul>
+	<li>Execute <code>facter ipaddress</code></li>
+	<li>What is returned?</li>
+	<li>Execute <code>facter ipaddress_eth0</code></li>
+	<li>What is returned?</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Files</h1></div>
+<div class='slide '>
+<h1>The File Resource</h1><h3>Basic Attributes:</h3>
+<ul>
+	<li><code>path</code>: Specifies the target location for file. (<code>namevar</code>)</li>
+	<li><code>ensure</code>: Accepts absent, present, file, and directory.  Any other value will be treated as a symlink.</li>
+	<li><code>owner</code>: Owner of file.</li>
+	<li><code>group</code>: Group of file.</li>
+	<li><code>mode</code>: Mode of file</li>
+	<li><code>content</code>: Specifies the content of file as a string.</li>
+	<li><code>source</code>: Specifies the source of file.</li>
+	<li><code>force</code>: Force replacement of directories with a link.  Valid values (<code>true</code>, <code>false</code>).</li>
+	<li><code>ignore</code>: Omits files matching specified patterns during recursion (Ex: .svn, .git).</li>
+	<li><code>recurse</code>: Whether or not directories should be managed recursively. Valid values (<code>true</code>, <code>false</code>)</li>
+	<li><code>purge</code>: Whether or not to purge unmanaged file resources within a directory. Valid values (<code>true</code>, <code>false</code>)</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>The File Resource</h1><h3>Simple file resource declaration with a local source.</h3>
+<pre class='code'>
+file { '/etc/sudoers':
+  ensure =&gt; file,
+  group  =&gt; 'root',
+  owner  =&gt; 'root',
+  mode   =&gt; '440',
+  source =&gt; '/etc/puppet/files/sudoers',
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>The File Resource</h1><h3>Directory example.</h3>
+<pre class='code'>
+file { '/tmp/src':
+  ensure =&gt; directory,
+  mode   =&gt; '0755',
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>The File Resource</h1><h3>Symlink examples.</h3>
+<ul>
+	<li>Example use of a managed file that also has a symlink associated with it.</li>
+</ul>
+<pre class='code'>
+file { '/etc/openldap/ldap.conf':
+  source =&gt; '/etc/puppet/files/ldap.conf',
+}
+
+file { '/etc/ldap.conf':
+  ensure =&gt; symlink,
+  target =&gt; '/etc/openldap/ldap.conf',
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Puppet Apply</h1></div>
+<div class='slide '>
+<h1>Puppet Apply</h1><h3>The <code>puppet apply</code> executable:</h3>
+<ul>
+	<li>interprets puppet code</li>
+	<li>compiles a catalog</li>
+	<li>uses the RAL to apply the catalog locally.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Puppet Apply</h1><div style="text-align: center;">
+<p><br/>
+<img src="images/puppet-executable.png" /></p>
+</div>
+
+</div>
+<div class='slide '>
+<h1>Puppet Apply</h1><h3>Files containing Puppet code are known as manifests and by convention have a .pp suffix.</h3>
+<h3>Example Puppet Manifest:</h3>
+<pre class='code'>
+user { 'elvis':
+  ensure =&gt; present,
+  home =&gt; '/home/elvis',
+  gid =&gt; 'elvis',
+  shell =&gt; '/bin/bash',
+  managehome =&gt; true,
+}
+group { 'elvis': ensure =&gt; present }
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Puppet Apply</h1><h3>Options:</h3>
+<ul>
+	<li><code>--debug</code>: {-d} Enables detailed debugging information.</li>
+	<li><code>--verbose</code>: {-v} Enables verbose logging.</li>
+	<li><code>--noop</code>: Puppet code is interpreted but no changes occur.</li>
+	<li><code>--parseonly</code>: Only checks the manifest syntax.</li>
+	<li><code>--modulepath</code>: Colon separated list of paths to modules.</li>
+	<li><code>--configprint</code>: Prints out configuration options. Accepts <code>all</code> or just one named parameter.</li>
+	<li><code>--detailed-exitcode</code>: Provide transaction information via exit code. 2= resource changes, 4 = transaction failures.</li>
+	<li><code>--apply</code>: applies a pre-compiled catalog (as of .25.2).</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Puppet Apply</h1><h3>Exercise: Managing <code>/etc/sudoers</code></h3>
+<ul>
+	<li>Create a <code>/etc/puppet/manifests</code> directory.</li>
+	<li>Create a <code>/etc/puppet/files</code> directory.</li>
+	<li>Create a manifest, <code>/etc/puppet/manifests/sudoers.pp</code>.</li>
+	<li>In your manifest, use a file resource to manage <code>/etc/sudoers</code> from a source file <code>/etc/puppet/files/sudoers</code>.</li>
+	<li>Run the puppet executable with the <code>--noop</code> and <code>--verbose</code> options to interpret the manifest.
+<pre class='code'>
+puppet apply <code>--noop</code> <code>--verbose</code> /etc/puppet/manifests/sudoers.pp
+</pre></li>
+	<li>Run the puppet executable with the <code>--verbose</code> option to interpret the file.</li>
+	<li>Manually edit the <code>/etc/sudoers</code> file and use your manifest to restore it.</li>
+	<li>Edit your manifest file to manage the owner, group, and mode of <code>/etc/sudoers</code>.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>More Resources</h1></div>
+<div class='slide '>
+<h1>The Resources Resource</h1><h3>Using the <code>host</code> resource type we can specify specific host entries.</h3>
+<pre class='code'>
+host { 'kermit.puppetlabs.com':
+  ensure        =&gt; present,
+  host_aliases  =&gt; 'kermit',
+  ip            =&gt; '172.16.238.131',
+}
+host { 'piggy.puppetlabs.com':
+  ensure       =&gt; present,
+  host_aliases =&gt; ['piggy', 'missy'],
+  ip           =&gt; '172.16.238.132',
+}
+host { 'oscar.puppetlabs.com':
+  ensure =&gt; absent,
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>The Resources Resource</h1><h3>What if we only want to have explicitly declared entries in the <code>/etc/hosts</code> file?</h3>
+
+</div>
+<div class='slide '>
+<h1>The Resources Resource</h1><h3>If a resource is <code>ensurable</code> then the <code>resources</code> resource type can be used to enable purging of unmanaged resources.</h3>
+
+</div>
+<div class='slide '>
+<h1>The Resources Resource</h1><h3>This will purge all unspecified host resources.</h3>
+<pre class='code'>
+resources { 'host':
+  purge =&gt; true,
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>The Resources Resource</h1><h3>Attributes:</h3>
+<ul>
+	<li><code>name</code>: the name of the resource type that is to be managed. (<code>namevar</code>)</li>
+	<li><code>purge</code>: <code>true</code> or <code>false</code></li>
+	<li><code>unless_system_user</code>: <code>true</code>, <code>false</code>, or some upper uid limit specified as an integer.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>The Resources Resource</h1><h3>Exercise: Purging unmanage resources.</h3>
+<ul>
+	<li>Use <code>puppet resource</code> to generate a manifest named hosts.pp in /etc/puppet/manifests.</li>
+	<li>Edit hosts.pp to include a <code>resources</code> type that enables purging for the <code>host</code> resource type.</li>
+	<li>Manually add a host entry to /etc/hosts.</li>
+	<li>Use <code>puppet apply</code> to interpret the hosts.pp manifest and ensure that the unmanaged resource is purged.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>The Service Resource</h1><h3>Attributes:</h3>
+<ul>
+	<li><code>name</code>: The name of the service as understood on the underlying services subsystem. (<code>namevar</code>)</li>
+	<li><code>enable</code>: If a service should be started at boot. Can be <code>true</code> or <code>false</code>.</li>
+	<li><code>ensure</code>: If the resource should currently be running. Can be <code>true</code>, <code>false</code>, <code>running</code>, or <code>stopped</code>.</li>
+	<li><code>hasrestart</code>: Specifies that your service has a restart command. Can be <code>true</code> or <code>false</code>.</li>
+	<li><code>hasstatus</code>:  Specifies that your service has a status command. Can be <code>true</code> or <code>false</code>.</li>
+	<li><code>pattern</code>:  The pattern to search for in the process table.</li>
+	<li><code>restart</code>: Specify a restart command.</li>
+	<li><code>start</code>: Specify a start command.</li>
+	<li><code>status</code>: Specify a status command.</li>
+	<li><code>stop</code>: Specify a stop command.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>The Service Resource</h1><h3>Example of a <code>service</code> resource type:</h3>
+<pre class='code'>
+service { 'sshd':
+  enable     =&gt; true,
+  ensure     =&gt; running,
+  hasstatus  =&gt; true,
+  hasrestart =&gt; true,
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>The Service Resource</h1><h3>Exercise:</h3>
+<ul>
+	<li>Use <code>puppet resource</code> to stop the sshd service.</li>
+	<li>What happens if you execute the same puppet resource command again?</li>
+	<li>Set the parameter <code>hasstatus=true</code> and use puppet resource to start the sshd service.</li>
+	<li>Use <code>puppet resource</code> to start the sshd service. Be sure to use <code>hasstatus=true</code>.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Puppet Language</h1></div>
+<div class='slide '>
+<h1>Puppet Language</h1><h3>Resource Declarations:</h3>
+<ul>
+	<li>Each resource declaration is made up of a type and title.</li>
+	<li>Resources have attributes.</li>
+	<li>By default the title sets the value for the namevar attributes.</li>
+	<li>Resource type and title pairs must be unique within a compiled catalog.</li>
+	<li>Resource type and namevar pairs must be unique within a compiled catalog.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Puppet Language</h1><h3>Basic syntax</h3>
+<ul>
+	<li>Resource names are lowercase when declaring a resource.</li>
+	<li>Curly braces are used to declare a resource block.</li>
+	<li>The title of the resource comes after the opening brace and before a colon.</li>
+	<li>Attributes and title values containing only alphanumerics and <code>-</code> do not need to be quoted (although it&#8217;s a best practice to quote all strings).</li>
+	<li>Attributes are assigned values using the <code>=&gt;</code> operator.</li>
+	<li>Attributes are separated by a comma.</li>
+	<li>The comma is not required for the last attributes in a block (although it&#8217;s a best practice to include it).</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Puppet Language</h1><h3>Example:</h3>
+<pre class='code'>
+package { 'openssh':
+  ensure =&gt; present,
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Puppet Language</h1><h3>The title of a resource can be different than the (namevar) of the resource.</h3>
+<pre class='code'>
+package { 'ssh':
+  name   =&gt; 'openssh-clients',
+  ensure =&gt; present,
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Puppet Language</h1><h3>The attribute of the resource that the namevar refers to varies by resource type.</h3>
+<h3>For the package resource type, name is the namevar.</h3>
+<pre class='code'>
+package { 'ssh':
+  name   =&gt; 'openssh-clients',
+  ensure =&gt; present,
+}
+</pre>
+<h3>For the <code>file</code> resource type, path is the <code>namevar</code>.</h3>
+<pre class='code'>
+file { 'sudoers':
+  path   =&gt; '/etc/sudoers',
+  source =&gt; '/etc/puppet/files/sudoers',
+  ensure =&gt; present,
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Puppet Language</h1><h3>Puppet resources are declaritive.  There is no implicit top-down ordering of resource execution.</h3>
+<div style="text-align: center;">
+<p><br/>
+<img src="images/puppet-executable.png" /></p>
+</div>
+
+</div>
+<div class='slide '>
+<h1>Dependencies</h1></div>
+<div class='slide '>
+<h1>Resource Relationships</h1><h3>How does Puppet handle relationships between resources?</h3>
+
+</div>
+<div class='slide '>
+<h1>Resource Relationships</h1><h3>Metaparameters</h3>
+<ul>
+	<li>Resource relationships are explicitly defined using metaparameters.</li>
+	<li>Metaparameters work with all resource types.</li>
+	<li>There are four metaparameters that establish relationships between resources.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Resource Relationships</h1><h3>Resources can depend on other resources.</h3>
+<h3>The <code>require</code> and <code>before</code> metaparameters establish dependencies between resources.</h3>
+
+</div>
+<div class='slide '>
+<h1>Resource Relationships</h1><h3>The <code>require</code> metaparameter establishes a dependency from the containing resource to the referenced resource.</h3>
+<div style="text-align: center;">
+<p><br/>
+<img src="images/require.png" /></p>
+</div>
+
+</div>
+<div class='slide '>
+<h1>Resource Relationships</h1><h3>This ensures that the ssh service is started after the ssh package is installed.</h3>
+<pre class='code'>
+package { 'openssh':
+  ensure =&gt; present,
+}
+service { 'sshd':
+  enable  =&gt; true,
+  ensure  =&gt; running,
+  require =&gt; Package['openssh'],
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Resource Relationships</h1><h3>The <code>before</code> metaparameter establishes a dependency from the referenced resource to the containing resource.</h3>
+<div style="text-align: center;">
+<p><br/>
+<img src="images/before.png" /></p>
+</div>
+
+</div>
+<div class='slide '>
+<h1>Resource Relationships</h1><h3>This also ensures that the sshd service is started after the ssh package is installed.</h3>
+<pre class='code'>
+package { 'openssh-server':
+  ensure =&gt; present,
+  before =&gt; Service['sshd'],
+}
+service { 'sshd':
+  enable =&gt; true,
+  ensure =&gt; running,
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Resource Relationships</h1><h3>Resources can be refresh by other resources.</h3>
+<h3>The <code>subscribe</code> and <code>notify</code> metaparameters establish refreshed relationships between resources.</h3>
+
+</div>
+<div class='slide '>
+<h1>Resource Relationships</h1><h3>The <code>subscribe</code> metaparameter establishes a refresh relationship from the containing resource to a change in the referenced resource.</h3>
+<div style="text-align: center;">
+<p><br/>
+<img src="images/subscribe.png" /></p>
+</div>
+
+</div>
+<div class='slide '>
+<h1>Resource Relationships</h1><h3>This manifest ensures that the ssh service is restarted if <code>/etc/ssh/sshd_config</code> changes.</h3>
+<pre class='code'>
+file { '/etc/ssh/sshd_config':
+  ensure =&gt; present,
+  source =&gt; '/etc/puppet/files/sshd_config',
+}
+service { 'sshd':
+  enable     =&gt; true,
+  hasstatus  =&gt; true,
+  hasrestart =&gt; true,
+  ensure     =&gt; 'running',
+  subscribe  =&gt; File['/etc/ssh/sshd_config'],
+}
+</pre>
+<h3>The <code>subscribe</code> metaparameter implies <code>require</code>.</h3>
+
+</div>
+<div class='slide '>
+<h1>Resource Relationships</h1><h3>The <code>notify</code> metaparameter establishes a refresh relationship from the referenced resource to a change in the containing resource.</h3>
+<div style="text-align: center;">
+<p><br/>
+<img src="images/notify.png" /></p>
+</div>
+
+</div>
+<div class='slide '>
+<h1>Resource Relationships</h1><h3>This manifest ensures that the ssh service is restarted if <code>/etc/ssh/sshd_config</code> changes.</h3>
+<pre class='code'>
+file { '/etc/ssh/sshd_config':
+  ensure =&gt; present,
+  source =&gt; '/etc/puppet/files/sshd_config',
+  notify =&gt; Service['sshd'],
+}
+service { 'sshd':
+  enable     =&gt; true,
+  hasstatus  =&gt; true,
+  hasrestart =&gt; true,
+  ensure     =&gt; running,
+}
+</pre>
+<h3>The metaparameter <code>notify</code> implies <code>before</code>.</h3>
+
+</div>
+<div class='slide '>
+<h1>Package-File-Service</h1><h3>We commonly specify several resources that together model a configuration.</h3>
+
+</div>
+<div class='slide '>
+<h1>Package-File-Service</h1><h3>The file /etc/ntp.conf needs to be edited after the package is installed.</h3>
+<pre class='code'>
+package { 'ntp': ensure =&gt; present }
+file { '/etc/ntp.conf':
+  owner =&gt; 'root',
+  group =&gt; 'root',
+  mode  =&gt; '0644',
+  source =&gt; '/etc/puppet/files/ntp/ntp.conf',
+  require =&gt; Package['ntp'],
+}
+</pre>
+<div style="text-align: center;">
+<p><br/>
+<img src="images/fileservice.png" /></p>
+</div>
+
+</div>
+<div class='slide '>
+<h1>Package-File-Service</h1><h3>What if you want the ntpd daemon to restart when a change is made to the configuration file?</h3>
+<div style="text-align: center;">
+<p><br/>
+<img src="images/packagefileservice.png" /></p>
+</div>
+
+</div>
+<div class='slide '>
+<h1>Package-File-Service</h1><h3>The ntp service resource is subscribing to the <code>/etc/ntp.conf</code> file resource.</h3>
+<pre class='code'>
+package { 'ntp': ensure =&gt; present }
+file { '/etc/ntp.conf':
+  owner   =&gt; 'root',
+  group   =&gt; 'root',
+  mode    =&gt; '644',
+  source  =&gt; '/etc/puppet/files/ntp/ntp.conf',
+  require =&gt; Package['ntp'],
+}
+service { 'ntpd':
+  enable    =&gt; true,
+  ensure    =&gt; running,
+  subscribe =&gt; File['/etc/ntp.conf'],
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Package-File-Service</h1><h3>Exercise: Securing SSH</h3>
+<h3>Create:</h3>
+<ul>
+	<li>A manifest <code>/etc/puppet/manifests/sshd.pp</code> to manage sshd.</li>
+</ul>
+<h3>Ensure:</h3>
+<ul>
+	<li>The ssh package (openssh-server) is installed,</li>
+	<li>The ssh service (sshd) is started,</li>
+	<li>The <code>/etc/ssh/sshd_config</code> file does not allow root passworded logins. (Be sure you can login with another user account).</li>
+</ul>
+<h3>Use:</h3>
+<ul>
+	<li>File resource to manage the <code>/etc/ssh/sshd_config</code> file.</li>
+	<li>A <code>source</code> parameter and source the file from <code>/etc/puppet/files/sshd_config</code>.</li>
+	<li>A metaparameter to make sure that sshd is restarted when a change is made to the <code>/etc/ssh/sshd_config</code> file.</li>
+</ul>
+<p>Hint: To disable root password logins set <code>PermitRootLogin no</code></p>
+
+</div>
+<div class='slide '>
+<h1>Implicit Dependencies</h1><h3>For some related resources Puppet creates implicit dependencies.</h3>
+
+</div>
+<div class='slide '>
+<h1>Implicit Dependencies</h1><h3>Users and Groups have an implicit dependency.</h3>
+<h3>Explicitly assigned dependency.</h3>
+<pre class='code'>
+user { 'elvis':
+  ensure     =&gt; present,
+  home       =&gt; '/home/elvis',
+  managehome =&gt; true,
+  uid        =&gt; '5000',
+  gid        =&gt; 'hounddog',
+  shell      =&gt; '/bin/bash',
+  # not required!
+  require    =&gt; Group['hounddog'],
+}
+group { 'hounddog':
+   ensure =&gt; present,
+   gid    =&gt; '5000',
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Implicit Dependencies</h1><h3>The explicit dependency is not necessary, because Puppet implicitly orders users and groups.</h3>
+<pre class='code'>
+user { 'elvis':
+  ensure     =&gt; present,
+  home       =&gt; '/home/elvis',
+  managehome =&gt; true,
+  uid        =&gt; '5000',
+  gid        =&gt; 'hounddog',
+  shell      =&gt; '/bin/bash',
+}
+group { 'hounddog':
+   ensure =&gt; present,
+   gid    =&gt; '5000',
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Implicit Dependencies</h1><h3>Files and directories have an implicit relationship.</h3>
+<h3>The foo directory must exist before bar.conf can be created.</h3>
+<pre class='code'>
+file { '/etc/foo.d':
+  ensure =&gt; directory,
+  owner  =&gt; 'root',
+  group  =&gt; 'root',
+  mode   =&gt; '0755'
+}
+file { '/etc/foo.d/bar.conf':
+  owner   =&gt; 'root',
+  group   =&gt; 'root',
+  mode    =&gt; '0755',
+  content =&gt; 'This file configures the foobar',
+  require =&gt; File['/etc/foo.d'],
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Implicit Dependencies</h1><h3>Puppet implicitly recognizes file hierarchy so the <code>requires</code> are unneccessary.</h3>
+<pre class='code'>
+file { '/etc/foo.d':
+  ensure =&gt; directory,
+  owner  =&gt; 'root',
+  group  =&gt; 'root',
+  mode   =&gt; '0755',
+}
+file { '/etc/foo.d/bar.conf':
+  owner   =&gt; 'root',
+  group   =&gt; 'root',
+  mode    =&gt; '0755',
+  content =&gt; 'This file configures the foobar',
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Implicit Dependencies</h1><h3>There is also an implicit relationship between file ownership and user resources.</h3>
+<pre class='code'>
+user { 'elvis':
+  ensure     =&gt; present,
+  home       =&gt; '/home/foo',
+  managehome =&gt; true,
+  uid        =&gt; '5000',
+  gid        =&gt; 'hounddog',
+  shell      =&gt; '/bin/bash',
+}
+group { 'hounddog':
+   ensure =&gt; 'present',
+   gid    =&gt; '5000',
+}
+file { '/etc/graceland':
+  owner   =&gt; 'elvis',
+  group   =&gt; 'hounddog',
+  mode    =&gt; '755',
+  content =&gt; 'Graceland is a happy home.',
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Code Compression</h1></div>
+<div class='slide '>
+<h1>Resource Defaults</h1><h3>Puppet allows you to declare resource defaults.</h3>
+<pre class='code'>
+File { owner =&gt; 'root', group =&gt; 'root', mode =&gt; '0644' }
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Resource Defaults</h1><h3>Example: The code for the previous file hierarchy example can be compressed.</h3>
+<pre class='code'>
+File { owner =&gt; 'root', group =&gt; 'root', mode =&gt; '0644' }
+file { '/etc/foo.d':
+  ensure =&gt; directory,
+}
+file { '/etc/foo.d/bar.conf':
+  content =&gt; 'This file configures the foobar',
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Resource Defaults</h1><h3>Exercise: Using Resource Defaults</h3>
+<ul>
+	<li>Create a manifest, <code>/etc/puppet/manifests/resource_defaults.pp</code> that manages a directory <code>/tmp/defaults</code>.</li>
+	<li>Specify the owner, group and mode in a resource default.</li>
+	<li>Set the mode to &#8220;644&#8221;.</li>
+	<li>Extend the manifest to create two files, <code>/tmp/defaults/hello</code> and <code>/tmp/defaults/goodbye</code>.</li>
+	<li>Use <code>puppet apply</code> to interpret the manifest.</li>
+	<li>What is the mode of the <code>/tmp/defaults</code> directory?</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Multiple Resource Declarations in a Single Block</h1><h3>We can compress the previous example by declaring multiple file resources in a single block.</h3>
+<h3>Example:</h3>
+<pre class='code'>
+File { owner =&gt; 'root', group =&gt; 'root', mode =&gt; '0644' }
+file {
+  '/etc/foo.d': ensure =&gt; directory;
+  '/etc/foo.d/bar.conf': content =&gt; 'This file is foobar';
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Multiple Resource Declarations in a Single Block</h1><h3>Exercise:  Refactor the previous exercise to specify the file resources in a single block.</h3>
+
+</div>
+<div class='slide '>
+<h1>More Language Constructs</h1></div>
+<div class='slide '>
+<h1>Variables</h1><h3>Puppet supports variables:</h3>
+<h3>Variables are prefixed with &#8216;$&#8217;</h3>
+<pre class='code'>
+$foo_dir = '/etc/foo.d'
+File { owner =&gt; 'root', group =&gt; 'root', mode =&gt; '0644' }
+file {
+  $foo_dir: ensure =&gt; 'directory';
+  "$foo_dir/bar.conf": content =&gt; "Configuring the $foo_dir/bar.conf";
+  "$foo_dir/baz.conf": content =&gt; "Configuring the $foo_dir/baz.conf";
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Variables</h1><h3>Facts are available as global variables.</h3>
+<h3>Use the <code>$hostname</code> fact as a variable in file content.</h3>
+<pre class='code'>
+$foo_dir = "/etc/foo.d"
+
+File { owner =&gt; "root", group =&gt; "root", mode =&gt; "0644" }
+
+file {
+  "${foo_dir}":
+    ensure  =&gt; directory;
+  "${foo_dir}/bar.conf":
+    content =&gt; "My hostname is $hostname";
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Variables</h1><h3>Quoting</h3>
+<ul>
+	<li>Single-quoted strings disallow variable interpolation.</li>
+	<li>Double-quoted strings allows variable interpolation.</li>
+	<li>Variables in strings can be bracketed with {} for clarity.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Variables</h1><h3>For clarity interpolated variables should be bracketed.</h3>
+<pre class='code'>
+$foo_dir = '/etc/foo.d'
+File { owner =&gt; 'root', group =&gt; 'root', mode =&gt; '0644' }
+file {
+  $foo_dir: ensure =&gt; directory;
+  "${foo_dir}/bar.conf":
+     content =&gt; "Configuring the ${foo_dir}/bar.conf for ${hostname}",
+     mode =&gt; '0644';
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Variables</h1><h3>Can&#8217;t reassign variables.</h3>
+<pre class='code'>
+File { owner =&gt; 'root', group =&gt; 'root', mode =&gt; '0644' }
+
+$foo_dir = '/etc/foobar'
+
+file {
+  $foo_dir: ensure =&gt; 'directory';
+  "${foo_dir}/bar.conf":
+    content =&gt; "Configuring the ${foo_dir}/bar.conf for ${hostname}";
+}
+
+$foo_dir = '/etc/foobaz'
+
+file {
+  $foo_dir: ensure =&gt; 'directory';
+  "${foo_dir}/baz.conf":
+    content =&gt; "Configuring the ${foo_dir}/baz.conf for ${hostname}";
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Arrays</h1><h3>The Puppet Language also supports simple Arrays</h3>
+<h3>Example</h3>
+<pre class='code'>
+$somearray = [ 'one', 'two', 'three' ]
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Arrays</h1><h3>Arrays can be used as an argument to some resource parameters.</h3>
+<h3>The <code>user</code> resource&#8217;s groups parameters accepts an array as an argument.</h3>
+<pre class='code'>
+user { 'elvis':
+  ensure =&gt; 'present',
+  home   =&gt; '/home/elvis',
+  uid    =&gt; '5000',
+  gid    =&gt; 'hounddog',
+  shell  =&gt; '/bin/bash',
+  groups =&gt; ['jailhouse', 'surfer', 'legend'],
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Arrays</h1><h3>Arrays can also be arguments to metaparameters:</h3>
+<pre class='code'>
+service { 'syslog':
+  enable  =&gt; true,
+  ensure  =&gt; running,
+  require =&gt; [ File['/etc/rsyslog.conf'], Package['rsyslog'] ],
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Arrays</h1><h3>Arrays can also be used as the title for resources:</h3>
+<pre class='code'>
+file{['/tmp/one', '/tmp/one/two', '/tmp/one/two/three']:
+  mode   =&gt; '0750',
+  owner  =&gt; 'root',
+  group  =&gt; 'root',
+  ensure =&gt; directory,
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Conditionals</h1><h3>Puppet supports three conditional expressions:</h3>
+<ul>
+	<li>the selector</li>
+	<li>case statements</li>
+	<li>if/else/elsif statements</li>
+</ul>
+<h3>These conditionals can be divided into two types, in-statement and around statement.</h3>
+
+</div>
+<div class='slide '>
+<h1>Conditionals</h1><h3>The selector can be used as an in-statement conditional.</h3>
+<pre class='code'>
+package { 'ssh':
+  name   =&gt; $operatingsystem ? {
+    'Ubuntu' =&gt; 'ssh',
+    default  =&gt; 'openssh',
+  },
+  ensure =&gt; present,
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Conditionals</h1><h3>Exercise: Using Selectors</h3>
+<h3>Create:</h3>
+<ul>
+	<li>A manifest, <code>/etc/puppet/manifests/in_selector.pp</code></li>
+</ul>
+<h3>Use:</h3>
+<ul>
+	<li>A file resource to set the content parameter of the file <code>/tmp/os</code>.</li>
+	<li>A selector inside the file resource to set the content parameter based on the value of the <code>$operatingsystem</code> fact.</li>
+	<li><code>puppet apply</code> to verify that your manifests sets the appropriate content for <code>/tmp/os</code>.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Conditionals</h1><h3>Selectors can also be used to assign variables:</h3>
+<pre class='code'>
+$sshpkgname = $operatingsystem ? {
+  'Ubuntu' =&gt; 'ssh',
+  default  =&gt; 'openssh',
+}
+package { 'ssh':
+  name   =&gt; $sshpkgname,
+  ensure =&gt; present,
+}
+</pre>
+<h3>Selectors are case insensitive.</h3>
+
+</div>
+<div class='slide '>
+<h1>Conditionals</h1><h3>Exercise:  Using The Selector outside a resource.</h3>
+<h3>Create:</h3>
+<ul>
+	<li>A manifest, <code>/etc/puppet/manifests/out_selector.pp</code></li>
+</ul>
+<h3>Use:</h3>
+<ul>
+	<li>A file resource to set the content parameter of the file <code>/tmp/os</code>.</li>
+	<li>A selector to set a variable to be used inside file resource.</li>
+	<li>The <code>$operatingsystem</code> fact to set the content parameter.</li>
+	<li><code>puppet apply</code> to verify that your manifests sets the appropriate content for <code>/tmp/os</code>.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Conditionals</h1><h3>The case statements can be used around resources or collections of resources.</h3>
+<pre class='code'>
+case $operatingsystem {
+  'debian':  { include Debian } # apply the Debian class
+  'ubuntu':  { include Ubuntu } # apply the Ubuntu class
+   default:  { include Centos } # apply the Centos class
+}
+</pre>
+<h3>Case statements are case insensitive.</h3>
+
+</div>
+<div class='slide '>
+<h1>Conditionals</h1><h3>Case statements can be used to set variables as well.</h3>
+<pre class='code'>
+case $operatingsystem {
+  'ubuntu': {
+    $ssh_pkg = 'ssh'
+  }
+  'solaris': {
+    $ssh_pkg = [ 'SUNWsshcu', 'SUNWsshdr', 'SUNWsshdu', 'SUNWsshr', 'SUNWsshu' ]
+  }
+  # default assumes CentOS, RedHat
+  default: {
+    $ssh_pkg = ['openssh', 'openssh-clients', 'openssh-server']
+  }
+}
+
+package { $ssh_pkg:
+  ensure =&gt; present,
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Conditionals</h1><h3>Exercise:  Using the case conditional to assign variables.</h3>
+<h3>Create:</h3>
+<ul>
+	<li>A manifest, <code>/etc/puppet/manifests/case.pp</code></li>
+</ul>
+<h3>Use:</h3>
+<ul>
+	<li>A file resource to set the content parameter of the file <code>/tmp/os</code>.</li>
+	<li>The case conditional to set a variable to be used inside file resource based on the <code>$operatingsystem</code> fact.</li>
+	<li>The variable as the value for the content parameter.</li>
+	<li><code>puppet apply</code> verify that your manifests sets the appropriate content for in <code>/tmp/os</code>.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Conditionals</h1><h3>If/else/elsif conditionals can treat variables as boolean expressions.</h3>
+<h3>The following values return false:</h3>
+<ul>
+	<li><code>undef</code></li>
+	<li><code>''</code></li>
+	<li><code>false</code></li>
+</ul>
+<pre class='code'>
+if $foo {
+  file { '/etc/foo': ensure =&gt; present }
+} else {
+  file { '/etc/foo': ensure =&gt; absent }
+}
+</pre>
+<h3>If/else/elsif conditionals are case senstive.</h3>
+
+</div>
+<div class='slide '>
+<h1>Conditionals</h1><h3>If/else/elsif can also be used with more complicated boolean expressions</h3>
+<pre class='code'>
+if $server != 'foo' {
+  file { '/etc/foo': ensure =&gt; absent }
+} else {
+  file { '/etc/foo': ensure =&gt; present }
+}
+</pre>
+<h3>If/elsif conditionals also support regular expressions.</h3>
+<pre class='code'>
+$server='blahfoo222'
+if $server =~ /.*?foo\d+$/ {
+  notice('matches regex')
+} else {
+  notice('does not match regex')
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Conditionals</h1><h3>Puppet now supports a more complete set of conditional expressions.</h3>
+<h3>Puppet expressions can be composed of:</h3>
+<ul>
+	<li>boolean expressions (<code>and</code>, <code>or</code>, and <code>not</code>)</li>
+	<li>comparison expression ( ==, !=, =~, &lt;, &gt;, &lt;=, &gt;= )</li>
+	<li>arithmetic expressions ( +, -, /, *, &lt;&lt;, &gt;&gt; )</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Conditionals</h1><h3>Operator precedence</h3>
+<ul>
+	<li>!  (not)</li>
+	<li>* / (times and divide)</li>
+	<li>- +  (minus, plus)</li>
+	<li>&lt;&lt; &gt;&gt;  (left shift and right shift)</li>
+	<li>== !=  (equal, not equal)</li>
+	<li>&gt;= &lt;= &gt; &lt; (greater or equal, less or equal, greater than, less than)</li>
+	<li>and</li>
+	<li>or</li>
+</ul>
+<h3>Parenthesis can be used to group expressions and explicitly set precendence.</h3>
+
+</div>
+<div class='slide '>
+<h1>Lab</h1><h3>Lab: Manage User Environment</h3>
+<h3>Create:</h3>
+<ul>
+	<li>A manifest <code>/etc/puppet/manifests/myenv.pp</code>.</li>
+</ul>
+<h3>Use:</h3>
+<ul>
+	<li>A variable $username to specify the user.</li>
+	<li>A file resource to manage the user&#8217;s <code>.vimrc</code> file and <code>.vim</code> directories within their home directory.</li>
+	<li>A conditional statement and variable interpolation to manage <code>.ssh/authorized_keys</code>.
+	<ul>
+		<li>Root should not have an <code>authorized_keys</code> file.</li>
+		<li>Other users should have individual <code>authorized_keys</code> files.</li>
+	</ul></li>
+	<li>Test this manifest as two different users (<code>root</code>, your account) by changing the $username variable.</li>
+</ul>
+<p>Hint: Use <code>ssh-keygen -t rsa -b 2048</code> to create your ssh keys.  You will probably want to do this on your host machine. Copy the generated id_rsa.pub to the users authorized keys file.</p>
+
+</div>
+<div class='slide '>
+<h1>Templates</h1></div>
+<div class='slide '>
+<h1>Templates</h1><h3>Puppet uses Ruby&#8217;s builtin templating, ERB.</h3>
+<p>http://www.ruby-doc.org/stdlib/libdoc/erb/rdoc/classes/ERB.html</p>
+
+</div>
+<div class='slide '>
+<h1>Templates</h1><h3>Basic ERB syntax: Variables</h3>
+<pre class='code'>
+# ERB syntax to return the value of a Ruby variable.
+
+&lt;%= somevariable %&gt;
+
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Templates</h1><h3>Basic ERB syntax: Iteration</h3>
+<pre class='code'>
+# We can also iterate over arrays
+
+&lt;% fooarray.each do |val| %&gt; 
+   Foo array has a value of &lt;%= val %&gt; 
+&lt;% end %&gt;
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Templates</h1><h3>Basic ERB syntax: Conditionals</h3>
+<pre class='code'>
+# We can also use conditional expressions.
+
+&lt;% if var != "foo" %&gt;&lt;%= var %&gt; is not foo! &lt;% end %&gt;
+
+# And we can test to see if a variable exists.
+
+&lt;% if has_variable?("virtual") then %&gt;
+  This is a virtual machine of type: &lt;%= virtual %&gt;
+&lt;% end %&gt;
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Templates</h1><h3>Templates are implemented using the template function.</h3>
+<pre class='code'>
+$somestring = template("/etc/puppet/templates/stringgen.erb")
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Templates</h1><h3>The template function can be used to set the value of content in a file resource.</h3>
+<pre class='code'>
+file { "/etc/warning":
+  ensure  =&gt; present,
+  content =&gt; template("/etc/puppet/templates/warning.erb")
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Templates</h1><h3>The template function will concatenate multiple templates.</h3>
+<pre class='code'>
+file { "/etc/warning":
+  ensure  =&gt; present,
+  content =&gt; template("${module_name}/header.erb", "${module_name}/warning.erb"),
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Templates</h1><h3>Puppet variables and arrays are passed into templates as ruby variables and arrays.</h3>
+<h3>For example the <code>$ipaddress</code> fact would be available as the <code>ipaddress</code> variable within a template.</h3>
+
+</div>
+<div class='slide '>
+<h1>Templates</h1><h3>Exercise: Motd Template</h3>
+<h3>Create:</h3>
+<ul>
+	<li>An <code>/etc/puppet/templates</code> directory.</li>
+	<li>An <code>motd.erb</code> file within the templates directory.</li>
+</ul>
+<h3>Use:</h3>
+<ul>
+	<li>Use the <code>operatingsystem</code>, <code>memoryfree</code>, and <code>domain</code> facts in your template.</li>
+	<li>Create an <code>/etc/puppet/manifests/motd.pp</code> manifest.</li>
+	<li>Use the template function to set the content value for <code>/etc/motd</code>.</li>
+	<li>Use the <code>puppet apply</code> executable to test your manifest.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Modules</h1></div>
+<div class='slide '>
+<h1>Puppet Modules</h1><h3>Modules are not language constructions but rather a convention for encapsulating configurations.</h3>
+<ul>
+	<li>autoloading of classes</li>
+</ul>
+<ul>
+	<li>configuration of fileserving for templates and files.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Puppet Modules</h1><h3>Puppet modules must be located in the modulepath.</h3>
+<pre class='code'>
+# puppet.conf on puppet master
+
+[master]
+  modulepath=/etc/puppet/modules
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Puppet Modules</h1><h3>Puppet modules are contained in a directory named after the module. The module&#8217;s directory contains five special sub directories.</h3>
+<ul>
+	<li>manifests</li>
+	<li>templates</li>
+	<li>files</li>
+	<li>tests</li>
+	<li>lib</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Puppet Modules</h1><h3>Example: ssh module structure.</h3>
+<pre class='code'>
+/etc/puppet/modules/ssh
+                   ├── files
+                   ├── lib
+                   ├── manifests
+                   │   └── init.pp
+                   ├── templates
+                   └── tests
+                       └── init.pp
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Puppet Modules</h1><h3>By convention these directories enable autoloading of classes</h3>
+<h3>Autoloading convention:</h3>
+<ul>
+	<li>Classes and definitions in <code>init.pp</code> are always imported as long as they are prefixed with the modulename.</li>
+	<li>Classes and definitions not in <code>init.pp</code> named <code>modulename::name</code> can be placed in a file <code>name.pp</code>.</li>
+	<li>Classes and definitions not in <code>init.pp</code> named <code>modulename::name::foo</code> can be placed in <code>name/foo.pp</code>.</li>
+	<li>Additional namespaced classes and definitions repeat the directory and name pattern.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Puppet Modules</h1><h3>Auto-importing: By convention modules allow you to import files within the manifests directory automatically.</h3>
+<ul>
+	<li>The URI convention is <code>puppet:///modules/${module_name}/filename</code></li>
+	<li>The template path is automatically set up: <code>template("${module_name}/template.erb")</code></li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Puppet Modules</h1><h3>Example: init.pp</h3>
+<pre class='code'>
+class ssh {
+  package { "openssh-server":
+    ensure =&gt; present,
+  } # package
+
+  File { owner =&gt; "root", group =&gt; "root", mode =&gt; "0644"}
+
+  file {
+    "/etc/ssh":
+      ensure =&gt; directory;
+    "/etc/ssh/ssh_known_hosts":
+      ensure =&gt; present;
+    "/etc/ssh/ssh_config":
+      ensure =&gt; present,
+      source =&gt; "puppet:///modules/ssh/ssh_config";
+  } # file
+
+  service { "sshd":
+    enable  =&gt; false,
+    ensure  =&gt; stopped,
+    require =&gt; Package["openssh-server"],
+  } # service
+} # class ssh
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Puppet Modules</h1><h3>Example: server.pp</h3>
+<pre class='code'>
+class ssh::server inherits ssh {
+
+  file { "/etc/ssh/sshd_config":
+    ensure =&gt; present,
+    source =&gt; "puppet:///modules/ssh/sshd_config"
+  } # file
+
+  Service["sshd"] {
+    enable =&gt; true,
+    ensure =&gt; running,
+  } # Service
+
+} # class ssh::server
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Puppet Modules</h1><h3>Recommended Practices with tests</h3>
+<ul>
+	<li>Should have one class or define per file in the manifests directory.</li>
+	<li>Create a <code>tests</code> directory for each module.</li>
+	<li>Mirror the file structure of the manifests directory within the <code>tests</code> directory.</li>
+	<li>Use the include function to include each class in its corresponding <code>tests/*.pp</code> file.</li>
+	<li>For defined resources, declare the resource in its corresponding <code>tests/*.pp</code> file.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Puppet Modules</h1><h3>Recommended Practices</h3>
+<ul>
+	<li>Should have one class or define per file</li>
+</ul>
+<pre class='code'>
+/etc/puppet/modules/ssh/manifests/init.pp
+/etc/puppet/modules/ssh/manifests/server.pp
+/etc/puppet/modules/ssh/tests/init.pp
+/etc/puppet/modules/ssh/tests/server.pp
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Puppet Modules</h1><h3>Testing</h3>
+<pre class='code'>
+cd /etc/puppet/modules/ssh
+puppet apply -v --modulepath=/etc/puppet/modules tests/server.pp
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Puppet Modules</h1><h3>Recommended Practices</h3>
+<h3>Use multiple module paths.</h3>
+<ul>
+	<li>Create at least one modulepath for small reuseable modules (dist).</li>
+	<li>Create another modulepath for composite modules that model larger services that you are delivering (site).</li>
+	<li>Allow modules in dist to depend only on other modules in dist.</li>
+	<li>Allow modules in site to depend on modules in dist and site.</li>
+</ul>
+<pre class='code'>
+/etc/puppet/modules/site
+/etc/puppet/modules/dist
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Classes</h1><h3>Classes in Puppet are used to model fundamental aspects of nodes.</h3>
+<ul>
+	<li>Classes are declarative</li>
+	<li>Classes are singleton</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Classes</h1><h3>Example: ssh client class.</h3>
+<pre class='code'>
+# /etc/puppet/modules/ssh/manifests/init.pp
+
+class ssh {
+  package  { "openssh-clients":
+    ensure =&gt; present,
+  } # package
+
+  file { "/etc/ssh/ssh_config":
+    owner   =&gt; "root",
+    group   =&gt; "root",
+    mode    =&gt; "644",
+    require =&gt; Package["openssh-clients"],
+    source  =&gt; "puppet:///modules/ssh/ssh_config",
+  } # file
+
+  service { "sshd":
+    ensure =&gt; stopped,
+    enable =&gt; false,
+  } # service
+} # class ssh
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Classes</h1><h3>Classes also support single inheritance in which you can override resource parameters.</h3>
+
+</div>
+<div class='slide '>
+<h1>Classes</h1><h3>Example: ssh::server class</h3>
+<pre class='code'>
+# /etc/puppet/modules/ssh/manifests/server.pp
+
+class ssh::server inherits ssh {
+  package { "openssh-server":
+    ensure =&gt; latest,
+  } # package
+
+  file { "/etc/ssh/sshd_config":
+    owner   =&gt; "root",
+    group   =&gt; "root",
+    mode    =&gt; "644",
+    source  =&gt; "puppet:///modules/ssh/sshd_config",
+    require =&gt; Package["openssh-server"],
+  } # file
+
+  Service["sshd"] {
+    enable    =&gt; true,
+    ensure    =&gt; running,
+    subscribe =&gt; File["/etc/ssh/sshd_config"],
+    require   =&gt; Package["openssh-server"],
+  } # Service
+} # class ssh::server
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Classes</h1><h3>You can also undef resource parameters.</h3>
+<pre class='code'>
+class foo {
+  file{ "/tmp/foobar": source =&gt; "puppet:///modules/foo/foobar" }
+}
+
+class foo::bar inherits foo {
+  File["/tmp/foobar"] { source =&gt; undef, content =&gt; "some foobar text" }
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Classes</h1><h3>You can also append values to a resource parameter.</h3>
+<pre class='code'>
+class foo {
+  package { "foo": ensure =&gt; present }
+  service { "foo": ensure =&gt; true, require =&gt; Package["foo"] }
+}
+
+class foo::bar inherits foo {
+  package { "bar": ensure =&gt; present }
+  Service["foo"] { require +&gt; Package["bar"] }
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Classes</h1><h3>You can also create relationships to classes using <code>require</code> and <code>before</code>.</h3>
+<pre class='code'>
+class foo {
+  file { "foo1": content =&gt; "foo_1", }
+  file { "foo2": content =&gt; "foo_2", }
+  file { "foo3": content =&gt; "foo_3", }
+} # class foo
+
+class bar {
+  service { "bar":
+    ensure =&gt; true,
+    require =&gt; Class["foo"],
+  } # service
+} # class bar
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Classes</h1><h3>Classes can be composed from other classes using the include function.</h3>
+<pre class='code'>
+class foobar {
+  include foo
+  include bar
+} # class foobar
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Puppet Modules</h1><h3>Exercise:  Convert our existing manifests into modules.</h3>
+<h3>Create:</h3>
+<ul>
+	<li>A <code>/etc/puppet/modules</code> directory</li>
+</ul>
+<h3>Do:</h3>
+<ul>
+	<li>Convert our ssh, sudoers and motd manifests to modules.</li>
+	<li>Use the <code>puppet apply</code> executable with the <code>--modulepath</code> argument to test the new modules.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Lab</h1><h3>Lab: bluetooth and bluetooth::disable classes.</h3>
+<h3>Create:</h3>
+<ul>
+	<li>A bluetooth module, <code>/etc/puppet/modules/bluetooth/</code></li>
+	<li>A testing manifest, <code>/etc/puppet/modules/bluetooth/tests/init.pp</code></li>
+</ul>
+<h3>Part 1:</h3>
+<ul>
+	<li>Use a class bluetooth that ensures:
+	<ul>
+		<li>the package <code>bluez-libs</code> and <code>bluez-utils</code> are installed,</li>
+		<li>the service <code>hidd</code> is running.</li>
+	</ul></li>
+	<li>Edit <code>/etc/puppet/modules/bluetooth/tests/init.pp</code> to include the bluetooth class, then use <code>puppet apply</code> to test it.</li>
+</ul>
+<h3>Part 2:</h3>
+<ul>
+	<li>Use a subclass called <code>bluetooth::disable</code> that ensures that the <code>bluez-libs</code> and <code>bluez-utils</code> package are not installed, and that the <code>hidd</code> service is disabled.</li>
+	<li>Edit <code>/etc/puppet/modules/bluetooth/tests/disable.pp</code> to include the <code>bluetooth::disable</code> class and use <code>puppet apply</code> to test it.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Classes</h1><h3>Classes can be parameterised.</h3>
+<ul>
+	<li>Parameterised classes can accept default values.</li>
+	<li>Parameterised classes can be included multiple times.</li>
+	<li>Parameterised classes can only be declared once.</li>
+</ul>
+<pre class='code'>
+class apache($version="2.0", $home="/var/www") {
+  ...
+}
+
+class php {
+  include apache
+  ...
+}
+
+node webserver {
+  class { "apache":
+    version =&gt; "1.3.13"
+  }
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Classes</h1><h3>Resource relationship abbreviation</h3>
+<ul>
+	<li>Require and Before are expressed using <code>&lt;-</code> and <code>-&gt;</code>.</li>
+	<li>Subscribe and Notify are expressed using <code>&lt;~</code> and <code>~&gt;</code>.</li>
+</ul>
+<pre class='code'>
+Package["apache"] -&gt; File["/var/www"] ~&gt; Service["httpd"]
+
+Service["httpd"] &lt;~ File["/var/www"] &lt;- Package["apache"]
+
+file { "/var/www": ensure =&gt; present } -&gt; service { httpd: ensure =&gt; running }
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Classes</h1><h3>Exercise: Bluetooth Class Parameterised</h3>
+<h3>Update Bluetooth Class:</h3>
+<ul>
+	<li>Modify bluetooth class to accept a parameter which specifies if the service should be enabled or disabled.</li>
+	<li>Modify bluetooth class to describe resource dependency using the abbreviated <code>-&gt;</code> and <code>&lt;-</code> syntax.</li>
+	<li>Modify existing test, <code>tests/init.pp</code>, and verify new bluetooth class works as expected.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Defined Resource Types</h1><h3>Defined resource types behave like custom resource types.</h3>
+<ul>
+	<li>Accepts Metaparameters</li>
+	<li>Can be used multiple times</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Defined Resource Types</h1><h3>Vhost example</h3>
+<pre class='code'>
+define vhost($port, $path = '/etc/httpd/conf.d') {
+  file {"${path}/${name}.conf":
+    ensure  =&gt; present,
+    owner   =&gt; 'apache',
+    group   =&gt; 'apache',
+    mode    =&gt; '0644',
+    # assume that $port is used inside template
+    content =&gt; template('/etc/puppet/templates/vhost.erb'),
+  }
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Defined Resource Types</h1><h3>Using a defined resource example.</h3>
+<pre class='code'>
+vhost { 'training.puppetlabs.net':
+  port    =&gt; '8080',
+  require =&gt; Package['httpd'],
+  notify  =&gt; Service['httpd'],
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Defined Resource Types</h1><h3>Exercise: User and group defined resource type.</h3>
+<ul>
+	<li>Create a module, <code>/etc/puppet/modules/usermanagement/</code></li>
+	<li>Use a defined resource type to parameterize user management.</li>
+	<li>Include management of home directories and group in the define.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Defined Resource Types</h1><h3>Defined resource types can take advantage of class inheritance and parameter overriding.</h3>
+<pre class='code'>
+define ssh_config($ssh_path = '/etc/ssh') {
+  file {"${ssh_path}/${name}":
+    source  =&gt; "/files/puppet/${ssh_path}",
+    recurse =&gt; true
+  }
+}
+class ssh {
+  ssh_config{ 'config':}
+}
+class ssh::secure inherits ssh {
+  Ssh_config['config'] { ssh_path =&gt; '/etc/secure/ssh' }
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Defined Resource Types</h1><h3>We can use namespaces to refer to definitions in other classes.</h3>
+<h3>Example:</h3>
+<pre class='code'>
+class role {
+  define servertype ($myrole) {
+    file { '/tmp/role': content =&gt; $myrole, }
+    notice("Setting role to ${myrole}")
+  }
+}
+role::servertype { 'foo': myrole =&gt; 'fooserver' }
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Scope</h1></div>
+<div class='slide '>
+<h1>Variable Scope</h1><h3>Every class, definition, or node introduces a new scope.</h3>
+
+</div>
+<div class='slide '>
+<h1>Variable Scope</h1><h3>We can use namespaces to refer to variables in other classes.</h3>
+<pre class='code'>
+class alpha {
+  $myname = 'alpha'
+  notice("I am ${myname}")
+}
+class beta {
+  include alpha
+  $myname = 'beta'
+  notice("I am not ${alpha::myname}. I am ${myname}")
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Variable Scope</h1><h3>There is a top scope for variables declared outside of classes, defines, or nodes.</h3>
+
+</div>
+<div class='slide '>
+<h1>Variable Scope</h1><h3>Facts are set at top scope.</h3>
+<pre class='code'>
+class system {
+  $operatingsystem = "MyOS"
+  notice ("The operating system is: ${operatingsystem}")
+}
+
+class truesystem {
+  $operatingsystem = "MyOS"
+  notice ("The true operating system is: $::operatingsystem")
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Variable Scope</h1><h3>Within a single scope variables cannot be re-declared.</h3>
+<pre class='code'>
+class scope {
+  $somecontent = 'Content in /tmp/foo'
+  file { '/tmp/foo': content =&gt; $somecontent}
+  $somecontent = 'Content in /tmp/baz'
+  file { '/tmp/baz': content =&gt; $somecontent, }
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Variable Scope</h1><h3>In non-overlapping scopes variables can be redeclared.</h3>
+<pre class='code'>
+class parent  {
+  $somecontent = 'Parent'
+  file { '/tmp/foo': content =&gt; $somecontent }
+}
+class child inherits parent {
+  $somecontent = 'child is scope two'
+  file { '/tmp/baz': content =&gt; $somecontent }
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Variable Scope</h1><h3>Variables declared in scope are implicitly namespaced.</h3>
+<pre class='code'>
+class parent  {
+  $somecontent = 'Parent'
+  file { '/tmp/foo': content =&gt; $parent::somecontent }
+}
+class child inherits parent {
+  $somecontent = 'Child'
+  file { '/tmp/baz': content =&gt; $child::somecontent }
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Variable Scope</h1><h3>Variables as resource parameters can be overridden to take advantage of qualified variable scopes.</h3>
+<pre class='code'>
+class parent  {
+  $somecontent = 'Parent'
+  file { '/tmp/foo': content =&gt; $parent::somecontent }
+}
+class child inherits parent {
+  $somecontent = 'Child'
+  file { '/tmp/baz': content =&gt; $child::somecontent }
+  File['/tmp/foo'] { content =&gt; $child::somecontent }
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Variable Scope</h1><h3>Include work around.</h3>
+<h3>Use a variable assigned in the top scope and a include to reassign the value of <code>content</code>.</h3>
+<pre class='code'>
+$somecontent = 'top'
+class one {
+  file { '/tmp/foo': content =&gt; $somecontent, }
+}
+class two {
+  $somecontent = 'beta'
+  include one
+  file { '/tmp/baz': content =&gt; $somecontent, }
+}
+include two
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Variable Scope</h1><h3>But Order Matters!</h3>
+<h3>Example: This is why I avoid this hack..</h3>
+<pre class='code'>
+$somecontent = 'top'
+class one {
+  file { '/tmp/foo': content =&gt; $somecontent, }
+}
+class two {
+  include one
+  $somecontent = 'beta'
+  file { '/tmp/baz': content =&gt; $somecontent, }
+}
+include two
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Run Stages</h1><h3>Overview</h3>
+<ul>
+	<li>Augments the already learned dependency structure by giving you an alternate facility for creating order.</li>
+	<li>You must understand parameterized classes to take advantage of run stages.</li>
+	<li>Currently intentionally limited.</li>
+	<li>Only entire classes can be put in a run stage.</li>
+	<li>Must declare run stage before you can use them.</li>
+	<li>&#8220;before&#8221; in previous bullet is meant to be taken in a literal sense. Run stages are affected by the same scoping issues as variables.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Run Stages</h1><h3>Declaring the run stages resource</h3>
+<ul>
+	<li>You declare them like any other resource.</li>
+	<li>There is always an implied stage called main.</li>
+	<li>Stage main is the default stage for all classes.</li>
+	<li>Can use the <code>before</code> and <code>require</code> metaparamters to create stage ordering.  Their values are references to other stages.</li>
+</ul>
+<pre class='code'>
+class stages {
+
+  stage { "before": before =&gt; Stage['main'] }
+  stage { "after": require =&gt; Stage['main'] }
+
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Run Stages</h1><h3>Alternate way to create stage ordering</h3>
+<ul>
+	<li>Instead of using the metaparameters <code>before</code> and <code>require</code> you can use the alternate dependency syntax.</li>
+</ul>
+<pre class='code'>
+class stages {
+
+  stage { [ "before", "after"]: }
+  Stage['before'] -&gt; Stage['main'] -&gt; Stage['after']
+
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Run Stages</h1><h3>Run Stages in action</h3>
+<ul>
+	<li>You must use parameterized classes</li>
+</ul>
+<pre class='code'>
+class webserver {
+
+  include stages
+  class { 'yum': stage =&gt; before }
+  include packages   #Same as class { 'packages': }
+  class { 'apache': stage =&gt; after }
+
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Lab</h1><h3>Lab: Run stages</h3>
+<h3>Create:</h3>
+<ul>
+	<li>A module <code>/etc/puppet/modules/stages/</code></li>
+</ul>
+<h3>Use:</h3>
+<ul>
+	<li>A class called <code>stages</code> that contains a stage resource titled <code>first</code> that will run before the <code>main</code> stage.</li>
+	<li>Refactor your Securing SSH exercise into two parameterized classes.
+	<ul>
+		<li>Anything that needs to happen first needs be in a separate class than what runs second.</li>
+	</ul></li>
+	<li>Add an include line for your <code>stages</code> class in your <code>tests/init.pp</code></li>
+	<li>Include your refactored class that contains resources that must run first using parameterized class syntax.
+	<ul>
+		<li>The parameter you will pass to the class will be <code>stage =&gt; 'first'</code>.</li>
+	</ul></li>
+	<li>Add an include line for your class that contains resources that must run second.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>More Resources</h1></div>
+<div class='slide '>
+<h1>The Cron Resource</h1><h3>Attributes for the Cron Resource Type</h3>
+<ul>
+	<li><code>command</code>: The command executed in the cron job. (<code>namevar</code>)</li>
+	<li><code>ensure</code>: absent, present</li>
+	<li><code>minute</code>: The minute at which to run the cron job.</li>
+	<li><code>hour</code>: The hour at which to run the cron job.</li>
+	<li><code>monthday</code>: Day of month at which to run the cron job.</li>
+	<li><code>month</code>: The month in which to run the cron job.</li>
+	<li><code>weekday</code>: The weekday in which to run the cron job.</li>
+	<li><code>user</code>: Set the user.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>The Cron Resource</h1><pre class='code'>
+cron { 'logrotate':
+  command =&gt; '/usr/sbin/logrotate',
+  user    =&gt; root,
+  hour    =&gt; 2,
+  minute  =&gt; 0,
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>The Exec Resource</h1><h3>The <code>exec</code> resource type executes external commands on the client.</h3>
+
+</div>
+<div class='slide '>
+<h1>The Exec Resource</h1><h3>Command is not required to be unique.</h3>
+<pre class='code'>
+exec { 'updatedb':
+  path    =&gt; '/usr/bin',
+  creates =&gt; '/var/lib/mlocate/mlocate.db'
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>The Exec Resource</h1><h3>Attributes:</h3>
+<ul>
+	<li><code>name</code>: (namevar)</li>
+	<li><code>command</code>: Command to execute.</li>
+	<li><code>user</code>: Sets the user for the command to run as.</li>
+	<li><code>group</code>: Sets the group for the command to run as.</li>
+	<li><code>creates</code>: Specifies a file that if exists the command does not run.</li>
+	<li><code>onlyif</code>: A shell command that is run as a test to determine if the command should run.</li>
+	<li><code>unless</code>: A shell command that is run as a test to determine if the command should not run.</li>
+	<li><code>refresh</code>: Command to execute if the resource is refreshed due to a notify or subscribe metaparameter.</li>
+	<li><code>refreshonly</code>: Only run the command if the resource is refreshed due to a notify or subscribe metaparameter</li>
+	<li><code>cwd</code>: Sets the working directory.</li>
+	<li><code>environment</code>: Sets other environment variables</li>
+	<li><code>path</code>: Sets the path.</li>
+	<li><code>returns</code>: Sets the expected return code.</li>
+	<li><code>timeouts</code>: Sets the maximum time the command should take.</li>
+	<li><code>logoutput</code>: Rather output should be logged. Default is <code>false</code>. Can also be <code>true</code> or <code>on_failure</code>.</li>
+	<li><code>retries</code>: number of retries. Default 0.</li>
+	<li><code>sleep</code>: number of sec to sleep between retries.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>The Exec Resource</h1><h3>Exercise: Create a simple exec that creates a new file. Ensure that the exec only runs if the file is not present.</h3>
+
+</div>
+<div class='slide '>
+<h1>Lab</h1><h3>Lab: Manage and Validate <code>/etc/sudoers</code></h3>
+<h3>Create:</h3>
+<ul>
+	<li>A module, <code>/etc/puppet/modules/sudo/</code></li>
+	<li>copy <code>/etc/sudoers</code> to <code>/etc/puppet/modules/sudo/files/</code> and remove some of the commented lines</li>
+</ul>
+<h3>Use:</h3>
+<ul>
+	<li>A file resource to manage <code>/etc/sudoers</code></li>
+	<li>An exec resource type to validate the sudo syntax using <code>visudo -c -f</code>.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Virtual Resources</h1><h3>Virtual Resources can be declared once but used throughout your configuration.</h3>
+
+</div>
+<div class='slide '>
+<h1>Virtual Resources</h1><h3>Creating a Virtual Resource</h3>
+<pre class='code'>
+@user { 'foo': ensure =&gt; present }
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Virtual Resources</h1><h3>Realizing a Virtual Resource</h3>
+<pre class='code'>
+realize(User['foo'])
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Virtual Resources</h1><h3>Using the spaceship operator</h3>
+<pre class='code'>
+User &lt;| title == 'foo' |&gt;
+</pre>
+<h3>We realize all virtual resources of type <code>user</code> and title foo.  In utility realizing by title is equivalent to the realize function.</h3>
+<pre class='code'>
+User &lt;| groups == 'wheel' |&gt;
+</pre>
+<h3>We can also realize on any resource type attribute parameter. Here we realize all virtual resources of type <code>user</code> and member of group wheel.</h3>
+
+</div>
+<div class='slide '>
+<h1>Virtual Resources</h1><h3>Exercise: Virtual Cron</h3>
+<ul>
+	<li>Create a virtual_cron module with a virtual cron resource named logrotate.</li>
+	<li>Create a test, <code>tests/init.pp</code>, file that includes the virtual_cron class, and realizes the virtual cron.</li>
+	<li>Use <code>puppet apply</code> to test your manifest.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>File Fragment Pattern</h1></div>
+<div class='slide '>
+<h1>File Fragment Pattern</h1><h3>Pattern is used to model individual lines of a file as distinct resources.</h3>
+
+</div>
+<div class='slide '>
+<h1>File Fragment Pattern</h1><h3>Here we use the file fragment pattern to break up inetd into separate resources.</h3>
+<pre class='code'>
+class inet {
+  $basedir = '/tmp'
+  file {"${basedir}/inetd.d":
+    ensure  =&gt; directory,
+    purge   =&gt; true,
+    recurse =&gt; true,
+  }
+  exec { 'rebuild-inetd':
+    command     =&gt; "/bin/cat ${basedir}/inetd.d/* &gt; ${basedir}/inetd.conf",
+    refreshonly =&gt; true,
+    subscribe   =&gt; File["${basedir}/inetd.d"],
+  }
+  file {"${basedir}/inetd.conf":
+    mode    =&gt; '0644',
+    require =&gt; Exec['rebuild-inetd'],
+  }
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>File Fragment Pattern</h1><h3>A defined resource to create the file fragments we wish to model as a resource.</h3>
+<pre class='code'>
+define inet::service (
+  $sock_type = stream, $proto = tcp, $flags = wait,
+  $user = root, $path, $args = "", $ensure
+) {
+  file {"${inet::basedir}/inetd.d/$name":
+    content =&gt; "$name   $sock_type  $proto  $flags  $user   $path $args\n",
+    notify  =&gt; Exec['rebuild-inetd'],
+    ensure  =&gt; $ensure,
+  }
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>File Fragment Pattern</h1><h3>Now the new fragment creating resource can be used.</h3>
+<pre class='code'>
+include inet
+inet::service { 'talk':
+  sock_type =&gt; 'dgram',
+  proto     =&gt; 'udp',
+  user      =&gt; 'nobody.tty',
+  path      =&gt; '/usr/sbin/in.talkd',
+  args      =&gt; 'in.talkd',
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Lab</h1><h3>Lab: Modeling <code>/etc/services</code></h3>
+<h3>Create:</h3>
+<ul>
+	<li>A services module: <code>/etc/puppet/modules/services/</code></li>
+</ul>
+<h3>Use:</h3>
+<ul>
+	<li>A define that creates a file fragment for each service.</li>
+	<li>A service class that manages the fragment and concatenates them into one file.</li>
+	<li>Run <code>puppet apply</code> and create a test manifest, <code>tests/init.pp</code>, to test the services.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Functions</h1><h3>Functions are executed on the puppetmaster.</h3>
+<div style="text-align: center;">
+<p><br/>
+<img src="images/puppet-functions-facts.png" /></p>
+</div>
+
+</div>
+<div class='slide '>
+<h1>Functions</h1><h3>Puppet has two types of functions statements and rvalues.</h3>
+
+</div>
+<div class='slide '>
+<h1>Functions</h1><h3>Statements take actions without returning a value.</h3>
+<h3>Example:</h3>
+<pre class='code'>
+notice("${hostname} has no node definition")
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Functions</h1><h3>Some statement functions</h3>
+<ul>
+	<li>tag: sets a tag for all resources contained in the current scope.</li>
+	<li>include: evaluate a class.</li>
+	<li>realize: makes a virtual resource real.</li>
+	<li>require: Evaluate one or more classes, adding the required class as a dependency.</li>
+	<li>fail: Fail with a parse error.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Functions</h1><h3>Rvalues are only used when a return value is required.</h3>
+<h3>Example:</h3>
+<pre class='code'>
+$user = 'elvis'
+$tmp_passwd = sha1("${uniqueid}${hostname}${user}")
+user {$user:
+  ensure   =&gt; present,
+  password =&gt; $tmp_passwd,
+}
+notice("Elvis's password is ${tmp_passwd}")
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Functions</h1><h3>Some rvalue functions</h3>
+<ul>
+	<li>defined: returns a boolean value dependent on whether a class or resource is declared.</li>
+	<li>file: returns the contents of a file from the server.</li>
+	<li>generate: returns the results of an shell command.</li>
+	<li>tagged: returns true if the current container is tagged with specified tag or tags.</li>
+	<li>regsubst: regex string replacement.</li>
+	<li>sha1: returns a SHA1 hash value from a string.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Functions</h1><h3>Documentation</h3>
+<p>http://docs.puppetlabs.com/references/latest/function.html</p>
+
+</div>
+<div class='slide '>
+<h1>More Metaparameters</h1><ul>
+	<li>alias: creates an alias for a resource name.</li>
+	<li>audit: audit resource attributes.</li>
+	<li>noop: tells the resource to take no action. Can be true or false.</li>
+	<li>loglevel: sets loglevel value. Values can be debug, info, notice, warning, err, alert, emerg, crit, verbose.</li>
+	<li>schedule: sets a schedule for an resource to be managed.</li>
+	<li>tag: sets a tag.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>More Metaparameters</h1><h3>Example of using schedule.</h3>
+<pre class='code'>
+schedule { daily: period =&gt; daily, range =&gt; '2-4' }
+exec { '/usr/bin/apt-get update': schedule =&gt; daily }
+</pre>
+
+</div>
+<div class='slide '>
+<h1>More Metaparameters</h1><h3>Reference Documentation</h3>
+<p>http://docs.puppetlabs.com/references/latest/metaparameter.html</p>
+
+</div>
+<div class='slide '>
+<h1>Tags</h1><h3>Arbitrary tags can be applied to resources or collections of resources.</h3>
+
+</div>
+<div class='slide '>
+<h1>Tags</h1><h3>Using the tag metaparameter.</h3>
+<pre class='code'>
+@user { 'elvis':
+  ensure =&gt; present,
+  tag    =&gt; 'hounddog',
+}
+
+User &lt;| tag == 'hounddog' |&gt;
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Tags</h1><h3>Using the tag function.</h3>
+<pre class='code'>
+class legends {
+  tag('hounddog')
+  user { 'elvis':
+    ensure =&gt; present,
+  }
+}
+class clowns {
+  user { 'bozo':
+    ensure =&gt; present,
+  }
+}
+include clowns,legends
+</pre>
+
+<pre class='code'>
+puppet apply -v --tags hounddog elvis_tags_function.pp
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Tags</h1><h3>Implicit tags</h3>
+<pre class='code'>
+class legends {
+  user { 'elvis':
+    ensure =&gt; present,
+  }
+}
+class clowns {
+  user { 'bozo':
+    ensure =&gt; present,
+  }
+}
+include clowns,legends
+</pre>
+
+<pre class='code'>
+puppet apply -v --tags clowns elvis_tags_function.pp
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Nodes</h1><h3>Puppet node declarations look just like classes.</h3>
+<h3>Example</h3>
+<pre class='code'>
+node 'foo.puppetlabs.com' { include ssh }
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Nodes</h1><h3>When the node foo.puppetlabs.com connects to the puppetmaster, it will be assigned the ssh class.</h3>
+
+</div>
+<div class='slide '>
+<h1>Nodes</h1><h3>They support inheritance.</h3>
+<pre class='code'>
+node base {
+  include ssh
+  include puppet
+  include security
+}
+node 'foo.puppetlabs.com', 'bar.puppetlabs.com' inherits base {
+  include redmine, wordpress
+}
+
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Nodes</h1><h3>You can also specify a node named default, which will be used if no directly matching node is found.</h3>
+<pre class='code'>
+node default {
+  notice("${hostname} has no node definition")
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Client Server Executables</h1></div>
+<div class='slide '>
+<h1>Puppet Agent</h1><h3>The puppet agent daemon runs on all of your Puppet managed nodes.</h3>
+<h3>It is responsible for:</h3>
+<ul>
+	<li>sending facts to the puppetmaster</li>
+	<li>executing the returned catalog</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Puppet Agent</h1><div style="text-align: center;">
+<p><br/>
+<img src="images/puppet-client-server.png" /></p>
+</div>
+
+</div>
+<div class='slide '>
+<h1>Puppet Agent</h1><h3>The main configuration file for Puppet is <code>/etc/puppet/puppet.conf</code>.</h3>
+<h3>It supports per executable and global configuration sections.</h3>
+<ul>
+	<li>[main]</li>
+	<li>[agent]</li>
+	<li>[master]</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Puppet Agent</h1><h3>Puppet Agent configuration options</h3>
+<ul>
+	<li>vardir: location where Puppet stores dynamically growing information.</li>
+	<li>rundir: location where Puppet PID files are stored.</li>
+	<li>ssldir: location where SSL certificates are stored.</li>
+	<li>ca_server: the server to use for certificate authority requests.</li>
+	<li>server: the host name of the puppetmaster.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Puppet Agent</h1><h3>Example: <code>/etc/puppet/puppet.conf</code></h3>
+<pre class='code'>
+[main]
+  vardir = /var/lib/puppet
+  rundir = /var/run/puppet
+  ssldir = $vardir/ssl
+
+[agent]
+  ca_server = puppetca.puppetlabs.com
+  server = puppet.puppetlabs.com
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Puppet Agent</h1><h3>Some useful commandline arguments</h3>
+<ul>
+	<li><code>--no-daemonize</code></li>
+	<li><code>--debug</code></li>
+	<li><code>--configprint</code></li>
+	<li><code>--test</code></li>
+	<li><code>--tags</code></li>
+	<li><code>--waitforcert</code></li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Puppet Master</h1><h3>Puppetmasterd is responsible for:</h3>
+<ul>
+	<li>authenticating client connections</li>
+	<li>compiling manifests and templates</li>
+	<li>returning catalog to client</li>
+	<li>serving files</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Puppet Master</h1><div style="text-align: center;">
+<p><br/>
+<img src="images/puppet-client-server.png" /></p>
+</div>
+
+</div>
+<div class='slide '>
+<h1>Puppet Master</h1><h3>Some configuration options</h3>
+<ul>
+	<li>modulepath: location of module directories.</li>
+	<li>manifest: path for site.pp.</li>
+	<li>manifestdir: path to the manifest directory.</li>
+	<li>certdnsnames: colon separated list of dns names to be added as aliases in the certs.</li>
+	<li>autosign: enables or disables autosigning or sets the path to the autosign.conf file.</li>
+	<li>ca: specifes whether or not to serve as a ca.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Puppet Master</h1><h3>Useful commandline options</h3>
+<ul>
+	<li><code>--no-daemonize</code></li>
+	<li><code>--debug</code></li>
+	<li><code>--verbose</code></li>
+	<li><code>--configprint</code></li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Puppet Cert</h1><h3>The <code>puppet cert</code> command is responsible for managing the client and server certificates.</h3>
+
+</div>
+<div class='slide '>
+<h1>Puppet Cert</h1><h3>When puppet agent runs for the first time, it:</h3>
+<ul>
+	<li>generates a new certificate</li>
+	<li>sends a CSR to the server to be signed</li>
+	<li>by default checks for a signed cert every two minutes.</li>
+</ul>
+<h3>Unless autosigning is enabled, the certificates must be signed manually using puppet cert.</h3>
+
+</div>
+<div class='slide '>
+<h1>Puppet Cert</h1><h3>Listing the certificates that need to be signed.</h3>
+<pre class='code'>
+puppet cert --list
+foo.puppetlabs.com
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Puppet Cert</h1><h3>Listing all the certificates.</h3>
+<pre class='code'>
+puppet cert --list --all
++ betty.puppetlabs.com
+ foo.puppetlabs.com
++ test.puppetlabs.com
++ puppet.puppetlabs.com
++ andres.puppetlabs.com
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Puppet Cert</h1><h3>Signing the certificates.</h3>
+<pre class='code'>
+puppet cert --sign foo.puppetlabs.com
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Puppet Cert</h1><h3>Revoking a certificate</h3>
+<pre class='code'>
+puppet cert --revoke foo.puppetlabs.com
+Revoked certificate with serial 8
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Puppet Cert</h1><h3>Remove a certificate</h3>
+<pre class='code'>
+puppet cert --clean foo.puppetlabs.com
+Removing /var/lib/puppet/ssl/ca/signed/foo.puppetlabs.com.pem
+Removing /var/lib/puppet/ssl/private_keys/foo.puppetlabs.com.pem
+Removing /var/lib/puppet/ssl/certs/foo.puppetlabs.com.pem
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Bootstrapping</h1><h3>Installing Puppet.</h3>
+<ul>
+	<li>Automated provisioning of your systems is still necessary.</li>
+	<li>Your image should be the minimalized install that is required to bootstrap Puppet.</li>
+	<li>You should include the requirements for any resource types that you intend to use.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Lab</h1><h3>Lab: Bootstrapping Puppet</h3>
+<h3>Create:</h3>
+<ul>
+	<li>An <code>/etc/puppet/manifests/site.pp</code> file.</li>
+</ul>
+<h3>Do:</h3>
+<ul>
+	<li>Edit the <code>/etc/puppet/manifests/site.pp</code> to include a <code>default</code> node declaration and a <code>notice</code> function.</li>
+	<li>Manually setup your Puppet master and client and verify that they can communicate.</li>
+	<li>Examine the certificates that need to be signed on the puppet master using the command <code>puppet cert</code>.</li>
+	<li>Create a node declaration for you Puppet client in <code>site.pp</code> and include a module class.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Puppet Filebucket</h1><h3>Puppet can be configured to use a local or network filebucket.</h3>
+<h3>Files that are modified/removed as part of a catalog execution are stored in the filebucket.</h3>
+
+</div>
+<div class='slide '>
+<h1>Puppet Filebucket</h1><h3>There is also <code>puppet filebucket</code> executable that can be used to retrieve files from the filebucket.</h3>
+<pre class='code'>
+puppet filebucket restore -l /tmp/passwd 429b225650b912a2ee067b0a4cf1e949
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Puppet Filebucket</h1><h3>The puppet filebucket executable can backup files.</h3>
+<pre class='code'>
+puppet filebucket backup -l /etc/passwd
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Environments</h1><h3>Environments allow you to specify separate manifests, files, and templates on a single puppetmaster per environment.</h3>
+<ul>
+	<li>Environment naming is arbitrary.</li>
+	<li>Default environment is called Production.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Environments</h1><h3>Configuring environments on your Puppetmaster.</h3>
+<pre class='code'>
+#/etc/puppet/puppet.conf
+[production]
+  manifest = /etc/puppet/production/site.pp
+  modulepath = /etc/puppet/production/modules
+[development]
+  manifest = /etc/puppet/development/site.pp
+  modulepath = /etc/puppet/development/modules
+[test]
+  manifest = /etc/puppet/test/site.pp
+  modulepath = /etc/puppet/test/modules
+
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Environments</h1><h3>Puppet agent must know their environment.</h3>
+<pre class='code'>
+[agent]
+  environment = development
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Environments</h1><div style="text-align: center;">
+<p><br/>
+<img src="images/environments.png" /></p>
+</div>
+
+</div>
+<div class='slide '>
+<h1>Custom Facts</h1><h3>Puppet provides an api for developing custom facts.</h3>
+<div style="text-align: center;">
+<p><br/>
+<img src="images/puppet-functions-facts.png" /></p>
+</div>
+
+</div>
+<div class='slide '>
+<h1>Custom Facts</h1><h3>Example: simple fact to determine the role of a server.</h3>
+<pre class='code'>
+# role.rb
+require 'facter'
+Facter.add("role") do
+  setcode do
+     Facter::Util::Resolution.exec("cat /etc/role")
+  end
+end
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Custom Facts</h1><h3>Create a <code>lib/facter</code> directory inside a module called myfacts</h3>
+<pre class='code'>
+mkdir -p /etc/puppet/modules/myfacts/lib/facter
+</pre>
+<h3>Export this path as ruby lib for testing.</h3>
+<pre class='code'>
+export RUBYLIB=/etc/puppet/modules/myfacts/lib
+</pre>
+<h3>Place your custom fact inside of the <code>myfacts/lib/facter</code> directory</h3>
+<pre class='code'>
+cp role.rb $RUBYLIB/facter/.
+</pre>
+<h3>Execute facter</h3>
+<pre class='code'>
+facter role
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Custom Facts</h1><h3>In order to distribute facts:</h3>
+<ul>
+	<li>Place the facts in a <code>MODULEPATH/MODULENAME/lib/facter</code> directory</li>
+	<li>Enable pluginsync in <code>/etc/puppet/puppet.conf</code>.</li>
+</ul>
+<pre class='code'>
+[main]
+pluginsync = true
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Lab</h1><h3>Lab: Create Custom <code>home</code> fact</h3>
+<h3>Create:</h3>
+<ul>
+	<li>A <code>myfacts</code> puppet module in <code>/etc/puppet/modules/</code></li>
+	<li>A <code>/etc/puppet/modules/myfacts/lib/facter/</code> sub directory</li>
+	<li>A file <code>/etc/puppet/modules/myfacts/lib/facter/home.rb</code> for your fact</li>
+</ul>
+<h3>Do:</h3>
+<ul>
+	<li>Write a custom fact <code>home</code> that returns the user&#8217;s home directory from the <code>$HOME</code> environment variable.</li>
+</ul>
+<h3>More info:</h3>
+<ul>
+	<li>Hint: Ruby hash ENV[&#8216;HOME&#8217;] returns the $HOME environment variable.</li>
+	<li>Extra Credit: Develop a fact that returns all of your environment variables as facts.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Custom Functions</h1><h3>Puppet provides an api for developing custom Functions.</h3>
+
+</div>
+<div class='slide '>
+<h1>Custom Functions</h1><h3>Example:  Simple Function that returns the hostname of the Puppetmaster.</h3>
+<pre class='code'>
+# mastername.rb
+require 'socket'
+module Puppet::Parser::Functions
+  newfunction(:mastername, :type =&gt; :rvalue ) do
+    Socket.gethostname.chomp
+  end
+end
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Custom Functions</h1><div style="text-align: center;">
+<p><br/>
+<img src="images/puppet-functions-facts.png" /></p>
+</div>
+
+</div>
+<div class='slide '>
+<h1>Custom Functions</h1><h3>Create a <code>lib/puppet/parser/functions</code> directory inside a module called myfunctions</h3>
+<pre class='code'>
+mkdir -p /etc/puppet/modules/myfunctions/lib/puppet/parser/functions
+</pre>
+<h3>Because functions are part of the puppet language, they must be tested inside of a manifest as puppet code.</h3>
+<pre class='code'>
+$mastername = mastername()
+notice("This server is managed by the $mastername puppetmaster")
+</pre>
+<h3>This function will now be available to puppet agent and puppet master as long as modulepath is set correctly.</h3>
+
+</div>
+<div class='slide '>
+<h1>Lab</h1><h3>Lab: Custom Encryption Function</h3>
+<h3>Create:</h3>
+<ul>
+	<li>On your puppetmaster: a <code>myfunctions</code> puppet module in <code>/etc/puppet/modules/</code></li>
+	<li>An <code>/etc/puppet/modules/myfunctions/lib/puppet/parser/functions/</code> subdirectory</li>
+	<li>A file <code>/etc/puppet/modules/myfunctions/lib/puppet/parser/functions/mycrypt.rb</code></li>
+</ul>
+<h3>Do:</h3>
+<ul>
+	<li>Write a custom function called <code>mycrypt</code> that returns an encrypted string when given a string as an argument.</li>
+</ul>
+<h3>Hint: Ruby encryption Example
+<pre class='code'>
+require &#8220;digest/sha1&#8221;
+module Puppet::Parser::Functions
+  newfunction(:mycrypt, :type =&gt; :rvalue ) do |args|
+    Digest::SHA1.hexdigest(args<sup class="footnote" id="fnr0"><a href="#fn0">0</a></sup>)
+  end
+end
+</pre></h3>
+
+</div>
+<div class='slide '>
+<h1>Reporting</h1><h3>It is possible to configure puppet agent to generate and send a report to the puppet master after every Puppet run.</h3>
+
+</div>
+<div class='slide '>
+<h1>Reporting</h1><h3>Available Reports Handlers</h3>
+<ul>
+	<li>http</li>
+	<li>log</li>
+	<li>rrdgraph</li>
+	<li>store</li>
+	<li>tagmail</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Reporting</h1><h3>Log</h3>
+<ul>
+	<li>Contains every log message in a transaction.</li>
+	<li>Can be used to centralize client logs into syslog.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Reporting</h1><h3>RRD Graph</h3>
+<ul>
+	<li>Generates RRD graphs from transaction report data.</li>
+	<li>Requires Ruby&#8217;s rrdtool library and the rrd binary.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Reporting</h1><h3>Store</h3>
+<ul>
+	<li>Stores report data on puppetmaster as YAML.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Reporting</h1><h3>Tagmail</h3>
+<ul>
+	<li>Delivers log reports via email for messages of notice or above.</li>
+</ul>
+<pre class='code'>
+#
+# /etc/puppet/tagmap.conf
+#
+
+all: fng@puppetlabs.com
+webserver: webadmin@puppetlabs.com
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Reporting</h1><h3>Processing reports</h3>
+<p>The following methods from Puppet::Transaction::Report are available to your reports.</p>
+<ul>
+	<li>host &#8211; certificate name of reporting host</li>
+	<li>time &#8211; time when the report was generated</li>
+	<li>logs &#8211; list of log messages associated with report</li>
+	<li>metrics &#8211; metrics for report</li>
+	<li>resource_statuses &#8211; mapping of resource status for a run to events.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Reporting</h1><h3>Report Logs: Information about messages logged during a run.</h3>
+<ul>
+	<li>level: loglevel</li>
+	<li>message:</li>
+	<li>source: resource that generated message.
+	<ul>
+		<li><code>Puppet</code> indicates the message was not generated by a resource.</li>
+	</ul></li>
+	<li>tags: All tags associated with resource.</li>
+	<li>time: Time message was generated.</li>
+	<li>version: Version associated with message source.
+	<ul>
+		<li>config_version configuration parameter.</li>
+		<li>puppet version</li>
+	</ul></li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Reporting</h1><h3>Report Metrics</h3>
+<ul>
+	<li>time
+	<ul>
+		<li>schedule</li>
+		<li>Config retrieval</li>
+		<li>filebucket</li>
+		<li>resource times</li>
+	</ul></li>
+	<li>resources
+	<ul>
+		<li>total, out of sync, failed, changed, skipped, failed to restart</li>
+	</ul></li>
+	<li>events
+	<ul>
+		<li>totals, successful, failures</li>
+	</ul></li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Reporting</h1><h3>Report resource status</h3>
+<ul>
+	<li>Hashes resource id =&gt; Puppet::Resource::Status
+	<ul>
+		<li>Puppet::Resource::Status
+		<ul>
+			<li>evaluation_time: resource evaluation time.</li>
+			<li>events: events that have been triggered by resoureces.</li>
+			<li>file: source file containing resource declaration</li>
+			<li>line: line of the source file where resource is declared</li>
+			<li>resource: resource id &#8211; Type[&#8216;title&#8217;]</li>
+			<li>source_description: Fully qualified resource id</li>
+			<li>tags: list of tags applied the resource</li>
+			<li>time: when resource was evaluated</li>
+			<li>version: version for certain configuration</li>
+		</ul></li>
+	</ul></li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Reporting</h1><h3>Events</h3>
+<ul>
+	<li>When resources need to be synchronized, they create events.</li>
+</ul>
+<ul>
+	<li>Puppet::Transaction::Event
+	<ul>
+		<li>name:</li>
+		<li>desired_value:</li>
+		<li>previous_value: !ruby/sym absent</li>
+		<li>message:</li>
+		<li>property:</li>
+		<li>resource:</li>
+		<li>status: success</li>
+		<li>tags:</li>
+	</ul></li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Reporting</h1><h3>Puppet Agent</h3>
+<pre class='code'>
+#
+# /etc/puppet/puppet.conf
+#
+[agent]
+    report = true
+
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Reporting</h1><h3>Puppet Master</h3>
+<pre class='code'>
+#
+# /etc/puppet/puppet.conf
+#
+[master]
+    reports = tagmail,store,log
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Lab</h1></div>
+<div class='slide '>
+<h1>Lab: Reporting with the Puppet Dashboard</h1><h3>Create:</h3>
+<ul>
+	<li>Puppet Dashboard instance
+	<ul>
+		<li><code>yum install puppet-dashboard mysql mysql-server</code></li>
+		<li><code>service mysqld start &amp;&amp; chkconfig mysqld on</code></li>
+		<li><code>cd /usr/share/puppet-dashboard</code></li>
+		<li><code>rake RAILS_ENV=production db:create</code></li>
+		<li><code>rake RAILS_ENV=production db:migrate</code></li>
+		<li><code>service puppet-dashboard start &amp;&amp; chkconfig puppet-dashboard on</code></li>
+	</ul></li>
+</ul>
+<h3>Do:</h3>
+<ul>
+	<li>Point web browser at VM&#8217;s ipaddress, port 3000. eg. <code>http://192.168.135.131:3000</code></li>
+	<li>Verify that no nodes are in Dashboard yet.</li>
+	<li>Create directory: <code>mkdir -p /var/lib/puppet/lib/puppet/reports</code></li>
+	<li>Copy report processor: <code>cp /usr/share/puppet-dashboard/ext/puppet/puppet_dashboard.rb /var/lib/puppet/lib/puppet/reports/</code></li>
+	<li>Add <code>puppet_dashboard</code> to the <code>reports=</code> line in <code>puppet.conf</code></li>
+	<li>Do a <code>puppet agent</code> run to submit a report.</li>
+	<li>Verify that the agent&#8217;s report appeared in the Dashboard.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>External Nodes</h1><h3>Puppet allows you to specify an external nodes classification tool.</h3>
+<ul>
+	<li>Replaces node declarations in <code>/etc/puppet/manifests/site.pp</code>.</li>
+	<li>Allows specification of a <code>list</code> of classes and a <code>hash</code> of parameters.</li>
+	<li>Variables are set at top scope.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>External Nodes</h1><h3>Configuring</h3>
+<pre class='code'>
+# /etc/puppet/puppet.conf on the puppetmaster
+[master]
+  node_terminus = exec
+  external_nodes = /usr/bin/puppet_external_node.rb
+</pre>
+
+</div>
+<div class='slide '>
+<h1>External Nodes</h1><h3>When executed with <code>$certname</code> as an argument, External Nodes scripts output YAML to STDOUT.:</h3>
+<pre class='code'>
+classes:
+ - common
+ - puppet
+ - dns
+ - ntp
+parameters:
+ puppet_server: puppet.puppetlabs.net
+ dns_server: ns.puppetlabs.net
+ datacenter: slicehost
+</pre>
+
+</div>
+<div class='slide '>
+<h1>External Nodes</h1><h3>Which is equivalent to</h3>
+<pre class='code'>
+node "somenode.puppetlabs.net" {
+  $puppet_server = "puppet.puppetlabs.net"
+  $dns_server    = "ns.puppetlabs.net"
+  $datacenter    = "slicehost"
+  include common, puppet, dns, ntp
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>External Nodes</h1><div style="text-align: center;">
+<p><br/>
+<img src="images/NodeClassifier.png" /></p>
+</div>
+
+</div>
+<div class='slide '>
+<h1>External Nodes</h1><h3>Exercise: External Nodes with the Puppet Dashboard</h3>
+<ul>
+	<li>Modify <code>puppet.conf</code> to use the Dashboard external_node script
+<pre class='code'>
+[master]
+  node_terminus = exec
+  external_nodes = /usr/share/puppet-dashboard/bin/external_node
+</pre></li>
+	<li><code>service puppet-dashboard restart</code></li>
+	<li>Add your available classes to the dashboard by selecting <code>Add Class</code></li>
+	<li>If a node is not already present in the dashboard, add a node with the client&#8217;s $certname using the <code>Add node</code> button.</li>
+	<li>Set parameters for that node and include some classes.</li>
+	<li>Verify that classes and parameters were assigned to nodes by doing a <code>puppet agent</code> run.</li>
+</ul>
+<h3>Extra:</h3>
+<ul>
+	<li>Create a group with parameters and classes</li>
+	<li>Assign nodes to the group</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Exported Resources</h1><h3>Puppet has the ability to export resources to a database so that they can be collected and used on other hosts.</h3>
+<pre class='code'>
+class hosts {
+ @@host { $hostname: ip =&gt; $ipaddress, host_aliases =&gt; $fqdn }
+ Host &lt;&lt;||&gt;&gt;
+}
+</pre>
+
+</div>
+<div class='slide '>
+<h1>Exported Resources</h1><h3>Allows nodes to collectively share information</h3>
+<ul>
+	<li>requires configuration of storeconfigs.</li>
+</ul>
+<div style="text-align: center;">
+<p><br/>
+<img src="images/ExportedResources.png" /></p>
+</div>
+
+</div>
+<div class='slide '>
+<h1>Exported Resources</h1><h3>But what if there is a host entry that we don&#8217;t want to have in the <code>/etc/host</code> files.</h3>
+<ul>
+	<li>We can use the <code>resources</code> resource to purge rogue entries.</li>
+	<li>Exported resources for decommissioned servers must be purged from the database using a script.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Lab</h1></div>
+<div class='slide '>
+<h1>Lab: Configuring storeconfigs, exporting and collecting resources.</h1><h3>Create:</h3>
+<ul>
+	<li>Storeconfigs database on your Puppet server
+	<ul>
+		<li><code>yum install sqlite rubygem-sqlite3-ruby rubygem-rails</code></li>
+	</ul></li>
+</ul>
+<pre class='code'>
+# /etc/puppet/puppet.conf
+[master]
+  storeconfigs = true
+  dbadapter = sqlite3
+  dblocation = /var/lib/puppet/storeconfigs.sqlite
+</pre>
+<ul>
+	<li>You must restart puppet master to initialize the storeconfigs db.
+	<ul>
+		<li><code>service puppetmaster restart</code></li>
+	</ul></li>
+</ul>
+<h3>Use:</h3>
+<ul>
+	<li>The <code>resources</code> resource to setup purging for invalid keys.</li>
+	<li>Using the ssh module, export all host sshkeys and collect them on all servers.</li>
+</ul>
+
+</div>
+<div class='slide '>
+<h1>Future Architecture</h1><div style="text-align: center;">
+<p><br/>
+<img src="images/PuppetWorld.png" /></p>
+</div></div>
+
+
+  </div> <!-- presentation -->
+</body>
+</html> 
+

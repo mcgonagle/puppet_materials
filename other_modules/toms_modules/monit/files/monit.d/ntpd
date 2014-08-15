@@ -1,0 +1,8 @@
+check process ntpd
+   with pidfile "/var/run/ntpd.pid"
+   start program = "/etc/init.d/ntpd start"
+   stop program = "/etc/init.d/ntpd stop"
+   if 2 restarts within 3 cycles then timeout
+   if totalmem > 100 Mb then alert
+   if cpu usage > 95% for 3 cycles then restart
+   #if failed port 80 protocol http then restart

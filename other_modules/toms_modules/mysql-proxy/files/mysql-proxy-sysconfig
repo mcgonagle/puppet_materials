@@ -1,0 +1,3 @@
+# Options to mysql-proxy 
+# do not remove --daemon
+PROXY_OPTIONS="--daemon"

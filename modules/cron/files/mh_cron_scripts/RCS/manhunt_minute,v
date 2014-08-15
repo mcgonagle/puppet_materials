@@ -1,0 +1,59 @@
+head	1.3;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.3
+date	2010.08.09.15.38.59;	author rbraun;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2010.08.09.14.31.13;	author rbraun;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2008.02.06.19.56.38;	author rbraun;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.3
+log
+@path name also wrong
+@
+text
+@#! /bin/sh
+
+cd /usr/local/manhunt/cron
+mysql -h jpdb01 -u apache -pLQSyM manhunt_jp < minute.sql
+@
+
+
+1.2
+log
+@db name updated
+@
+text
+@d3 1
+a3 1
+cd /usr/local/bin/
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d4 1
+a4 1
+mysql -h jpdb02.manhunt.net -u apache -pLQSyM manhunt_jp < minute.sql
+@

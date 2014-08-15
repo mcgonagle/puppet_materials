@@ -1,0 +1,116 @@
+head	1.3;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.3
+date	2008.10.28.17.36.02;	author sfrattura;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2008.10.28.17.33.34;	author sfrattura;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2008.10.28.17.30.58;	author sfrattura;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.3
+log
+@cleaned  up and deleted commented out sections.  changed one variable name
+@
+text
+@#!/bin/bash
+# $Id: emailfbl_msn.sh,v 1.2 2008/10/28 17:33:34 sfrattura Exp sfrattura $
+#
+# Created 10/28 by sfrattura
+
+. /etc/manhunt/source.sh
+
+HOST=${MHMASTERDBHOST}
+VERBOSITY=-vv
+LOG=/var/tmp/fbl-`whoami`.log
+
+if [ "`$MYSQL -u $DBUSER -h $HOST -p$DBPASSWD $MANHUNTDB -e 'show databases'`" == "" ]
+then
+echo "Cannot connect to database."
+exit $ERROR
+fi
+
+if [ "`touch $LOG 2>&1`" != "" ]
+then 
+echo "Cannot write to logfile."
+exit $ERROR
+fi
+
+
+echo "START $APPNAME `date`" >> $LOG
+
+stringToSeek=X-MH-UID:
+
+cat /var/mail/abusemsn | while read line
+do
+  temp=`echo $line | awk ' { printf $1 } '`
+  if [ "$temp" = "$stringToSeek" ]
+    then
+
+      FinalUID=`echo $line | awk ' { printf $2} '`
+
+      QryResult=`$MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD manhunt -e  "select uid, username from Users WHERE uid = $FinalUID AND notify = 1"`
+
+     if [ -z "$QryResult" ]
+       then
+          exit 1;   ## i.e. the uid is not going to get updated, most likely because his notify is not set to 1(true)
+       else
+           $MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD $VERBOSITY manhunt -e  "UPDATE Users SET notify=0, emailErrorMsg = CONCAT(email,' EMAIL abuse report ', now()) WHERE uid = '$FinalUID'" >> $LOG                          
+     fi
+    else
+      exit 2;    ## i.e. the stringToSeek was not found
+    fi
+done
+
+echo "FINISH $APPNAME `date`" >> $LOG
+echo >> $LOG
+exit 0;
+@
+
+
+1.2
+log
+@first checkin
+@
+text
+@d2 1
+a2 1
+# $Id: emailfbl_aol.sh,v 1.8 2008/10/28 16:14:37 rbraun Exp $
+d4 1
+a4 1
+# Created 10/08 by sfrattura
+d37 1
+a37 3
+       SFVAR=`$MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD manhunt -e  "select uid, username from Users WHERE uid = $FinalUID AND notify = 1"`
+#      $MYSQL -u $DBUSER -h $HOST --password=$DBPASSWD $VERBOSITY manhunt -e \
+#      "UPDATE Users SET notify=0, emailErrorMsg = CONCAT(email,' AOL abuse report ', now()) WHERE username = '$FinalUsername' AND email <> ''" >> $LOG
+d39 1
+a39 1
+     if [ -z "$SFVAR" ]
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 54
+@

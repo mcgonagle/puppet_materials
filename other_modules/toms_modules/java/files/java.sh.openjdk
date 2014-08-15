@@ -1,0 +1,8 @@
+# /etc/profile.d/java.sh
+
+# System wide environment and startup programs, for login setup
+# Functions and aliases go in /etc/bashrc
+
+
+JAVA_HOME=/usr/lib/jvm/java-1.6.0-openjdk-1.6.0.0.x86_64/jre
+export JAVA_HOME

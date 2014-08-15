@@ -1,0 +1,563 @@
+head	1.10;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.10
+date	2010.10.14.20.07.30;	author apradhan;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	2010.10.13.12.51.47;	author wflynn;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	2010.10.07.18.56.47;	author wflynn;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	2010.09.15.10.53.03;	author apradhan;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	2010.09.01.01.23.22;	author dcote;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	2010.06.09.01.37.35;	author dcote;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	2009.11.23.15.20.08;	author wflynn;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2009.10.13.15.01.36;	author wflynn;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2009.10.02.20.28.03;	author wflynn;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2009.10.02.20.27.48;	author wflynn;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.10
+log
+@added iphone
+@
+text
+@#!/bin/bash -X
+#
+# cacherator.sh
+#
+# $Id: cacherator.sh,v 1.9 2010/10/13 12:51:47 wflynn Exp apradhan $
+#
+# WFlynn 03/09
+#
+# Stupid script for resetting caches to commit a release
+#
+
+ENVIRONMENT=${1}
+FELIST=(
+    www01
+    www02
+    www03
+    www04
+    www06
+    www07
+    www08
+    www09
+    www10
+    www13
+    www14
+    www15
+    www16
+    www17
+    www18
+    www19
+    www20
+    www21
+    www22
+    www23
+    www24
+    www25
+    www26
+    www27
+    www28
+    www31
+    www32
+)
+
+BILLINGLIST=(
+    billing01
+    billing02
+    billing03
+    billing06
+)
+
+ADMINLIST=(
+    admin41
+)
+
+STGFELIST=(
+    www05
+    www-i01
+)
+
+STGBILLINGLIST=(
+    billing04
+    billing05
+)
+
+STGADMINLIST=(
+    admin42
+)
+
+#  REAL YOR
+YOR="\\033[0;1m\\033[m\\033[1;33;41m\\c"
+YOG="\\033[0;1m\\033[m\\033[1;33;42m\\c"
+NYOR="\\033[1m\\033[m\\n"
+
+#WGET="/usr/bin/lynx -dump -accept_all_cookies"
+WGET="/usr/bin/wget  --max-redirect=0 --no-check-certificate -q -O-"
+WGETQ="/usr/bin/wget  --max-redirect=0 --no-check-certificate -q -O /dev/null"
+LYNX="/usr/bin/lynx -dump --force-html -stdin"
+CCHK="grep -q Cleared"
+
+bounce_memcache() {
+    HOSTLIST=( `echo "$@@"` )
+    for HOST in ${HOSTLIST[*]}
+    do
+	echo "Memcaches Trying: ${HOST}..."
+	TURL="http://${HOST}.v4.waltham.manhunt.net/debuginfobasic.php"
+	# echo "${TURL}"
+	if ${WGETQ} ${TURL}
+	then
+	    echo "${HOST} appears up.  Clearing memcaches..."
+	    GURL="http://${HOST}.v4.waltham.manhunt.net/index.php/user/genMemclear/pass/w74byru4r416dfphj7jm2f"
+	    EURL="http://${HOST}.v4.waltham.manhunt.net/index.php/user/entMemclear/pass/w74byru4r416dfphj7jm2f"
+	    # echo "Trying: ${GURL}"
+	    if ${WGET} ${GURL} | ${LYNX} | ${CCHK}
+	    then 
+		echo -e ${YOG}
+		echo -e "${HOST} General Memcache Cleared...\\c"
+		echo -e ${NYOR}
+		# echo "Trying: ${EURL}"
+		if ${WGET} ${EURL} | ${LYNX} | ${CCHK}
+		then
+		    echo -e ${YOG}
+		    echo -e "${HOST} Entitlements Memcache Cleared...\\c"
+		    echo -e ${NYOR}
+		    return
+		else
+		    continue
+		fi
+	    else
+		continue
+	    fi
+	else
+	    echo "Memcaches: ${HOST} Not up!"
+	    continue
+	fi
+	echo -e ${NYOR}
+    done
+    ## FALL THROUGH
+    echo -e ${YOR}
+    echo -e "\n\nMEMCACHES NOT CLEARED!\n\nI COULDN'T REACH A WEBHEAD IN ${ENVIRONMENT}!\n\nDID YOU FUCK SOMETHING UP?\n\n\\c"
+    echo -e ${NYOR}
+}
+
+bounce_apccache () {
+    AHOST=$1
+    AURL=$2
+    if ${WGET} ${AURL} | ${LYNX} | ${CCHK}
+    then
+	echo -e ${YOG}
+	echo -e "\aAPC CACHE ON ${AHOST} CLEARED\\c"
+	echo -e ${NYOR}
+    else
+	echo -e ${YOR}
+	echo -e "\aAPC CACHE ON ${AHOST} NOT CLEARED\\c"
+	echo -e ${NYOR}
+    fi
+}
+
+case "${ENVIRONMENT}" in
+    PRODUCTION)
+	# FIRST PASS
+	for HOST in ${FELIST[*]}
+	do
+	    echo "${HOST}..."
+	    URL="http://${HOST}.v4.waltham.manhunt.net/user/apcClear/pass/w74byru4r416dfphj7jm2f"
+	    # echo "${URL}"
+	    bounce_apccache ${HOST} ${URL}
+	done
+	for HOST in ${BILLINGLIST[*]}
+	do
+	    echo "${HOST}..."
+	    URL="https://${HOST}.v4.waltham.manhunt.net/user/apcClear/pass/w74byru4r416dfphj7jm2f"
+	    # echo "${URL}"
+	    bounce_apccache ${HOST} ${URL}
+	done
+	for HOST in ${ADMINLIST[*]}
+	do
+	    echo "${HOST}..."
+	    URL="https://${HOST}.v4.waltham.manhunt.net/admin.php/home/apcClear/pass/w74byru4r416dfphj7jm2f"
+	    # echo "${URL}"
+	    bounce_apccache ${HOST} ${URL}
+	done
+	# MEMCACHES
+	bounce_memcache `echo ${FELIST[@@]}`
+	# SECOND PASS
+	for HOST in ${FELIST[*]}
+	do
+	    echo "${HOST}..."
+	    URL="http://${HOST}.v4.waltham.manhunt.net/user/apcClear/pass/w74byru4r416dfphj7jm2f"
+	    # echo "${URL}"
+	    bounce_apccache ${HOST} ${URL}
+	done
+	for HOST in ${BILLINGLIST[*]}
+	do
+	    echo "${HOST}..."
+	    URL="https://${HOST}.v4.waltham.manhunt.net/user/apcClear/pass/w74byru4r416dfphj7jm2f"
+	    # echo "${URL}"
+	    bounce_apccache ${HOST} ${URL}
+	done
+	for HOST in ${ADMINLIST[*]}
+	do
+	    echo "${HOST}..."
+	    URL="https://${HOST}.v4.waltham.manhunt.net/admin.php/home/apcClear/pass/w74byru4r416dfphj7jm2f"
+	    # echo "${URL}"
+	    bounce_apccache ${HOST} ${URL}
+	done
+	;;
+    STAGING)
+	# FIRST PASS
+	for HOST in ${STGFELIST[*]}
+	do
+	    echo "${HOST}..."
+	    URL="http://${HOST}.v4.waltham.manhunt.net/user/apcClear/pass/w74byru4r416dfphj7jm2f"
+	    # echo "${URL}"
+	    bounce_apccache ${HOST} ${URL}
+	done
+	for HOST in ${STGBILLINGLIST[*]}
+	do
+	    echo "${HOST}..."
+	    URL="https://${HOST}.v4.waltham.manhunt.net/user/apcClear/pass/w74byru4r416dfphj7jm2f"
+	    # echo "${URL}"
+	    bounce_apccache ${HOST} ${URL}
+	done
+	for HOST in ${STGADMINLIST[*]}
+	do
+	    echo "${HOST}..."
+	    URL="https://${HOST}.v4.waltham.manhunt.net/admin.php/home/apcClear/pass/w74byru4r416dfphj7jm2f"
+	    # echo "${URL}"
+	    bounce_apccache ${HOST} ${URL}
+	done
+	# MEMCACHES
+	bounce_memcache `echo ${STGFELIST[@@]}`
+	# SECOND PASS
+	for HOST in ${STGFELIST[*]}
+	do
+	    echo "${HOST}..."
+	    URL="http://${HOST}.v4.waltham.manhunt.net/user/apcClear/pass/w74byru4r416dfphj7jm2f"
+	    # echo "${URL}"
+	    bounce_apccache ${HOST} ${URL}
+	done
+	for HOST in ${STGBILLINGLIST[*]}
+	do
+	    echo "${HOST}..."
+	    URL="https://${HOST}.v4.waltham.manhunt.net/user/apcClear/pass/w74byru4r416dfphj7jm2f"
+	    # echo "${URL}"
+	    bounce_apccache ${HOST} ${URL}
+	done
+	for HOST in ${STGADMINLIST[*]}
+	do
+	    echo "${HOST}..."
+	    URL="https://${HOST}.v4.waltham.manhunt.net/admin.php/home/apcClear/pass/w74byru4r416dfphj7jm2f"
+	    # echo "${URL}"
+	    bounce_apccache ${HOST} ${URL}
+	done
+	;;
+    *)
+	echo "Unknown argument: ${ENVIRONMENT}" && echo "Usage: $0 ENVIRONMENT" && exit
+	;;
+esac
+@
+
+
+1.9
+log
+@TOOL-41  Fixed problem where YSG stopped memcaches from being cleared
+Also enhanced notifications
+@
+text
+@d5 1
+a5 1
+# $Id: cacherator.sh 62 2010-10-13 12:50:23Z wflynn $
+d56 1
+@
+
+
+1.8
+log
+@SYS-3488 add www31/32
+@
+text
+@d1 1
+a1 1
+#!/bin/bash
+d5 1
+a5 1
+# $Id: cacherator.sh 61 2010-10-07 18:55:10Z wflynn $
+d67 5
+d74 1
+d76 59
+d138 1
+d143 2
+a144 2
+	    echo "${URL}"
+	    ${WGET} ${URL} | ${LYNX}
+d150 2
+a151 2
+	    echo "${URL}"
+	    ${WGET} ${URL} | ${LYNX}
+d157 2
+a158 2
+	    echo "${URL}"
+	    ${WGET} ${URL} | ${LYNX}
+d160 3
+a162 7
+	echo "Caches..."
+	URL="http://www.manhunt.net/index.php/user/genMemclear/pass/w74byru4r416dfphj7jm2f"
+	echo "${URL}"
+	${WGET} ${URL} | ${LYNX}
+	URL="http://www.manhunt.net/index.php/user/entMemclear/pass/w74byru4r416dfphj7jm2f"
+	echo "${URL}"
+	${WGET} ${URL} | ${LYNX}
+d167 2
+a168 2
+	    echo "${URL}"
+	    ${WGET} ${URL} | ${LYNX}
+d174 2
+a175 2
+	    echo "${URL}"
+	    ${WGET} ${URL} | ${LYNX}
+d181 2
+a182 2
+	    echo "${URL}"
+	    ${WGET} ${URL} | ${LYNX}
+d186 1
+d191 2
+a192 2
+	    echo "${URL}"
+	    ${WGET} ${URL} | ${LYNX}
+d198 2
+a199 2
+	    echo "${URL}"
+	    ${WGET} ${URL} | ${LYNX}
+d205 2
+a206 2
+	    echo "${URL}"
+	    ${WGET} ${URL} | ${LYNX}
+d208 3
+a210 7
+	echo "Caches..."
+	URL="http://www-staging.manhunt.net/index.php/user/genMemclear/pass/w74byru4r416dfphj7jm2f"
+	echo "${URL}"
+	${WGET} ${URL} | ${LYNX}
+	URL="http://www-staging.manhunt.net/index.php/user/entMemclear/pass/w74byru4r416dfphj7jm2f"
+	echo "${URL}"
+	${WGET} ${URL} | ${LYNX}
+d215 2
+a216 2
+	    echo "${URL}"
+	    ${WGET} ${URL} | ${LYNX}
+d222 2
+a223 2
+	    echo "${URL}"
+	    ${WGET} ${URL} | ${LYNX}
+d229 2
+a230 2
+	    echo "${URL}"
+	    ${WGET} ${URL} | ${LYNX}
+a235 1
+
+@
+
+
+1.7
+log
+@temporarily removed www12
+@
+text
+@d5 1
+a5 1
+# $Id: cacherator.sh,v 1.6 2010/09/01 01:23:22 dcote Exp apradhan $
+d39 3
+a41 1
+    )
+d48 1
+a48 1
+    )
+d52 1
+a52 1
+    )
+d56 1
+a56 1
+    )
+d61 1
+a61 1
+    )
+d65 1
+a65 1
+    )
+@
+
+
+1.6
+log
+@added www27/28
+@
+text
+@d5 1
+a5 1
+# $Id: cacherator.sh,v 1.5 2010/06/09 01:37:35 dcote Exp dcote $
+a22 1
+    www12
+@
+
+
+1.5
+log
+@added additional host for cache clearing.
+@
+text
+@d5 1
+a5 1
+# $Id: cacherator.sh,v 1.4 2009/11/23 15:20:08 wflynn Exp $
+d38 2
+@
+
+
+1.4
+log
+@moved staging to www05
+@
+text
+@d5 1
+a5 1
+# $Id: cacherator.sh,v 1.3 2009/10/13 15:01:36 wflynn Exp wflynn $
+d34 4
+d44 1
+@
+
+
+1.3
+log
+@new version with more output
+@
+text
+@d5 1
+a5 1
+# $Id: $
+a17 1
+    www05
+d47 1
+a47 1
+    www11
+@
+
+
+1.2
+log
+@Stupid Cacherator Script
+@
+text
+@d5 1
+a5 1
+# $Id: cacherator.sh,v 1.1 2009/10/02 20:27:48 wflynn Exp wflynn $
+d7 1
+a7 1
+# WFlynn 10/09
+d61 1
+a61 1
+WGET="/usr/bin/wget --no-check-certificate -q -O-"
+d69 3
+a71 1
+	    ${WGET}  http://${HOST}.v4.waltham.manhunt.net/user/apcClear/pass/w74byru4r416dfphj7jm2f | ${LYNX}
+d76 3
+a78 1
+	    ${WGET}  https://${HOST}.v4.waltham.manhunt.net/user/apcClear/pass/w74byru4r416dfphj7jm2f | ${LYNX}
+d83 3
+a85 1
+	    ${WGET}  https://${HOST}.v4.waltham.manhunt.net/admin.php/home/apcClear/pass/w74byru4r416dfphj7jm2f | ${LYNX}
+d88 6
+a93 2
+	${WGET} http://www.manhunt.net/index.php/user/genMemclear/pass/w74byru4r416dfphj7jm2f | ${LYNX}
+	${WGET} http://www.manhunt.net/index.php/user/entMemclear/pass/w74byru4r416dfphj7jm2f | ${LYNX}
+d97 3
+a99 1
+	    ${WGET}  http://${HOST}.v4.waltham.manhunt.net/user/apcClear/pass/w74byru4r416dfphj7jm2f | ${LYNX}
+d104 3
+a106 1
+	    ${WGET}  https://${HOST}.v4.waltham.manhunt.net/user/apcClear/pass/w74byru4r416dfphj7jm2f | ${LYNX}
+d111 3
+a113 1
+	    ${WGET}  https://${HOST}.v4.waltham.manhunt.net/admin.php/home/apcClear/pass/w74byru4r416dfphj7jm2f | ${LYNX}
+d120 3
+a122 1
+	    ${WGET}  http://${HOST}.v4.waltham.manhunt.net/user/apcClear/pass/w74byru4r416dfphj7jm2f | ${LYNX}
+d127 3
+a129 1
+	    ${WGET}  https://${HOST}.v4.waltham.manhunt.net/user/apcClear/pass/w74byru4r416dfphj7jm2f | ${LYNX}
+d134 3
+a136 1
+	    ${WGET}  https://${HOST}.v4.waltham.manhunt.net/admin.php/home/apcClear/pass/w74byru4r416dfphj7jm2f | ${LYNX}
+d139 6
+a144 2
+	${WGET} http://www-staging.manhunt.net/index.php/user/genMemclear/pass/w74byru4r416dfphj7jm2f | ${LYNX}
+	${WGET} http://www-staging.manhunt.net/index.php/user/entMemclear/pass/w74byru4r416dfphj7jm2f | ${LYNX}
+d148 3
+a150 1
+	    ${WGET}  http://${HOST}.v4.waltham.manhunt.net/user/apcClear/pass/w74byru4r416dfphj7jm2f | ${LYNX}
+d155 3
+a157 1
+	    ${WGET}  https://${HOST}.v4.waltham.manhunt.net/user/apcClear/pass/w74byru4r416dfphj7jm2f | ${LYNX}
+d162 3
+a164 1
+	    ${WGET}  https://${HOST}.v4.waltham.manhunt.net/admin.php/home/apcClear/pass/w74byru4r416dfphj7jm2f | ${LYNX}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d5 1
+a5 1
+# $Id: $
+d7 1
+a7 1
+# WFlynn 03/09
+@

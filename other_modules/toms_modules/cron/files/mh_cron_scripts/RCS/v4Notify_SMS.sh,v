@@ -1,0 +1,612 @@
+head	1.16;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.16
+date	2009.08.14.16.39.42;	author wflynn;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	2009.07.29.16.55.37;	author wflynn;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	2009.06.23.14.05.01;	author sfrattura;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	2009.06.15.16.16.09;	author wflynn;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	2009.05.29.17.27.36;	author sfrattura;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	2009.05.12.16.04.09;	author sfrattura;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	2009.04.14.16.19.05;	author sfrattura;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	2009.04.02.02.49.51;	author sfrattura;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	2009.04.01.15.33.39;	author sfrattura;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	2009.04.01.15.27.46;	author sfrattura;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	2009.03.31.14.28.56;	author wflynn;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	2009.03.03.16.38.02;	author sfrattura;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	2009.03.02.15.01.39;	author sfrattura;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2009.02.24.00.33.09;	author sfrattura;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2009.02.23.18.40.15;	author sfrattura;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2009.02.17.23.21.48;	author sfrattura;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.16
+log
+@Added some info to logging
+@
+text
+@#!/bin/sh
+# SMS Notifier, Sandro Frattura Feb 2009
+PID=${$}
+. /etc/manhunt/source.sh
+
+PASS=${V4_PW}
+USER=${V4_USER}
+USERHOST=${V4_ROSLAVE}
+USERDB=${V4_USERDB}
+LOG=${CARE_LOG}
+ERROR=1
+VERBOSITY=-vv
+
+#  Run as care.
+if [ "$UID" -ne "$CARE_UID" ]
+then
+    echo "You Must be care to run this script."
+    exit $ERROR
+fi
+
+if [ "`touch $LOG`" != "" ]
+then
+    echo "Cannot write to logfile."
+    exit $ERROR
+fi
+
+if [ -z "$1" -o -z "$2" -o -z "$3" ]
+then
+    echo "Need Three Parameters!!"
+    echo "    1-daily or weekly"
+    echo "    2-#of users (for testing the script)                        -- pass in \"0\" to run ALL users"
+    echo "    3-emailAddress for testing (all emails go to this address)  -- pass in \"REAL\" to send the real email address"
+    exit 1
+fi
+
+PIDFILE="$TEMP/v4Notify_SMS.${1}.pid"
+
+if [ `cat ${PIDFILE}` ] && [ -d /proc/`cat ${PIDFILE}` ]
+then
+    echo `date` "$0 $1 appears to be running already. Not starting." >> $LOG
+else
+    echo ${PID} > ${PIDFILE}
+
+    echo SCRIPT STARTED ON `date` >> $LOG
+
+# Are we sending weekly or daily notices?
+    if [ "$1" = "daily" ]
+    then
+	type=7;
+	interval="4 hour";
+	titleType="Daily";
+    else
+	type=1;
+	interval="12 hour";
+	titleType="Weekly";
+    fi
+
+
+    select="select concat(concat('bkp-mailshard',shlutshard), '|', user.uid,  '|',  concat(smsPhone, '@@', spDomain) ,'|', username)  from user natural join profiles natural join as_search natural join user_sms natural join sms_providers join mailbox_shlut on mod(user.uid,100) = slotNumber "
+    where="where verified = 'Y' and abuse = 0 and smsContactFreq = "$type
+
+
+    if [ "$2" = "0" ]
+    then
+	limit=""
+    else
+	limit="limit $2"
+    fi
+
+    sql="$select $where $limit"
+
+    LoopCounter=0
+
+    for row in `mysql -u $USER -p$PASS -h $USERHOST $USERDB -s -e "$sql"`
+    do
+	userName=`cut -d"|" -f4 <<< $row`
+	userEmail=`cut -d"|" -f3 <<< $row`
+	userID=`cut -d"|" -f2 <<< $row`
+	userMailServer=`cut -d"|" -f1 <<< $row`
+
+	mailInfoString=`mysql -u $USER -p$PASS -h $userMailServer $MAILDB -s -e "select distinct concat(totalMessages-readMessages, '|') from mailbox_folder where uid=$userID and name = 'inbox'"`
+
+
+	userUnreadCount=`cut -d"|" -f1 <<< $mailInfoString`
+
+	if [ "$userUnreadCount" != "0" ]
+	then
+	    let "LoopCounter=$LoopCounter+1"
+
+	    part1=" new message"
+	    part2=" on MANHUNT for "
+	    part3="  Log in to www.manhunt.net to check mail/change settings, or call +1 617 424 9999"
+
+	    case "$userUnreadCount"
+		in
+		[1]) pluralize="";;
+		*) pluralize="s";;
+	    esac
+
+	    if [ "$3" = "REAL" ]
+	    then
+		email2Use=$userEmail
+	    else
+		email2Use="$3"
+	    fi
+
+	    full_email=$userUnreadCount$part1$pluralize$part2$userName$part3
+
+	    if [ "$VERBOSITY" = "-vvv" ]
+	    then
+		echo ______________________________ >> $LOG
+		echo `date` >> $LOG
+		echo >> $LOG
+		echo sms sent to:  $email2Use >> $LOG
+		echo >> $LOG
+		echo $full_email >> $LOG
+		echo >> $LOG
+	    elif [ "$VERBOSITY" = "-vv" ]
+	    then
+		echo "  -- ${1} process ${PID}: Message sent to $userName ($email2Use)" >> $LOG
+	    fi
+	    
+	    echo -e "$full_email" > /var/tmp/email_queue/"$userName"_sms.txt
+
+#Send the actual email
+	    /usr/local/manhunt/cron/treet_pusher.py -e$email2Use -f/var/tmp/email_queue/"$userName"_sms.txt -i$userID -u$userName -s"-"
+
+	    let "MyModulus = $LoopCounter%500"
+	    if [ "$MyModulus" = "0" ]
+	    then
+
+     #now send the BCC
+		/usr/local/manhunt/cron/treet_pusher.py -e6176450914@@messaging.sprintpcs.com -f/var/tmp/email_queue/"$userName"_sms.txt -i$userID -u$userName -s"-"
+	    fi
+
+
+
+	    rm /var/tmp/email_queue/"$userName"_sms.txt
+
+	fi
+    done
+
+    echo SCRIPT ENDED ON `date` >> $LOG
+
+fi
+@
+
+
+1.15
+log
+@Make singleton SYS-1906
+@
+text
+@d120 1
+a120 1
+		echo "  -- Message sent to $userName ($email2Use)" >> $LOG
+d122 1
+a122 1
+
+@
+
+
+1.14
+log
+@changed teh BCC modulus from every 100 texts to every 500 texts
+@
+text
+@d3 1
+d17 2
+a18 2
+ echo "You Must be care to run this script."
+  exit $ERROR
+d23 2
+a24 2
+echo "Cannot write to logfile."
+exit $ERROR
+d29 5
+a33 5
+echo "Need Three Parameters!!"
+echo "    1-daily or weekly"
+echo "    2-#of users (for testing the script)                        -- pass in \"0\" to run ALL users"
+echo "    3-emailAddress for testing (all emails go to this address)  -- pass in \"REAL\" to send the real email address"
+exit 1
+d36 1
+a36 1
+echo SCRIPT STARTED ON `date` >> $LOG
+d38 1
+a38 2
+# Are we sending weekly or daily notices?
+if [ "$1" = "daily" ]
+d40 1
+a40 3
+  type=7;
+  interval="4 hour";
+  titleType="Daily";
+d42 1
+a42 4
+  type=1;
+  interval="12 hour";
+  titleType="Weekly";
+fi
+d44 1
+d46 76
+a121 30
+select="select concat(concat('bkp-mailshard',shlutshard), '|', user.uid,  '|',  concat(smsPhone, '@@', spDomain) ,'|', username)  from user natural join profiles natural join as_search natural join user_sms natural join sms_providers join mailbox_shlut on mod(user.uid,100) = slotNumber "
+where="where verified = 'Y' and abuse = 0 and smsContactFreq = "$type
+
+
+if [ "$2" = "0" ] 
+then
+  limit="" 
+else
+  limit="limit $2"
+fi
+ 
+sql="$select $where $limit"
+
+LoopCounter=0
+
+for row in `mysql -u $USER -p$PASS -h $USERHOST $USERDB -s -e "$sql"`
+do
+  userName=`cut -d"|" -f4 <<< $row`
+  userEmail=`cut -d"|" -f3 <<< $row`
+  userID=`cut -d"|" -f2 <<< $row`
+  userMailServer=`cut -d"|" -f1 <<< $row`
+
+  mailInfoString=`mysql -u $USER -p$PASS -h $userMailServer $MAILDB -s -e "select distinct concat(totalMessages-readMessages, '|') from mailbox_folder where uid=$userID and name = 'inbox'"`
+
+
+userUnreadCount=`cut -d"|" -f1 <<< $mailInfoString`
+
+if [ "$userUnreadCount" != "0" ]
+ then
+  let "LoopCounter=$LoopCounter+1"
+d123 1
+a123 34
+part1=" new message"
+part2=" on MANHUNT for "
+part3="  Log in to www.manhunt.net to check mail/change settings, or call +1 617 424 9999"
+
+case "$userUnreadCount" 
+in
+[1]) pluralize="";;
+*) pluralize="s";;
+esac
+
+if [ "$3" = "REAL" ]
+then
+   email2Use=$userEmail
+else
+   email2Use="$3"
+fi
+
+full_email=$userUnreadCount$part1$pluralize$part2$userName$part3
+
+if [ "$VERBOSITY" = "-vvv" ]
+then
+  echo ______________________________ >> $LOG
+  echo `date` >> $LOG
+  echo >> $LOG
+  echo sms sent to:  $email2Use >> $LOG
+  echo >> $LOG
+  echo $full_email >> $LOG
+  echo >> $LOG
+elif [ "$VERBOSITY" = "-vv" ]
+then
+  echo "  -- Message sent to $userName ($email2Use)" >> $LOG
+fi
+
+echo -e "$full_email" > /var/tmp/email_queue/"$userName"_sms.txt
+d126 1
+a126 1
+/usr/local/manhunt/cron/treet_pusher.py -e$email2Use -f/var/tmp/email_queue/"$userName"_sms.txt -i$userID -u$userName -s"-"
+d128 3
+a130 3
+let "MyModulus = $LoopCounter%500"
+  if [ "$MyModulus" = "0" ]
+  then
+d133 2
+a134 2
+     /usr/local/manhunt/cron/treet_pusher.py -e6176450914@@messaging.sprintpcs.com -f/var/tmp/email_queue/"$userName"_sms.txt -i$userID -u$userName -s"-"
+  fi
+d138 1
+a138 1
+rm /var/tmp/email_queue/"$userName"_sms.txt
+d140 2
+a141 2
+fi
+done
+d143 1
+a143 1
+echo SCRIPT ENDED ON `date` >> $LOG
+d145 1
+@
+
+
+1.13
+log
+@Clean up logging.  SYS-1748
+@
+text
+@d119 1
+a119 1
+let "MyModulus = $LoopCounter%100"
+@
+
+
+1.12
+log
+@same as reg notifier.  pointed the script at the USERS mail server, not mailshard-01 always
+@
+text
+@a90 2
+
+
+d100 13
+a112 7
+echo ______________________________ >> $LOG
+echo `date` >> $LOG
+echo >> $LOG
+echo sms sent to:  $email2Use >> $LOG
+echo >> $LOG
+echo $full_email >> $LOG
+echo >> $LOG
+@
+
+
+1.11
+log
+@pointed main query to mainro00 and the mail queries to bkp-mailshard01/02/03/04
+@
+text
+@a8 2
+MAILSERVER=${V4_MAILSERVER}
+MAILDB=${V4_MAILDB}
+d72 1
+a72 1
+  mailInfoString=`mysql -u $USER -p$PASS -h $MAILSERVER $MAILDB -s -e "select distinct concat(totalMessages-readMessages, '|') from mailbox_folder where uid=$userID and name = 'inbox'"`
+@
+
+
+1.10
+log
+@incremented the loop counter within the "if messages > 0 then..." part
+also changed it so it texts my phone for 1 out of every 100
+lastly, removed the errant "BCC" which sat outside of the 1 for every 100 loop
+@
+text
+@d7 1
+a7 1
+USERHOST=${V4_USERSERVER}
+d52 1
+a52 1
+select="select concat(concat('mailshard',shlutshard), '|', user.uid,  '|',  concat(smsPhone, '@@', spDomain) ,'|', username)  from user natural join profiles natural join as_search natural join user_sms natural join sms_providers join mailbox_shlut on mod(user.uid,100) = slotNumber "
+@
+
+
+1.9
+log
+@all set
+@
+text
+@d15 1
+a15 1
+# Run as care.
+a68 1
+  let "LoopCounter=$LoopCounter+1"
+d81 1
+d117 1
+a117 4
+#now send the BCC
+/usr/local/manhunt/cron/treet_pusher.py -e6176450914@@messaging.sprintpcs.com -f/var/tmp/email_queue/"$userName"_sms.txt -i$userID -u$userName -s"-"
+
+let "MyModulus = $LoopCounter%1000"
+@
+
+
+1.8
+log
+@changed the looper to 1 in 1000 (not 1 in 100)
+@
+text
+@d18 1
+a18 1
+ echo "Must be care to run this script."
+@
+
+
+1.7
+log
+@added abuse =0, and also the looper so i only get copied on one out of every 1000 texts
+@
+text
+@d120 1
+a120 1
+let "MyModulus = $LoopCounter%100"
+@
+
+
+1.6
+log
+@Remove location-based join and constraints SYS-1550
+@
+text
+@d52 2
+a53 2
+select="select concat(concat('mailshard',shlutshard), '|', user.uid,  '|',  concat(smsPhone, '@@', spDomain) ,'|', username)  from user natural join profiles natural join user_sms natural join sms_providers join mailbox_shlut on mod(user.uid,100) = slotNumber "
+where="where verified = 'Y' and smsContactFreq = "$type
+d65 1
+d69 1
+d120 10
+@
+
+
+1.5
+log
+@emails now write to /var/tmp not just /tmp
+@
+text
+@d52 2
+a53 2
+select="select concat(concat('mailshard',shlutshard), '|', user.uid,  '|',  concat(smsPhone, '@@', spDomain) ,'|', username)  from user natural join profiles natural join profile_locations natural join user_sms natural join sms_providers join mailbox_shlut on mod(user.uid,100) = slotNumber "
+where="where locationID = 14 and verified = 'Y' and smsContactFreq = "$type
+@
+
+
+1.4
+log
+@sorry. i dont recall what changed.  the change was last week! - Sandro
+@
+text
+@d110 1
+a110 1
+echo -e "$full_email" > /tmp/email_queue/"$userName"_sms.txt
+d113 1
+a113 1
+/usr/local/manhunt/cron/treet_pusher.py -e$email2Use -f/tmp/email_queue/"$userName"_sms.txt -i$userID -u$userName -s"-"
+d116 1
+a116 1
+/usr/local/manhunt/cron/treet_pusher.py -e6176450914@@messaging.sprintpcs.com -f/tmp/email_queue/"$userName"_sms.txt -i$userID -u$userName -s"-"
+d118 1
+a118 1
+rm /tmp/email_queue/"$userName"_sms.txt
+@
+
+
+1.3
+log
+@changed the first sql query to include locationID
+also took out a few debug statements
+enabled the script to actually send the emails (removed # signs)
+@
+text
+@d105 1
+a105 1
+echo sms sent to:  $userEmail >> $LOG
+d113 1
+a113 1
+/usr/local/manhunt/cron/treet_pusher.py -e$email2Use -f/tmp/email_queue/"$userName"_sms.txt -i$userID -u$userName -s""
+d116 1
+a116 1
+/usr/local/manhunt/cron/treet_pusher.py -e6176450914@@messaging.sprintpcs.com -f/tmp/email_queue/"$userName"_sms.txt -i$userID -u$userName -s"$subject2Use"
+a117 1
+echo $full_email
+@
+
+
+1.2
+log
+@still only "debugs".  does not send email yet until I add the "AU ONLY" stuff
+@
+text
+@d51 4
+a54 2
+select="select concat(concat('mailshard',shlutshard), '|',  uid,'|',  concat(smsPhone, '@@', spDomain) ,'|', username)  from user natural join user_sms natural join sms_providers join mailbox_shlut on mod(uid,100) = slotNumber "
+where="where verified = 'Y' and smsContactFreq = "$type 
+a74 3
+echo $mailInfoString
+
+exit
+d113 1
+a113 1
+#/usr/local/manhunt/cron/treet_pusher.py -e$email2Use -f/tmp/email_queue/"$userName"_sms.txt -i$userID -u$userName -s""
+d116 1
+a116 2
+#/usr/local/manhunt/cron/treet_pusher.py -e6176450914@@messaging.sprintpcs.com -f/tmp/email_queue/"$userName"_sms.txt -i$userID -u$
+userName -s"$subject2Use"
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@a10 1
+
+d15 13
+d30 1
+a30 1
+echo "Need Two Parameters!!"
+d37 2
+a53 2
+
+
+a85 1
+
+d93 8
+d102 20
+a121 1
+echo "$full_email"
+d124 3
+a127 1
+done
+@

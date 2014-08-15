@@ -1,0 +1,7 @@
+--- 
+parent: top
+classes: 
+- other
+parameters: 
+  bar: barmiddle
+  baz: bazmiddle

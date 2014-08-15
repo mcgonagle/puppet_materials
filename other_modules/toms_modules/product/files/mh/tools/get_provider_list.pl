@@ -1,0 +1,269 @@
+#!/usr/bin/perl 
+################################################################################
+# Filename: get_email_provider.pl
+#
+# Description: 1)This script reads a list of email addresses 
+#               and splits them into separate files based on the following
+#               1-299 emails into one large send list
+#               300+ emails into files by provider
+# Returns: 0 on success, 1 on failure, 2 on fatal error
+#               
+# Usage: get_email_provider.pl -f <address_file> [-v level] [-h] 
+# Where:
+#       -f address_file
+#       -v verbose level, optional if not defined silent is assumed \n";
+#                         if no value is given 0 is assumed\n\n";
+#       -h help
+#
+#!WHO          DATE        DESCRIPTION
+# pmccann      04/09/07    (v1.0) Created
+#
+################################################################################
+##################
+# INT_handler: This function captures ctrl-c's and will flush the buffers
+#              and close the logfile before exiting
+#              To use this you must put the "calling profile syntax in
+#              main section of code after require statments
+# Calling profile: $SIG{'INT'} = 'INT_handler'
+# Returns:
+##################
+sub INT_handler {
+    # send error message to log file.
+    print "Captured CTRL-C, cleaning up, and closing log file\n";
+    # close all files.
+    exit(1);
+}
+
+sub usage
+{
+ print "usage: get_email_provider.pl -f <file> -m <message_file>  [-v level] [-h] ";
+ print "Where:\n";
+ print "      -f address_file\n";
+ print "      -v verbose level, optional if not defined silent is assumed \n";
+ print "                        if no value is given 0 is assumed\n\n";
+ print "      -h help \n";
+ exit 0; 
+
+}
+##################
+# validate_input: Does what it says
+# Calling profile: validate_input();
+# Returns: 
+##################
+sub validate_input
+{
+
+my $action="";
+my $address_file="";
+my $message_file="";
+my $verbosity=0;
+my $flags="";
+
+if ( $opts{h} ){  #help
+  &usage;
+  exit 0;
+}
+if ( ! $opts{f} ) {
+  &error("Command line option \"-f local file\" is required\n\n");
+  &usage();
+}
+
+foreach $flag (keys(%opts)) {          # Loop thru the entered keys.
+
+       if ( $flag eq "f" ) {
+         $address_file=$opts{$flag};
+         #Check to see if the -f flag is followed by an argument
+           if ( ! $address_file || $address_file =~ m!^[-]!) {
+             &error("Option -f requires a parameter\n");
+             &usage;
+           }
+        }
+
+       if ( $flag eq "v" ) {
+         $verbosity=$opts{$flag};
+         #Check to see if the -v flag is followed by an argument
+         #if not set it to 0
+           if ( ! $verbosity || $verbosity =~ m!^[-]!) {
+              $verbosity=0;
+           }
+        }
+}
+
+return($verbosity,$address_file);
+}
+
+##################
+# do_main: This function is the main logic block, 
+# Calling Profile: do_main();
+# Returns:  
+##################
+sub do_main
+{
+my ($verbosity,$address_file) = @_;
+my $checksum="";
+my $cmd="";
+my $cur_dir;
+my $basename,$basepath,$tail;
+my $exit_code="";
+my $email;
+my $membername;
+my $hostname="";
+my $line="";
+my $linecount="";
+my $newline="";
+my $provider="";
+my $status=0;
+my $script_status=0;
+my $thedate="";
+my $thetime="";
+
+&set_debug($verbosity);
+$hostname=&hostname;
+
+$thedate=&time::timestamp(yyyymmdd);
+&debug(1,"**********************************************************\n");
+$thetime=&time::timestamp(mesg,"Processing Starting at:");
+&debug(1,"$thetime\n");
+$cur_dir=&cwd();
+($basename,$basepath,$tail)=&fileparse("$cur_dir","");
+
+&File::Path::mkpath("$basepath/temp",0,0775);
+&File::Path::mkpath("$basepath/providers",0,0775);
+
+if ( -e "$basepath/temp/small_providers") {
+  unlink("$basepath/temp/small_providers");
+}  
+
+if ( -d "$basepath/providers" ) {
+   chdir "$basepath/providers";
+   if (!opendir (PROVIDER_DIR,"$basepath/providers")) {
+   print "error unable to open providers dir\n";
+   } else {
+    @provider_list=grep !/^\.\.?$/, readdir(PROVIDER_DIR);
+    unlink @provider_list;
+   }
+  
+}
+
+ if (!open (ADDRESS_FH, "< $address_file")) {
+       &fatal_error("Couldn't open address file: $address_file $!\n");
+  } else {
+
+     while (<ADDRESS_FH>) {
+        chop;             # By default these 3 lines operate on $_ which is
+                          # the name of the input line, thus until i set
+                          # line=$_ I can use it as an implied variable.
+        next if (/^#/);           # skip lines that begin with comments
+        next if (/^\/\*/);        # skip lines that begin with /*
+        next unless (/\S/);       # skip Blank Lines
+        $line=$_;                 # Here I define line to $_
+        $line=~ s/\s*$//;         # strip trailing whitespace
+        $line=~ s/^\s*//;         # strip leading whitespace
+        $line=~ s/\s+//g;        # strip multiple "\s" spaces replace w/0sp
+        $line=~ s/\'//g;          # strip single quotes
+        $email=$line; 
+       ($email,$provider) = split /\@/,$email,2;
+       $provider=lc $provider;
+       #push (@providers, "$email\@$provider");
+
+       if (!open (PROVIDER_FH, ">> ../providers/$provider")) {
+        &error("Couldn't open address file: $address_file $!\n");
+       } else {
+         print PROVIDER_FH "$email\@$provider\n";
+       }
+       
+
+    }
+  }
+
+close (ADDRESS_FH);
+
+if (!chdir ("$basepath/providers")) {
+  &fatal_error("unable to chdir to $basepath/providers");
+}
+ if (!opendir (PROVIDER_DIR,"$basepath/providers")) {
+          &error("Couldn't open the providers directory\n");
+     } else {
+           foreach (readdir(PROVIDER_DIR)) {
+             next if $_ eq '.' || $_ eq '..';
+             next if $_ eq "lost+found";
+             $filename = $_;
+             if ( !open (FILE_FH, "< $filename"))  {
+               print "unable to open $filename\n";
+             } else {
+                @file_contents=<FILE_FH>;
+                $line_count=$#file_contents;
+                #print "linecount: $line_count\n";
+                close (FILE_FH);
+             }
+             if ($line_count < "300" ) {
+                if (!open (SMALL_PROVIDERS_FH, ">> ../temp/small_providers")) {
+                 &error ("Unable to open small providers file\n");
+                } else { # append the file to the end of the small_providers
+                  print SMALL_PROVIDERS_FH "# $filename\n";
+                  print SMALL_PROVIDERS_FH "@file_contents";
+                  @file_contents=();
+                }
+             } else { # just copy the file to ../temp
+                 #print "Copying $filename to ../temp\n";
+                 #file copy returns 1 on success 0 on failure
+                 $copy_status=&File::Copy::copy($filename,"$basepath/temp");
+
+                  if ($status eq "1" ) { 
+                    &debug(1,"Successfully copied $_ to $basepath/temp\n");
+                  } else { #bad address
+                    &error("exit_code:$status\n");
+                    &error("@stdout\n");
+                    &error("@stderr\n");
+                  }
+
+            }
+          }
+     }
+     closedir(PROVIDER_DIR);
+
+$thetime=&time::timestamp(mesg,"Processing Completed at:");
+&debug(1,"$thetime\n\n");
+&debug(1,"**********************************************************\n");
+exit $script_status;
+}
+
+
+#==============================================================================
+# MAIN 
+use FindBin qw($Bin);
+use lib "$Bin/../lib";
+
+use Cwd;
+use Sys::Hostname;
+use Getopt::Std;
+use MIME::Lite;
+use File::Copy;
+use File::Basename;
+use File::Path;
+### libraries by pete ###
+use sort;
+use time;
+use system;
+use file_utils;
+require ("message.pl");
+require ("log.pl");
+
+#Main variables
+my $address_file="";
+my $verbosity="";
+
+# Make sure that STDOUT and STDERR are unbuffered.
+select((select(STDOUT), $| = 1)[0]);
+select((select(STDERR), $| = 1)[0]);
+
+$SIG{'INT'} = 'INT_handler';
+
+#CONSTANTS (ALL CAPS)
+$SCRIPT_NAME="get_provider_list.pl";
+
+&getopts("f:v:h",\%opts);
+
+($verbosity,$address_file)=&validate_input();
+&do_main($verbosity,$address_file);
+

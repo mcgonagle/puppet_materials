@@ -1,0 +1,84 @@
+# Start post_pe-puppet_install generated code
+#moved to package install section
+#yum install -y ruby ruby-libs puppet facter ruby-shadow rubygems
+
+/bin/cat <<EOFF > /etc/profile.d/facter.sh
+#!/bin/bash
+export RUBYLIB="/var/lib/puppet/lib/facter:/var/opt/lib/pe-puppet/lib/facter"
+export FACTERLIB="/var/lib/puppet/lib/facter:/var/opt/lib/pe-puppet/lib/facter"
+EOFF
+
+/bin/cat <<EOPP > /etc/profile.d/pe-puppet.sh
+#!/bin/bash
+export PATH=$PATH:/opt/puppet/bin:/opt/puppet/sbin
+EOPP
+
+/bin/echo "$server $func_master puppet" >> /etc/hosts
+
+/bin/cat <<EOSP > /etc/sysconfig/pe-puppet
+###########################################
+# This file is mananged by cobbler. 
+###########################################
+#The puppetmaster server
+PUPPET_SERVER=$func_master
+
+# If you wish to specify the port to connect to do so here
+#PUPPET_PORT=8140
+
+# Where to log to. Specify syslog to send log messages to the system log.
+#PUPPET_LOG=/var/log/puppet/puppet.log
+PUPPET_LOG=syslog
+
+# You may specify other parameters to the puppet client here
+#PUPPET_EXTRA_OPTS=--waitforcert=500
+EOSP
+
+/bin/cat <<EOPP > /etc/puppetlabs/puppet/puppet.conf
+###########################################
+# This file is mananged by cobbler. 
+###########################################
+[main]
+    #if $varExists('environment') 
+    #environmnent variable $environment supplied in cobbler ksmeta
+    environment = $environment
+    #end if                        
+
+    #vardir for puppet enterprise
+    vardir = /var/opt/lib/pe-puppet
+
+    # The Puppet log directory.
+    # The default value is '/var/lib/puppet/log'.
+    logdir = /var/log/pe-puppet
+
+    # Where Puppet PID files are kept.
+    # The default value is '$vardir/run'.
+    rundir = /var/run/pe-puppet	
+
+    # Where SSL certificates are kept.
+    ssldir = /var/opt/lib/pe-puppet/ssl
+
+    ##pluginsyncing for syncing custom facts
+    pluginsync = true
+    factpath = /var/opt/lib/pe-puppet/lib/facter
+
+[agent]
+    # The file in which puppetd stores a list of the classes
+    # associated with the retrieved configuratiion.  Can be loaded in
+    # the separate ``puppet`` executable using the ``--loadclasses``
+    # option.
+    classfile = /var/opt/lib/pe-puppet/classes.txt
+
+    # Where puppetd caches the local configuration.  An
+    # extension indicating the cache format is added automatically.
+    localconfig = /var/opt/lib/pe-puppet/localconfig
+    
+    #turns on reporting
+    report = true
+
+    #Turning on Graphing Support
+    graph = true
+    graphdir = /var/opt/lib/pe-puppet/state/graphs
+EOPP
+
+/sbin/chkconfig --level 2345 pe-puppet off
+# End post_pe-puppet_install generated code

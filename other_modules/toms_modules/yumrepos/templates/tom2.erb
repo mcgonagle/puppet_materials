@@ -1,0 +1,14 @@
+<%= scope.lookupvar('tom::params::foo') %>
+
+<% classes.each do |klass| -%>
+The class <%= klass %> is defined
+<% end -%>
+
+facter variable on its own
+<%= zone %>
+
+
+<% scope.lookupvar('tom::params::values2') .each do |val| -%>
+ Some other stuff with <%= val %>
+<% end -%>
+

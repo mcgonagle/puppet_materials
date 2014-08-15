@@ -1,0 +1,49 @@
+@import url(s6/slides.css); /* required to make the slide show run at all */
+
+html, body {
+   color: #000;
+   font-family: "Helvetica Neue", Helvetica, Arial, Geneva, sans-serif;
+}
+
+a:link, a:visited { color: black; }
+
+h1 { font-size: 24pt; }
+h2 { font-size: 18pt;  }
+h3 { font-size: 16pt; color: #444;  }
+h4 { text-align: center; font-size: 16pt; color: #666;  }
+
+.title-slide h1 { font-size: 34pt; color: #666; padding-bottom: 2em; test-align: center; margin: 20px auto; }
+.title-slide * { text-align: center; }
+
+p, li, td, th { font-size: 14pt; }
+
+pre { font-size: 14pt;  }
+
+pre.code { 
+   color: #fff;
+   background-color: #000;
+   padding: 1em;
+}
+td {
+   color: #000;
+   background-color: #ddd;
+   text-align: center;
+   padding: 10px;
+}
+th {
+   color: #fff;
+   background-color: #333;
+   padding: 10px;
+}
+
+ul, ol { padding: 0 0 0 10px; margin: 10px 0 10px 10px; }
+
+div#header, {  color: silver; }
+div#footer { text-align: left; color: black; background: #eee; }
+
+#currentSlide { color: silver;}
+
+#controls #navLinks a { color: silver; }
+
+.step { visibility: hidden; }
+.stepcurrent { visibility: visible; }

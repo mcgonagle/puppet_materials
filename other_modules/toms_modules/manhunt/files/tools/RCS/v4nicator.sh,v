@@ -1,0 +1,1518 @@
+head	1.29;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.29
+date	2010.09.13.15.55.20;	author dcote;	state Exp;
+branches;
+next	1.28;
+
+1.28
+date	2010.09.01.01.20.11;	author dcote;	state Exp;
+branches;
+next	1.27;
+
+1.27
+date	2010.08.27.18.32.00;	author dcote;	state Exp;
+branches;
+next	1.26;
+
+1.26
+date	2010.07.23.14.21.34;	author wflynn;	state Exp;
+branches;
+next	1.25;
+
+1.25
+date	2010.07.15.19.22.43;	author wflynn;	state Exp;
+branches;
+next	1.24;
+
+1.24
+date	2010.07.15.19.07.13;	author wflynn;	state Exp;
+branches;
+next	1.23;
+
+1.23
+date	2010.07.08.22.00.25;	author rtodd;	state Exp;
+branches;
+next	1.22;
+
+1.22
+date	2010.06.08.22.38.40;	author wflynn;	state Exp;
+branches;
+next	1.21;
+
+1.21
+date	2010.06.08.21.42.22;	author wflynn;	state Exp;
+branches;
+next	1.20;
+
+1.20
+date	2010.06.08.16.14.06;	author jjoy;	state Exp;
+branches;
+next	1.19;
+
+1.19
+date	2010.06.02.19.18.59;	author jjoy;	state Exp;
+branches;
+next	1.18;
+
+1.18
+date	2010.06.02.14.45.41;	author jjoy;	state Exp;
+branches;
+next	1.17;
+
+1.17
+date	2010.04.14.19.54.39;	author jjoy;	state Exp;
+branches;
+next	1.16;
+
+1.16
+date	2009.11.12.23.24.51;	author wflynn;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	2009.10.02.20.28.17;	author wflynn;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	2009.10.02.17.00.44;	author wflynn;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	2009.10.01.19.32.28;	author wflynn;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	2009.10.01.16.37.47;	author wflynn;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	2009.09.09.16.38.44;	author wflynn;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	2009.08.27.18.28.07;	author wflynn;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	2009.07.27.23.38.41;	author wflynn;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	2009.07.06.19.03.27;	author wflynn;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	2009.06.25.00.12.18;	author wflynn;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	2009.05.13.15.18.41;	author wflynn;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	2009.04.06.16.03.11;	author wflynn;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	2009.04.03.21.53.02;	author wflynn;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2009.04.03.21.27.16;	author wflynn;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2009.04.03.17.38.31;	author wflynn;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2009.03.12.17.56.28;	author wflynn;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.29
+log
+@changed xmlmobile app.yml
+@
+text
+@#!/bin/bash
+#
+# v4nicator2.sh
+#
+# $Id: v4nicator.sh,v 1.28 2010/09/01 01:20:11 dcote Exp dcote $
+#
+# WFlynn 07/10
+#
+# Marginally less Stupid script for handling v4 releases until we get something reasonable in place.
+#
+
+RELEASE=${1}
+COMPONENT=${2}
+RC=${3}
+BOUNCELESS="TRUE"
+if [ "${4}" = "BOUNCE" ]
+then
+    BOUNCELESS="FALSE"
+fi
+DEPDIR=/usr/local/src
+TMPDIR=/tmp
+VERKEEP=2
+BILLINGKEY="M@@nhunTvee4f0r3vEr!"
+ADMINDIR=MHBANGV4--${RELEASE}--BUILD${RC}-ADMIN
+FEDIR=MHBANGV4--${RELEASE}--BUILD${RC}-FRONTEND
+ASSDIR=MHBANGV4--${RELEASE}--BUILD${RC}-ASSFINDER
+XMLMOBDIR=MHBANGV4--${RELEASE}--BUILD${RC}-XMLMOBILE
+MODIR=${FEDIR}.MOBILE
+ADMINBALL=${ADMINDIR}.tgz
+FEBALL=${FEDIR}.tgz
+ASSBALL=${ASSDIR}.tgz
+XMLMOBBALL=${XMLMOBDIR}.tgz
+ZE="Community"
+SYMFONY="/usr/local/zend/bin/symfony"
+MANIFEST=`egrep -H mhbangv4.version=.+?${RELEASE}--BUILD${RC} MANIF* | cut -d: -f1`;
+
+if [ -e ${TMPDIR}/vindicia_unlock.sh ]
+then
+    echo "This is a production billing box!  vindicia_unlock will run at"
+    echo "the end of the script, but a human (for now) will have to enter"
+    echo "a password at the end of this script."
+    sleep 5
+fi
+
+#  Check for Zend or Zendless install
+ZEND="FALSE"
+if [ -d /usr/local/zend/apache2 ]
+then
+    ZEND="TRUE"
+fi
+
+SYMCONFSRC=${TMPDIR}/${ZE}_symfony.txt
+
+case "${COMPONENT}" in
+    FRONTEND)
+	if [ -f ${TMPDIR}/${FEBALL} ]
+	then
+	    echo "Staging ${COMPONENT} tarball into ${DEPDIR}..."
+	    /bin/cp ${TMPDIR}/${FEBALL} ${DEPDIR}
+	else
+	    echo "${TMPDIR}/${FEBALL} not found" && exit
+	fi
+	APPBALL=${FEBALL}
+	APPDIR=${FEDIR}
+	CONFDIR="${DEPDIR}/manhunt/apps/frontend/config"
+	CCAPPCACHE="${DEPDIR}/manhunt/cache/frontend/prod/config/config_app.yml.php"
+	CCAPPCACHEMO="${DEPDIR}/manhunt_mobile/cache/frontend/prod/config/config_app.yml.php"
+	APPYML="app.yml.mh"
+	APPYMLMO="app.yml.mo"
+	;;
+    ADMIN)
+	if [ -f ${TMPDIR}/${ADMINBALL} ]
+	then
+	    echo "Staging ${COMPONENT} tarball into ${DEPDIR}..."
+	    /bin/cp ${TMPDIR}/${ADMINBALL} ${DEPDIR}
+	else
+	    echo "${TMPDIR}/${ADMINBALL} not found" && exit
+	fi
+	APPBALL=${ADMINBALL}
+	APPDIR=${ADMINDIR}
+	CONFDIR="${DEPDIR}/manhunt/apps/admin/config"
+	CCAPPCACHE="${DEPDIR}/manhunt/cache/admin/prod/config/config_app.yml.php"
+	APPYML="app.yml.admin"
+	;;
+    ASSFINDER)
+        if [ -f ${TMPDIR}/${ASSBALL} ]
+	then
+	    echo "Staging ${COMPONENT} tarball into ${DEPDIR}..."
+            /bin/cp ${TMPDIR}/${ASSBALL} ${DEPDIR}
+        else
+	    echo "${TMPDIR}/${ASSBALL} not found" && exit
+        fi
+	APPBALL=${ASSBALL}
+	APPDIR=${ASSDIR}
+	CONFDIR="${DEPDIR}/manhunt_gps/apps/assfinder/config"
+	CCAPPCACHE="${DEPDIR}/manhunt_gps/cache/assfinder/prod/config/config_app.yml.php"
+	APPYML="app.yml.af"
+	;;
+    XMLMOBILE)
+        if [ -f ${TMPDIR}/${XMLMOBBALL} ]
+	then
+	    echo "Staging ${COMPONENT} tarball into ${DEPDIR}..."
+            /bin/cp ${TMPDIR}/${XMLMOBBALL} ${DEPDIR}
+        else
+	    echo "${TMPDIR}/${XMLMOBBALL} not found" && exit
+        fi
+	APPBALL=${XMLMOBBALL}
+	APPDIR=${XMLMOBDIR}
+	CONFDIR="${DEPDIR}/manhunt_xmlmobile/apps/xmlmobile/config"
+	CCAPPCACHE="${DEPDIR}/manhunt_xmlmobile/cache/xmlmobile/prod/config/config_app.yml.php"
+	APPYML="app.yml.xml"
+	;;
+
+    *)
+	echo "Unknown argument: ${COMPONENT}" && echo "Usage: $0 Major.Minor.Patch Component BUILD# [BOUNCE]" && exit
+	;;
+esac
+
+## Some Sanity Checks on what we're about to do...
+if [ "$ZEND" = "TRUE" ]
+then
+    echo "We appear to be on a zend-like system.  ZEND = ${ZEND}..."
+else
+    echo "We appear to be on a non-zend system.  ZEND = ${ZEND}..."
+fi
+
+if [ "$BOUNCELESS" != "TRUE" ]
+then
+    echo "This is a BOUNCED install.  Web Services *will be* interrupted.  BOUNCELESS = ${BOUNCELESS}..."
+
+else
+    echo "This is a BOUNCELESS install.  Web Services will *not* be interrupted.  BOUNCELESS = ${BOUNCELESS}..."
+fi
+
+if [ -f ${TMPDIR}/${MANIFEST} ]
+then
+    if [ "`grep $RELEASE ${TMPDIR}/${MANIFEST}`" = "" ]
+    then
+	echo "${TMPDIR}/${MANIFEST} is not the right version! Exiting." && exit
+    else
+	echo "${TMPDIR}/${MANIFEST} looks like the right version.  Proceeding..."
+    fi
+else
+    echo "${TMPDIR}/${MANIFEST} not found" && exit
+fi
+
+if [ -f ${SYMCONFSRC} ]
+then
+    echo "${SYMCONFSRC} found.  Proceeding..."
+else
+    echo "${SYMCONFSRC} not found! Exiting." && exit
+fi
+
+if [ -f ${TMPDIR}/${APPYML} ]
+then
+    echo "${TMPDIR}/${APPYML} found.  Proceeding..."
+else
+    echo "${TMPDIR}/${APPYML} not found! Exiting." && exit
+fi
+
+if [ "$COMPONENT" = "FRONTEND" ]
+then
+    if [ -f ${TMPDIR}/${APPYMLMO} ]
+    then
+	echo "${TMPDIR}/${APPYMLMO} found.  Proceeding..."
+    else
+	echo "${TMPDIR}/${APPYMLMO} not found! Exiting." && exit
+    fi
+fi
+
+### Set up Subs
+
+call_cleanerator() {
+    if [ -x ${TMPDIR}/cleanerator.sh ]
+    then
+	pushd ${TMPDIR}
+	${TMPDIR}/cleanerator.sh ${RELEASE} ${VERKEEP}
+	popd
+    else
+	echo "Cleanerator (${TMPDIR}/cleanerator.sh) not found or not executable! Skipping cleanup...."
+    fi
+}
+
+vindicia_unlock() {
+    pushd ${TMPDIR}
+    ./vindicia_unlock.sh
+    popd
+}
+
+symfony_cc() {
+    echo "Bouncing symfony cache (${SYMFONY} cc)..."
+    if [ -d ${DEPDIR}/manhunt ]
+    then
+	pushd ${DEPDIR}/manhunt && ${SYMFONY} cc && ${SYMFONY} cc && popd || (echo "symfony cc not happy" && popd && exit)
+	if [ -f ${CCAPPCACHE} ]
+	then
+	    echo "${SYMFONY} cc didn't do something right: ${CCAPPCACHE} still exists.  Try running by hand!"
+	fi
+    fi
+    if [ -d ${DEPDIR}/manhunt_mobile ]
+    then
+	pushd ${DEPDIR}/manhunt_mobile && ${SYMFONY} cc && ${SYMFONY} cc && popd || (echo "symfony cc not happy" && popd && exit)
+	if [ -f ${CCAPPCACHEMO} ]
+	then
+	    echo "${SYMFONY} cc didn't do something right: ${CCAPPCACHEMO} still exists.  Try running by hand!"
+	fi
+    fi
+    if [ -d ${DEPDIR}/manhunt_gps ]
+    then
+	pushd ${DEPDIR}/manhunt_gps && ${SYMFONY} cc && ${SYMFONY} cc && popd || (echo "symfony cc not happy" && popd && exit)
+	if [ -f ${CCAPPCACHE} ]
+	then
+	    echo "${SYMFONY} cc didn't do something right: ${CCAPPCACHE} still exists.  Try running by hand!"
+	fi
+    fi
+    if [ -d ${DEPDIR}/manhunt_xmlmobile ]
+    then
+	pushd ${DEPDIR}/manhunt_xmlmobile && ${SYMFONY} cc && ${SYMFONY} cc && popd || (echo "symfony cc not happy" && popd && exit)
+	if [ -f ${CCAPPCACHE} ]
+	then
+	    echo "${SYMFONY} cc didn't do something right: ${CCAPPCACHE} still exists.  Try running by hand!"
+	fi
+    fi
+}
+
+apc_clear() {
+    if [ "$BOUNCELESS" != "TRUE" ]
+    then
+	if [ -d ${DEPDIR}/manhunt/apps/frontend ]
+	then
+            # Clear the system cache (This will clear all apc for all apps on the Frontend)
+	    APCCURL="http://`hostname -f`/index.php/user/apcClear/pass/w74byru4r416dfphj7jm2f"
+	    echo "Clearing APC Cache: ${APCCURL}"
+            /usr/bin/lynx  -dump -accept_all_cookies  ${APCCURL}
+            echo "You should see 'Apc Cache Cleared' above."
+	fi
+	if [ -d ${DEPDIR}/manhunt/apps/admin ]
+	then
+            # Clear the system cache (Admin)
+	    APCCURL="https://`hostname -f`/admin.php/admin.php/home/apcClear/pass/w74byru4r416dfphj7jm2f"
+	    echo "Clearing APC Cache: ${APCCURL}"
+            /usr/bin/lynx  -dump -accept_all_cookies  ${APCCURL}
+            echo "You should see 'Apc Cache Cleared' above."
+	fi
+    else
+	echo "Bounceless install: Skipping APC Cache Clear..."
+    fi
+}
+
+bounce_apache() {
+    if [ "$BOUNCELESS" != "TRUE" ]
+    then
+	case "${1}" in
+	    restart)
+		case "${HOSTNAME}" in
+		    billing*)
+			echo "Restarting Web Services (ZEND = $ZEND)"
+			echo "Secure Webserver Key is: ${BILLINGKEY}"
+			;;
+		    *)
+			echo "Restarting Web Services (ZEND = $ZEND)"
+			;;
+		esac
+		bounce_apache "stop"
+		bounce_apache "start"
+		;;
+	    start)
+		case "${HOSTNAME}" in
+		    billing*)
+			echo "Starting Web Services (ZEND = $ZEND)"
+			echo "Secure Webserver Key is: ${BILLINGKEY}"
+			;;
+		    *)
+			echo "Starting Web Services (ZEND = $ZEND)"
+			;;
+		esac
+		if [ "$ZEND" = "TRUE" ]
+		then
+		    symfony_cc
+		    echo "Starting Apache with zendctl..."
+		    /usr/local/zend/bin/zendctl.sh start-apache
+		else
+		    symfony_cc
+		    echo "Starting Apache with service..."
+		    /sbin/service httpd start
+		fi
+		apc_clear
+		;;
+	    stop)
+		echo "Stopping Web Services (ZEND = $ZEND)"
+		apc_clear
+		if [ "$ZEND" = "TRUE" ]
+		then
+		    echo "Stopping Apache with zendctl..."
+		    /usr/local/zend/bin/zendctl.sh stop && sleep 15 && /usr/local/zend/bin/zendctl.sh stop
+		else
+		    echo "Stopping Apache with service..."
+		    /sbin/service httpd stop && sleep 15 && /sbin/service httpd stop
+		fi
+		;;
+	    *)
+		echo "Usage: bounce_apache(stop|start|restart)"
+		;;
+	esac
+    else
+	echo "Bounceless install: Skipping Apache Restart..."
+    fi
+}
+
+echo "Preparing ${COMPONENT}..."
+cd ${DEPDIR}
+
+if [ "$BOUNCELESS" != "TRUE" ]
+then
+    bounce_apache "stop"
+    if [ -d ${APPDIR} ]
+    then
+	echo "Looks like we are re-v4nicating.  Removing stale ${APPDIR}..."
+	rm -rf ${APPDIR}
+    fi
+    if [ "$COMPONENT" = "FRONTEND" ]
+    then
+	if [ -d ${MODIR} ]
+	then
+	    echo "Looks like we are re-v4nicating.  Removing stale ${MODIR}..."
+	    rm -rf ${MODIR}
+	fi
+    fi
+    echo "Unpacking ${APPBALL}..."
+    tar zx --totals -f ${APPBALL} || (echo "Couldn't Untar ${TMPDIR}/${APPBALL}" && exit)
+else
+    echo "Unpacking ${APPBALL}..."
+    tar zx --totals -f ${APPBALL} || (echo "Couldn't Untar ${TMPDIR}/${APPBALL}" && exit)
+    bounce_apache "stop"
+fi
+
+echo "Deploying ${COMPONENT}..."
+case "${COMPONENT}" in
+    FRONTEND)
+	echo "Updating Symlinks (main site)..."
+	rm -f manhunt
+	ln -s ${APPDIR} manhunt
+
+	echo "Updating Permissions..."
+	chmod -R 777 manhunt/cache manhunt/log manhunt/web/uploads
+
+	echo "Installing app.yml and Symfony config..."
+	/bin/cp ${TMPDIR}/${APPYML} ${CONFDIR}/app.yml
+	/bin/cp ${SYMCONFSRC} ${DEPDIR}/manhunt/config/config.php
+
+	echo "Installing manifests for ${COMPONENT}..."
+	/bin/cp ${TMPDIR}/${MANIFEST} ${DEPDIR}/manhunt/manifest.properties && chmod 644 ${DEPDIR}/manhunt/manifest.properties && chmod 666 ${TMPDIR}/${MANIFEST}
+
+	symfony_cc
+
+	echo "Updating Symlinks (mobile)..."
+	#  Mobile site is a deep copy of frontend site with a different app.yml
+	cd ${DEPDIR}
+	rm -f manhunt_mobile
+	/bin/cp -aT ${FEDIR} ${MODIR}
+	ln -s ${MODIR} manhunt_mobile
+
+	echo "Installing app.yml and Symfony config..."
+	/bin/cp ${TMPDIR}/${APPYMLMO} ${DEPDIR}/manhunt_mobile/apps/frontend/config/app.yml
+	/bin/cp ${SYMCONFSRC} ${DEPDIR}/manhunt_mobile/config/config.php
+
+	symfony_cc
+	;;
+    ADMIN)
+	rm -f manhunt
+	ln -s ${APPDIR} manhunt
+
+	echo "Updating Permissions..."
+	chmod -R 777 manhunt/cache manhunt/log manhunt/web/uploads
+
+	echo "Installing app.yml and Symfony config..."
+	/bin/cp ${TMPDIR}/${APPYML} ${CONFDIR}/app.yml
+	/bin/cp ${SYMCONFSRC} ${DEPDIR}/manhunt/config/config.php
+
+	echo "Installing manifests for ${COMPONENT}..."
+	/bin/cp ${TMPDIR}/${MANIFEST} ${DEPDIR}/manhunt/manifest.properties && chmod 644 ${DEPDIR}/manhunt/manifest.properties && chmod 666 ${TMPDIR}/${MANIFEST}
+
+	symfony_cc
+	;;
+    ASSFINDER)
+	echo "Updating Symlinks (manhunt_gps)..."
+	rm -f manhunt_gps
+	ln -s ${APPDIR} manhunt_gps
+
+	echo "Updating Permissions..."
+	chmod -R 777 manhunt_gps/cache manhunt_gps/log manhunt_gps/web/uploads
+
+	echo "Installing app.yml and Symfony config..."
+	/bin/cp ${TMPDIR}/${APPYML} ${CONFDIR}/app.yml
+	/bin/cp ${SYMCONFSRC} ${DEPDIR}/manhunt_gps/config/config.php
+
+	echo "Installing manifests for ${COMPONENT}..."
+	/bin/cp ${TMPDIR}/${MANIFEST} ${DEPDIR}/manhunt_gps/manifest.properties && chmod 644 ${DEPDIR}/manhunt_gps/manifest.properties && chmod 666 ${TMPDIR}/${MANIFEST}
+
+	################### FIX THIS ASAFP THEN REMOVE IT
+	if [ -f ${DEPDIR}/manhunt_gps/web/iphone.php ]
+	then
+	    echo "Hacking up iphone.php index.php thing (ouch)..."
+	    pushd ${DEPDIR}/manhunt_gps/web && /bin/ln -sf iphone.php index.php && popd
+	fi
+	################### ^^^ #
+
+	symfony_cc
+	;;
+    XMLMOBILE)
+	echo "Updating Symlinks (manhunt_xmlmobile)..."
+	rm -f manhunt_xmlmobile
+	ln -s ${APPDIR} manhunt_xmlmobile
+
+	echo "Updating Permissions..."
+	chmod -R 777 manhunt_xmlmobile/cache manhunt_xmlmobile/log manhunt_xmlmobile/web/uploads
+
+	echo "Installing app.yml and Symfony config..."
+	/bin/cp ${TMPDIR}/${APPYML} ${CONFDIR}/app.yml
+	/bin/cp ${SYMCONFSRC} ${DEPDIR}/manhunt_xmlmobile/config/config.php
+
+	echo "Installing manifests for ${COMPONENT}..."
+	/bin/cp ${TMPDIR}/${MANIFEST} ${DEPDIR}/manhunt_xmlmobile/manifest.properties && chmod 644 ${DEPDIR}/manhunt_xmlmobile/manifest.properties && chmod 666 ${TMPDIR}/${MANIFEST}
+
+	symfony_cc
+	;;
+esac
+
+if [ -e ${TMPDIR}/vindicia_unlock.sh ]
+then
+    vindicia_unlock
+fi
+
+bounce_apache "start"
+
+echo "${COMPONENT} Deployment complete..."
+
+call_cleanerator
+
+exit;
+
+
+@
+
+
+1.28
+log
+@added / changed xmlmobile
+@
+text
+@d5 1
+a5 1
+# $Id: v4nicator.sh,v 1.27 2010/08/27 18:32:00 dcote Exp dcote $
+d111 1
+a111 1
+	APPYML="app.yml.xmlmob"
+@
+
+
+1.27
+log
+@I had to modify the case staement for xmlmobile per sys-3387
+@
+text
+@d5 1
+a5 1
+# $Id: v4nicator.sh,v 1.26 2010/07/23 14:21:34 wflynn Exp dcote $
+d27 1
+a27 1
+XMOBDIR=MHBANGV4--${RELEASE}--BUILD${RC}-XMLMOBILE
+d32 1
+a32 1
+XMOBBALL=${XMOBDIR}.tgz
+d100 1
+a100 1
+        if [ -f ${TMPDIR}/${XMOBBALL} ]
+d103 1
+a103 1
+            /bin/cp ${TMPDIR}/${XMOBBALL} ${DEPDIR}
+d105 1
+a105 1
+	    echo "${TMPDIR}/${XMOBBALL} not found" && exit
+d107 2
+a108 2
+	APPBALL=${XMOBBALL}
+	APPDIR=${XMOBDIR}
+d111 1
+a111 1
+	APPYML="app.yml.xl"
+@
+
+
+1.26
+log
+@Replace old v4nicator version with new one
+@
+text
+@d5 1
+a5 1
+# $Id: v4nicator2.sh,v 1.6 2010/07/20 18:20:48 wflynn Exp $
+d411 3
+a413 3
+	echo "Updating Symlinks (xmlmobile)..."
+	rm -f xmlmobile
+	ln -s ${APPDIR} xmlmobile
+d416 1
+a416 1
+	chmod -R 777 xmlmobile/cache xmlmobile/log xmlmobile/web/uploads
+@
+
+
+1.25
+log
+@Entered comment regarding rm -rf ${APPDIR}
+Also fixed "mobile" copy to -aT from -a to stop copying of FEDIR into MODIR
+when MODIR exists
+@
+text
+@d3 1
+a3 1
+# v4nicator.sh
+d5 1
+a5 1
+# $Id: v4nicator.sh,v 1.24 2010/07/15 19:07:13 wflynn Exp wflynn $
+d7 1
+a7 1
+# WFlynn 03/09
+d9 1
+a9 1
+# Stupid script for handling v4 releases until we get something reasonable in place.
+d16 4
+d22 1
+d33 2
+a34 1
+SYMFONY="/usr/local/Zend/Core/bin/symfony"
+d45 3
+a47 3
+#  Check for Community or Platform Edition
+ZE="Platform"
+if [ -f /etc/zce.rc ]
+d49 1
+a49 2
+    ZE="Community"
+    SYMFONY="/usr/local/zend/bin/symfony"
+d54 130
+d191 2
+a192 2
+    echo "Bouncing symfony cache (symfony cc)..."
+    if [ -d /usr/local/src/manhunt ]
+d195 4
+d200 1
+a200 1
+    if [ -d /usr/local/src/manhunt_mobile ]
+d203 4
+d208 1
+a208 1
+    if [ -d /usr/local/src/manhunt_gps ]
+d211 12
+a225 1
+#####################################  REMOVE CALLS TO THESE NEXT ITERATION (AFTER 6/8/2010) #
+a226 7
+    echo "Remove this call!: Skipping APC Cache Clear..."
+}
+bounce_apache() {
+    echo "Remove this call!: Skipping Apache Restart..."
+}
+
+old_apc_clear() {
+d229 1
+a229 1
+	if [ -d /usr/local/src/manhunt/apps/frontend ]
+d231 13
+a243 7
+                # Clear the system cache (This will clear all apc for all apps on the Frontend)
+	    /usr/bin/lynx -localhost -dump -accept_all_cookies  http://`hostname -f`/index.php/user/apcClear/pass/w74byru4r416dfphj7jm2f
+	fi
+	if [ -d /usr/local/src/manhunt/apps/admin ]
+	then
+                # Clear the system cache (Admin)
+	    /usr/bin/lynx -localhost -dump -accept_all_cookies  https://`hostname -f`/admin.php/admin.php/home/apcClear/pass/w74byru4r416dfphj7jm2f
+d250 1
+a250 1
+old_bounce_apache() {
+d254 13
+d270 1
+a270 1
+			echo "Starting Zend $ZE Edition"
+d274 1
+a274 1
+			echo "Starting Zend $ZE Edition"
+d277 1
+a277 1
+		if [ "$ZE" = "Community" ]
+a278 3
+		    echo "Stopping Apache..."
+		    /usr/local/zend/bin/zendctl.sh stop
+		    echo "Bouncing symfony cache (symfony cc)..."
+d280 2
+a281 2
+		    echo "Starting Apache..."
+		    /usr/local/zend/bin/zendctl.sh restart-apache
+d283 3
+a285 2
+		    /usr/local/Zend/Platform/bin/javamw.rc restart
+		    /sbin/service httpd restart
+d290 3
+a292 2
+		echo "Stopping Zend $ZE Edition"
+		if [ "$ZE" = "Community" ]
+d294 1
+d297 2
+a298 2
+		    /sbin/service httpd stop &&  sleep 15 && /sbin/service httpd stop
+		    /usr/local/Zend/Platform/bin/javamw.rc stop && sleep 15 && /usr/local/Zend/Platform/bin/javamw.rc stop
+d302 1
+a302 1
+		echo "Usage: bounce_apache(stop|start)"
+a308 1
+#####################################  REMOVE ^^^^^^ #
+d310 2
+a311 55
+case "${COMPONENT}" in
+    FRONTEND)
+	if [ -f ${TMPDIR}/${FEBALL} ]
+	then
+	    cp ${TMPDIR}/${FEBALL} ${DEPDIR}
+	else
+	    echo "${TMPDIR}/${FEBALL} not found" && exit
+	fi
+	APPBALL=${FEBALL}
+	APPDIR=${FEDIR}
+	CONFDIR="${DEPDIR}/manhunt/apps/frontend/config"
+	APPYML="app.yml.mh"
+	APPYMLMO="app.yml.mo"
+	;;
+    ADMIN)
+	if [ -f ${TMPDIR}/${ADMINBALL} ]
+	then
+	    cp ${TMPDIR}/${ADMINBALL} ${DEPDIR}
+	else
+	    echo "${TMPDIR}/${ADMINBALL} not found" && exit
+	fi
+	APPBALL=${ADMINBALL}
+	APPDIR=${ADMINDIR}
+	CONFDIR="${DEPDIR}/manhunt/apps/admin/config"
+	APPYML="app.yml.admin"
+	;;
+    ASSFINDER)
+        if [ -f ${TMPDIR}/${ASSBALL} ]
+	then
+            cp ${TMPDIR}/${ASSBALL} ${DEPDIR}
+        else
+	    echo "${TMPDIR}/${ASSBALL} not found" && exit
+        fi
+	APPBALL=${ASSBALL}
+	APPDIR=${ASSDIR}
+	CONFDIR="${DEPDIR}/manhunt_gps/apps/assfinder/config"
+	APPYML="app.yml.af"
+	;;
+    XMLMOBILE)
+        if [ -f ${TMPDIR}/${XMOBBALL} ]
+	then
+            cp ${TMPDIR}/${XMOBBALL} ${DEPDIR}
+        else
+	    echo "${TMPDIR}/${XMOBBALL} not found" && exit
+        fi
+	APPBALL=${XMOBBALL}
+	APPDIR=${XMOBDIR}
+	CONFDIR="${DEPDIR}/manhunt_gps/apps/xmlmobile/config"
+	APPYML="app.yml.xl"
+	;;
+
+    *)
+	echo "Unknown argument: ${COMPONENT}" && echo "Usage: $0 Major.Minor.Patch Component BUILD#" && exit
+	;;
+esac
+d313 1
+a313 1
+if [ -f ${TMPDIR}/${MANIFEST} ]
+d315 2
+a316 1
+    if [ "`grep $RELEASE ${TMPDIR}/${MANIFEST}`" = "" ]
+d318 2
+a319 1
+	echo "${TMPDIR}/${MANIFEST} is not the right version." && exit
+d321 10
+d332 3
+a334 1
+    echo "${TMPDIR}/${MANIFEST} not found" && exit
+d337 1
+a337 7
+echo "Deploying..."
+cd ${DEPDIR}
+## Could put an rm -rf ${APPDIR} here to safely void all caches, but not in a bounceless world...
+tar zxvf ${APPBALL} || (echo "Couldn't Untar ${TMPDIR}/${APPBALL}" && exit)
+
+bounce_apache "stop"
+
+d343 2
+d347 3
+a349 13
+	if [ -f ${TMPDIR}/${APPYML} ]
+	then
+	    /bin/cp ${TMPDIR}/${APPYML} ${CONFDIR}/app.yml
+	else
+	    echo "${TMPDIR}/${APPYML} not found" && exit
+	fi
+
+	if [ -f ${SYMCONFSRC} ]
+	then
+	    /bin/cp ${SYMCONFSRC} ${DEPDIR}/manhunt/config/config.php
+	else
+	    echo "${SYMCONFSRC} not found" && exit
+	fi
+d352 1
+a352 1
+	/bin/cp -v ${TMPDIR}/${MANIFEST} ${DEPDIR}/manhunt/manifest.properties && chmod 644 ${DEPDIR}/manhunt/manifest.properties && chmod 666 ${TMPDIR}/${MANIFEST}
+d357 1
+d362 5
+a366 12
+	if [ -f ${TMPDIR}/${APPYMLMO} ]
+	then
+	    /bin/cp ${TMPDIR}/${APPYMLMO} ${DEPDIR}/manhunt_mobile/apps/frontend/config/app.yml
+	else
+	    echo "${TMPDIR}/app.yml.mo not found" && exit
+	fi
+	if [ -f ${SYMCONFSRC} ]
+	then
+	    /bin/cp ${SYMCONFSRC} ${DEPDIR}/manhunt_mobile/config/config.php
+	else
+	    echo "${SYMCONFSRC} not found" && exit
+	fi
+d372 2
+d376 3
+a378 13
+	if [ -f ${TMPDIR}/${APPYML} ]
+	then
+	    /bin/cp ${TMPDIR}/${APPYML} ${CONFDIR}/app.yml
+	else
+	    echo "${TMPDIR}/${APPYML} not found" && exit
+	fi
+
+	if [ -f ${SYMCONFSRC} ]
+	then
+	    /bin/cp ${SYMCONFSRC} ${DEPDIR}/manhunt/config/config.php
+	else
+	    echo "${SYMCONFSRC} not found" && exit
+	fi
+d381 1
+a381 1
+	/bin/cp -v ${TMPDIR}/${MANIFEST} ${DEPDIR}/manhunt/manifest.properties && chmod 644 ${DEPDIR}/manhunt/manifest.properties && chmod 666 ${TMPDIR}/${MANIFEST}
+d389 2
+d393 3
+a395 13
+	if [ -f ${TMPDIR}/${APPYML} ]
+	then
+	    /bin/cp ${TMPDIR}/${APPYML} ${CONFDIR}/app.yml
+	else
+	    echo "${TMPDIR}/${APPYML} not found" && exit
+	fi
+
+	if [ -f ${SYMCONFSRC} ]
+	then
+	    /bin/cp ${SYMCONFSRC} ${DEPDIR}/manhunt_gps/config/config.php
+	else
+	    echo "${SYMCONFSRC} not found" && exit
+	fi
+d398 1
+a398 1
+	/bin/cp -v ${TMPDIR}/${MANIFEST} ${DEPDIR}/manhunt_gps/manifest.properties && chmod 644 ${DEPDIR}/manhunt_gps/manifest.properties && chmod 666 ${TMPDIR}/${MANIFEST}
+d414 2
+d418 3
+a420 13
+	if [ -f ${TMPDIR}/${APPYML} ]
+	then
+	    /bin/cp ${TMPDIR}/${APPYML} ${CONFDIR}/app.yml
+	else
+	    echo "${TMPDIR}/${APPYML} not found" && exit
+	fi
+
+	if [ -f ${SYMCONFSRC} ]
+	then
+	    /bin/cp ${SYMCONFSRC} ${DEPDIR}/manhunt_gps/config/config.php
+	else
+	    echo "${SYMCONFSRC} not found" && exit
+	fi
+d423 1
+a423 1
+	/bin/cp -v ${TMPDIR}/${MANIFEST} ${DEPDIR}/xmlmobile/manifest.properties && chmod 644 ${DEPDIR}/xmlmobile/manifest.properties && chmod 666 ${TMPDIR}/${MANIFEST}
+d435 8
+@
+
+
+1.24
+log
+@Fixed bug where APPDIR would be copied into MODIR if MODIR exists already (if
+we're re-v4nciating for example)
+@
+text
+@d5 1
+a5 1
+# $Id: v4nicator.sh,v 1.23 2010/07/08 22:00:25 rtodd Exp wflynn $
+d213 1
+d247 1
+a247 2
+	rm -rf ${MODIR}
+	/bin/cp -a ${FEDIR} ${MODIR}
+@
+
+
+1.23
+log
+@Added XMLMobile
+@
+text
+@d5 1
+a5 1
+# $Id: v4nicator.sh,v 1.22 2010/06/08 22:38:40 wflynn Exp rtodd $
+d246 1
+d309 1
+a309 1
+	
+d314 1
+a314 1
+	    pushd ${DEPDIR}/manhunt_gps/web && /bin/ln -sf iphone.php index.php && popd 
+d317 1
+a317 1
+	
+d342 1
+a342 1
+	
+@
+
+
+1.22
+log
+@Fixed some typoage
+@
+text
+@d5 1
+a5 1
+# $Id: v4nicator.sh,v 1.21 2010/06/08 21:42:22 wflynn Exp wflynn $
+d22 1
+d27 1
+d183 13
+d316 25
+@
+
+
+1.21
+log
+@Checking in ASSFINDER Changes!
+@
+text
+@d5 1
+a5 1
+# $Id: v4nicator.sh,v 1.19 2010/06/02 19:18:59 jjoy Exp $
+d49 1
+a49 1
+    ./vindicia_unlock
+d65 1
+a65 1
+	pushd ${DESTDIR}/manhunt_gps && ${SYMFONY} cc && ${SYMFONY} cc && popd || (echo "symfony cc not happy" && popd && exit)
+d170 1
+a170 1
+        if [ -f ${TMDIR}/${ASSBALL} ]
+d178 1
+a178 1
+	CONFDIR="${DEPDIR}/manhunt/apps/assfinder/config"
+d298 1
+a298 1
+	    pushd ${DEPDIR}/manhunt_gps/web && ln -s iphone.php index.php && popd 
+d308 1
+a308 1
+    vindicia_unlock()
+@
+
+
+1.20
+log
+@fixed vindicia unlock call.
+@
+text
+@d5 1
+a5 1
+# $Id: v4nicator.sh,v 1.19 2010/06/02 19:18:59 jjoy Exp jjoy $
+d21 1
+d25 1
+d29 7
+a35 7
+if [ -e /tmp/vindicia_unlock.sh ]
+   then
+       echo "This is a production billing box!  vindicia_unlock will run at"
+       echo "the end of the script, but a human (for now) will have to enter"
+       echo "a password at the end of this script."
+       sleep 5
+fi 
+d48 1
+a48 1
+    cd /tmp
+d50 17
+d69 1
+d71 7
+d82 1
+a82 1
+                # Clear the system cache (Frontend)
+d95 1
+a95 13
+symfony_cc() {
+    echo "Bouncing symfony cache (symfony cc)..."
+    if [ -d /usr/local/src/manhunt ]
+    then
+	pushd ${DEPDIR}/manhunt && ${SYMFONY} cc && ${SYMFONY} cc && popd || (echo "symfony cc not happy" && popd && exit)
+    fi
+    if [ -d /usr/local/src/manhunt_mobile ]
+    then
+	pushd ${DEPDIR}/manhunt_mobile && ${SYMFONY} cc && ${SYMFONY} cc && popd || (echo "symfony cc not happy" && popd && exit)
+    fi
+}
+
+bounce_apache() {
+d141 1
+d169 12
+a183 1
+
+d196 1
+d202 6
+a207 3
+rm -f manhunt
+ln -s ${APPDIR} manhunt
+chmod -R 777 manhunt/cache manhunt/log manhunt/web/uploads
+d209 6
+a214 6
+if [ -f ${TMPDIR}/${APPYML} ]
+then
+    /bin/cp ${TMPDIR}/${APPYML} ${CONFDIR}/app.yml
+else
+    echo "${TMPDIR}/${APPYML} not found" && exit
+fi
+d216 6
+a221 6
+if [ -f ${SYMCONFSRC} ]
+then
+    /bin/cp ${SYMCONFSRC} ${DEPDIR}/manhunt/config/config.php
+else
+    echo "${SYMCONFSRC} not found" && exit
+fi
+d223 2
+a224 2
+echo "Installing manifests..."
+/bin/cp -v ${TMPDIR}/${MANIFEST} ${DEPDIR}/manhunt/manifest.properties && chmod 644 ${DEPDIR}/manhunt/manifest.properties && chmod 666 ${TMPDIR}/${MANIFEST}
+d226 1
+a226 1
+symfony_cc
+d228 1
+a228 2
+case "${COMPONENT}" in
+    FRONTEND)
+d247 57
+d306 3
+a308 3
+if [ -e /tmp/vindicia_unlock.sh ]
+    then
+        vindicia_unlock
+@
+
+
+1.19
+log
+@Fixed small error, misplaced semicolon.
+@
+text
+@d5 1
+a5 1
+# $Id: v4nicator.sh,v 1.18 2010/06/02 14:45:41 jjoy Exp jjoy $
+d221 1
+a221 1
+        vindicia_unlock()
+@
+
+
+1.18
+log
+@Added a method for auto detecting vindicia unlock requirements when pushing releases.
+@
+text
+@d5 1
+a5 1
+# $Id: v4nicator.sh,v 1.17 2010/04/14 19:54:39 jjoy Exp jjoy $
+d221 1
+a221 1
+        vindicia_unlock();
+@
+
+
+1.17
+log
+@Updated v4nicator to work with the new release filenames.
+@
+text
+@d5 1
+a5 1
+# $Id: v4nicator.sh,v 1.16 2009/11/12 23:24:51 wflynn Exp $
+d27 8
+d45 5
+d218 5
+@
+
+
+1.16
+log
+@Fixed to support multiple versions of manifests
+@
+text
+@d5 1
+a5 1
+# $Id: v4nicator.sh,v 1.15 2009/10/02 20:28:17 wflynn Exp wflynn $
+d19 2
+a20 2
+ADMINDIR=MHBANGV4--${RELEASE}--RC${RC}-ADMIN
+FEDIR=MHBANGV4--${RELEASE}--RC${RC}-FRONTEND
+d25 1
+a25 1
+MANIFEST=`egrep -H mhbangv4.version=.+?${RELEASE}--RC${RC} MANIF* | cut -d: -f1`;
+d141 1
+a141 1
+	echo "Unknown argument: ${COMPONENT}" && echo "Usage: $0 Major.Minor.Patch Component RC#" && exit
+@
+
+
+1.15
+log
+@Support release candidates
+@
+text
+@d5 1
+a5 1
+# $Id: v4nicator.sh,v 1.14 2009/10/02 17:00:44 wflynn Exp wflynn $
+d25 1
+d146 1
+a146 1
+if [ -f ${TMPDIR}/manifest.properties ]
+d148 1
+a148 1
+    if [ "`grep $RELEASE ${TMPDIR}/manifest.properties`" = "" ]
+d150 1
+a150 1
+	echo "${TMPDIR}/manifest.properties is not the right version." && exit
+d153 1
+a153 1
+    echo "${TMPDIR}/manifest.properties not found" && exit
+d180 1
+a180 1
+/bin/cp ${TMPDIR}/manifest.properties ${DEPDIR}/manhunt/manifest.properties && chmod 644 ${DEPDIR}/manhunt/manifest.properties && chmod 666 ${TMPDIR}/manifest.properties
+@
+
+
+1.14
+log
+@Updated to support bounceless (No apache restart, no APC Clear) installs
+@
+text
+@d5 1
+a5 1
+# $Id: v4nicator.sh,v 1.13 2009/10/01 19:32:28 wflynn Exp wflynn $
+d14 1
+a14 1
+RC=1
+d56 1
+a56 1
+    if [ -d /usr/local/src/manhunt]
+d60 1
+a60 1
+    if [ -d /usr/local/src/manhunt_mobile]
+d140 1
+a140 1
+	echo "Unknown argument: ${COMPONENT}" && echo "Usage: $0 Major.Minor.Patch Component" && exit
+@
+
+
+1.13
+log
+@Made some changes to messages
+@
+text
+@d5 1
+a5 1
+# $Id: v4nicator.sh,v 1.12 2009/10/01 16:37:47 wflynn Exp wflynn $
+d15 1
+d36 5
+a40 26
+bounce_apache() {
+    case "${1}" in
+	start)
+	    case "${HOSTNAME}" in
+		billing*)
+		    echo "Starting Zend $ZE Edition"
+		    echo "Secure Webserver Key is: ${BILLINGKEY}"
+		    ;;
+		*)
+		    echo "Starting Zend $ZE Edition"
+		    ;;
+	    esac
+	    if [ "$ZE" = "Community" ]
+	    then
+		echo "Stopping Apache..."
+		/usr/local/zend/bin/zendctl.sh stop
+		echo "Bouncing symfony cache (symfony cc)..."
+		pushd ${DEPDIR}/manhunt && ${SYMFONY} cc && ${SYMFONY} cc && popd || (echo "symfony cc not happy" && popd && exit)
+		echo "Starting Apache..."
+		/usr/local/zend/bin/zendctl.sh restart-apache
+	    else
+		/usr/local/Zend/Platform/bin/javamw.rc restart
+		/sbin/service httpd restart
+	    fi
+	    if [ -d /usr/local/src/manhunt/apps/frontend ]
+	    then
+d42 4
+a45 4
+		/usr/bin/lynx -localhost -dump -accept_all_cookies  http://`hostname -f`/index.php/user/apcClear/pass/w74byru4r416dfphj7jm2f
+	    fi
+	    if [ -d /usr/local/src/manhunt/apps/admin ]
+	    then
+d47 64
+a110 17
+		/usr/bin/lynx -localhost -dump -accept_all_cookies  https://`hostname -f`/admin.php/admin.php/home/apcClear/pass/w74byru4r416dfphj7jm2f
+	    fi
+	    ;;
+	stop)
+	    echo "Stopping Zend $ZE Edition"
+	    if [ "$ZE" = "Community" ]
+	    then
+		/usr/local/zend/bin/zendctl.sh stop && sleep 15 && /usr/local/zend/bin/zendctl.sh stop
+	    else
+		/sbin/service httpd stop &&  sleep 15 && /sbin/service httpd stop
+		/usr/local/Zend/Platform/bin/javamw.rc stop && sleep 15 && /usr/local/Zend/Platform/bin/javamw.rc stop
+	    fi
+	    ;;
+	*)
+	    echo "Usage: bounce_apache(stop|start)"
+	    ;;
+    esac
+d181 1
+a181 2
+echo "Clearing symfony cache (symfony cc)..."
+cd ${DEPDIR}/manhunt && ${SYMFONY} cc && ${SYMFONY} cc || (echo "symfony cc not happy" && exit)
+d201 1
+a201 2
+	echo "Clearing symfony cache (symfony cc)..."
+	cd ${DEPDIR}/manhunt_mobile && ${SYMFONY} cc && ${SYMFONY} cc || (echo "symfony cc not happy" && exit)
+@
+
+
+1.12
+log
+@Some logic changes, and changes to support new Build naming convention
+@
+text
+@d5 1
+a5 1
+# $Id: v4nicator.sh,v 1.11 2009/09/09 16:38:44 wflynn Exp wflynn $
+d51 1
+a51 1
+		echo "Clearing symfony cache (symfony cc)..."
+@
+
+
+1.11
+log
+@Added loop to print out the billing password to start the secure server, so
+its handy for C&P at deploy time
+@
+text
+@d5 1
+a5 1
+# $Id: v4nicator.sh,v 1.10 2009/08/27 18:28:07 wflynn Exp wflynn $
+d14 1
+d18 2
+a19 2
+ADMINDIR=MHBANGV4-QA-${RELEASE}-ADMIN
+FEDIR=MHBANGV4-QA-${RELEASE}-FRONTEND
+d49 5
+d118 10
+d151 2
+a152 10
+if [ -f ${TMPDIR}/manifest.properties ]
+then
+    if [ "`grep $RELEASE ${TMPDIR}/manifest.properties`" = "" ]
+    then
+	echo "${TMPDIR}/manifest.properties is not the right version." && exit
+    fi
+    /bin/cp ${TMPDIR}/manifest.properties ${DEPDIR}/manhunt/manifest.properties && chmod 644 ${DEPDIR}/manhunt/manifest.properties && chmod 666 ${TMPDIR}/manifest.properties
+else
+    echo "${TMPDIR}/manifest.properties not found" && exit
+fi
+@
+
+
+1.10
+log
+@add admin cache clearing
+@
+text
+@d5 1
+a5 1
+# $Id: v4nicator.sh,v 1.9 2009/07/27 23:38:41 wflynn Exp wflynn $
+d16 1
+d37 9
+a45 1
+	    echo "Starting Zend $ZE Edition"
+@
+
+
+1.9
+log
+@updated to just run kevin's apc clearing web call
+@
+text
+@d5 1
+a5 1
+# $Id: v4nicator.sh,v 1.8 2009/07/06 19:03:27 wflynn Exp wflynn $
+d46 1
+a46 2
+                # Clear the system cache (Not required on admin hosts)
+#		/usr/bin/lynx -localhost -dump -accept_all_cookies  http://`hostname -f`/user/clear?pass=w74byru4r416dfphj7jm2f
+d49 5
+@
+
+
+1.8
+log
+@Restart only apache when turning on webservers
+@
+text
+@d5 1
+a5 1
+# $Id: v4nicator.sh,v 1.7 2009/06/25 00:12:18 wflynn Exp wflynn $
+d47 2
+a48 1
+		/usr/bin/lynx -localhost -dump -accept_all_cookies  http://`hostname -f`/user/clear?pass=w74byru4r416dfphj7jm2f
+@
+
+
+1.7
+log
+@Added cache clearing
+@
+text
+@d5 1
+a5 1
+# $Id: v4nicator.sh,v 1.6 2009/05/13 15:18:41 wflynn Exp wflynn $
+d39 1
+a39 1
+		/usr/local/zend/bin/zendctl.sh restart
+@
+
+
+1.6
+log
+@Make sure that /tmp/manifest.properties is writable for the next run of pushrelease
+@
+text
+@d5 1
+a5 1
+# $Id: v4nicator.sh,v 1.5 2009/04/06 16:03:11 wflynn Exp wflynn $
+d44 5
+@
+
+
+1.5
+log
+@Some improvements
+@
+text
+@d5 1
+a5 1
+# $Id: v4nicator.sh,v 1.4 2009/04/03 21:53:02 wflynn Exp wflynn $
+d122 1
+a122 1
+    /bin/cp ${TMPDIR}/manifest.properties ${DEPDIR}/manhunt/manifest.properties && chmod 644 ${DEPDIR}/manhunt/manifest.properties
+@
+
+
+1.4
+log
+@Support 2 versions of symfony
+@
+text
+@d5 1
+a5 1
+# $Id: v4nicator.sh,v 1.3 2009/04/03 21:27:16 wflynn Exp wflynn $
+d42 1
+d122 1
+a122 1
+    /bin/cp ${TMPDIR}/manifest.properties ${DEPDIR}/manhunt/manifest.properties
+d127 1
+d148 1
+@
+
+
+1.3
+log
+@Added support for Community/Platform versions of config/config.php
+@
+text
+@d5 1
+a5 1
+# $Id$
+d21 1
+d28 1
+d32 1
+d126 1
+a126 1
+cd ${DEPDIR}/manhunt && symfony cc && symfony cc || (echo "symfony cc not happy" && exit)
+d146 1
+a146 1
+	cd ${DEPDIR}/manhunt_mobile && symfony cc && symfony cc || (echo "symfony cc not happy" && exit)
+@
+
+
+1.2
+log
+@Made it aware of Zend Community Edition
+@
+text
+@d5 1
+a5 1
+# $Id: v4nicator.sh,v 1.1 2009/04/03 16:16:44 wflynn Exp wflynn $
+d29 1
+d105 7
+d137 6
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d5 1
+a5 1
+# $Id: v4nicator.sh,v 1.2 2009/03/11 21:12:03 wflynn Exp $
+d8 1
+a8 1
+# 
+d22 33
+d91 1
+a91 1
+/sbin/service httpd stop &&  sleep 15 && /sbin/service httpd stop
+a131 2
+/usr/local/Zend/Platform/bin/javamw.rc stop && sleep 15 && /usr/local/Zend/Platform/bin/javamw.rc stop
+/usr/local/Zend/Platform/bin/javamw.rc start
+d133 1
+a133 1
+/sbin/service httpd restart
+@

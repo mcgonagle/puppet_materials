@@ -1,0 +1,78 @@
+head	1.2;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.2
+date	2008.07.24.14.10.25;	author rbraun;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2008.07.24.13.56.32;	author rbraun;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.2
+log
+@*** empty log message ***
+@
+text
+@#!/bin/sh
+# msgcntqueue
+# $Id: msgcntqueue,v 1.1 2008/07/24 13:56:32 rbraun Exp rbraun $
+#
+# created 7/08 by sfrattura
+#
+# This iterates through the mail hosts (call from cron every few minutes)
+# to invoke the MessageTotals synchronization procedure
+
+. /etc/manhunt/source.sh
+
+LOG=$CARE_LOG
+VERBOSITY=-v
+
+# Run as care.
+if [ "$UID" -ne "$CARE_UID" ]
+then
+ echo "Must be care to run this script."
+  exit $ERROR
+fi  
+
+if [ "`touch $LOG`" != "" ]
+then 
+echo "Cannot write to logfile."
+exit $ERROR
+fi
+echo START $APPNAME `date` >> $LOG
+
+for h in $MAILDBHOSTS
+do
+  $MYSQL -u $DBUSER -h $h -p$DBPASSWD $MESSAGEDB $VERBOSITY -e "call spCurMsgCntQueue()" >> $LOG
+done
+
+echo FINISH $APPNAME `date` >> $LOG
+
+exit 0;
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d3 1
+a3 1
+# $Id: $
+d31 1
+a31 1
+  $MYSQL -u $DBUSER -h $h -p$DBPASSWD $MESSAGEDB $VERBOSITY -e "call curMsgCntQueue()" >> $LOG
+@

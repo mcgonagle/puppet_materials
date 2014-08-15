@@ -1,0 +1,273 @@
+head	1.8;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.8
+date	2010.10.01.16.13.06;	author rpeachey;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	2010.10.01.16.04.50;	author rpeachey;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	2010.08.25.17.08.13;	author sfrattura;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	2010.08.24.21.56.54;	author sfrattura;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	2010.08.24.21.43.52;	author sfrattura;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2010.08.24.19.05.16;	author sfrattura;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2010.08.24.18.59.43;	author sfrattura;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2010.08.24.18.57.57;	author sfrattura;	state Exp;
+branches;
+next	;
+
+
+desc
+@initial commit of entitlement group cleaner - sys-3388
+@
+
+
+1.8
+log
+@modified to latest revision
+@
+text
+@#!/bin/sh
+# $Id: eugcleaner.sh,v 1.7 2010/10/01 16:04:50 rpeachey Exp rpeachey $
+# Created 8/07 by mjapher
+
+# Base Variables
+
+. /etc/manhunt/source.sh
+
+
+LOG=$CARE_LOG
+VERBOSITY=-v
+
+ERROR=1
+
+
+# Run as care.
+if [ "$UID" -ne "$CARE_UID" ]
+then
+ echo "Must be care to run this script."
+  exit $ERROR
+fi
+
+if [ "`touch $LOG`" != "" ]
+then
+echo "Cannot write to logfile."
+exit $ERROR
+fi
+
+MCHOSTS=("cache07.waltham.manhunt.net:11213 cache02.waltham.manhunt.net:11213 cache03.v4.waltham.manhunt.net:11213")
+#MCHOST='red-cache01.qa.manhunt.net'; #the host containing the memcache shard for entitlements
+#MCPORT='11213'; #the port specifc to the entitlement shard
+SQLCLEAN="--connect_timeout=60 --batch --skip-column-names"
+PASSWD="manhunt2001"
+USER="manhunt"
+MYHOST='maindb00.v4.waltham.manhunt.net'
+MYDB='manhunt_v4'
+
+echo "START $APPNAME `date`" >> $LOG
+echo "START EUGCLEANER `date`" >> $LOG
+
+
+$MYSQL -u $USER -p$PASSWD -h $MYHOST $VERBOSITY $MYDB -e "call eugcleaner(1)">> $LOG
+
+echo "FINISH EUGCLEANER `date`" >> $LOG
+
+function flush_user_entitlements ()
+{
+
+    (
+        sleep 1
+        uids=$3
+        for myUID in ${uids[*]} ; do
+            echo "delete UserLimits:$myUID:a="
+        done
+        sleep 1
+        echo "quit"
+        ) | telnet $1 $2
+}
+
+uids=()
+
+echo "About to flush entitlements" >> $LOG
+for myUID in `$MYSQL $SQLCLEAN -u$USER -p$PASSWD -h $MYHOST $MYDB -e "select uid from eugcleaner_working"`
+
+
+  do
+  uids[${#uids[*]}]=$myUID
+echo $myUID >> $LOG
+done
+
+for myHost in  $MCHOSTS ; do
+    IFS=':'
+    set -- $myHost
+    flush_user_entitlements $1 $2 $uids
+done
+echo "Purging entitlements for ${#uids[*]} users..."
+echo "All done."
+
+echo "FINISH $APPNAME `date`" >> $LOG
+@
+
+
+1.7
+log
+@modified to latest revision
+@
+text
+@d2 1
+a2 1
+# $Id: eugcleaner.sh,v 1.6 2010/08/25 17:08:13 sfrattura Exp $
+d79 1
+a79 2
+
+
+@
+
+
+1.6
+log
+@configured for use in red environment
+@
+text
+@d2 1
+a2 1
+# $Id: eugcleaner.sh,v 1.5 2010/08/24 21:56:54 sfrattura Exp sfrattura $
+d29 9
+d39 1
+a40 1
+$MYSQL -u $V4_USER -p$V4_PW -h $V4_USERSERVER $VERBOSITY $V4_USERDB -e "call eugcleaner(1)">> $LOG
+d42 1
+a42 1
+echo "FINISH $APPNAME `date`" >> $LOG
+d44 1
+a44 8
+MCHOST='red-cache01.qa.manhunt.net'; #the host containing the memcache shard for entitlements
+MCPORT='11255'; #the port specifc to the entitlement shard
+SQLCLEAN="--connect_timeout=$DBTIMEOUT --batch --skip-column-names"
+MYSQL="/data01/multi_mysql/mysql_A/bin/mysql"
+PASSWD="lettherebedata"
+USER="build"
+MYHOST='qadb04.qa.manhunt.net'
+MYDB='manhunt_v4'
+d48 10
+a57 9
+  (
+    sleep 1
+    uids=$1
+    for myUID in ${uids[*]} ; do
+        echo "delete UserLimits:$myUID:a="
+    done
+    sleep 1
+    echo "quit"
+  ) | telnet $MCHOST $MCPORT
+d61 2
+d64 2
+d68 7
+a76 1
+flush_user_entitlements $uids
+d78 3
+@
+
+
+1.5
+log
+@modified proc call to include the value of 1.
+@
+text
+@d2 1
+a2 1
+# $Id: eugcleaner.sh,v 1.4 2010/08/24 21:43:52 sfrattura Exp sfrattura $
+d35 1
+a35 1
+MCHOST='zend04.dev.manhunt.net'; #the host containing the memcache shard for entitlements
+d38 1
+a38 1
+MYSQL="/usr/bin/mysql"
+d41 2
+a42 2
+MYHOST='dev-maindb.dev.manhunt.net'
+MYDB='manhunt_arockwell2'
+@
+
+
+1.4
+log
+@Added Alex's memcache code. Still needs some revision.
+@
+text
+@d2 1
+a2 1
+# $Id: eugcleaner.sh,v 1.3 2010/08/24 19:05:16 sfrattura Exp sfrattura $
+d31 1
+a31 1
+$MYSQL -u $V4_USER -p$V4_PW -h $V4_USERSERVER $VERBOSITY $V4_USERDB -e "call eugcleaner()">> $LOG
+@
+
+
+1.3
+log
+@removed test echo
+@
+text
+@d2 1
+a2 1
+# $Id: eugcleaner.sh,v 1.2 2010/08/24 18:59:43 sfrattura Exp sfrattura $
+d34 31
+@
+
+
+1.2
+log
+@added test echo.
+@
+text
+@d2 1
+a2 1
+# $Id: eugcleaner.sh,v 1.1 2010/08/24 18:57:57 sfrattura Exp sfrattura $
+d32 1
+a32 1
+echo 'test'
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 1
+a2 1
+# $Id: prune_mail_slave.sh,v 1.4 2009/08/11 14:33:02 mjapher Exp $
+d32 1
+a32 1
+
+@

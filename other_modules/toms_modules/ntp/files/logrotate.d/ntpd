@@ -1,0 +1,7 @@
+/var/log/ntpd.log {
+    notifempty
+    missingok
+    postrotate
+        /sbin/service ntpd restart 2> /dev/null > /dev/null || true
+    endscript
+}

@@ -1,0 +1,42 @@
+#!/bin/bash
+# $Id: backup_directory,v 1.5 2009/04/15 20:03:27 wflynn Exp $
+#
+# Created 9/08 by rbraun
+#
+# This backs up a single specified directory.
+
+# Command line parameters:
+#   $1   Destination directory (relative to /var/backup) on terabactyl
+#   $2   Host name
+#   $3   Source directory (full path name) on host
+#   $4   Optional rsync parameter(s) such as bwlimit
+#
+# Note that user 'care' must have group read permissions for all
+# files under the source directory.
+
+DESTDIR=/var/backup/$1
+HOST=$2
+SRCDIR=$3
+LOG=/var/tmp/backup_$1.log
+VERBOSITY=-v
+
+if [ "`touch $LOG`" != "" ]
+then
+  echo "Cannot write to logfile."
+  exit $ERROR
+fi
+
+# Interlock - check to see if script still running from previous instance
+
+[ -e /var/tmp/backup_$1.pid ] && [ -e /proc/`cat /var/tmp/backup_$1.pid` ] && exit 0
+echo $$ > /var/tmp/backup_$1.pid
+
+[ "$VERBOSITY" = "" ] || echo START backup_$1 `date` >> $LOG
+
+[ -d $DESTDIR/$HOST ] || mkdir -p $DESTDIR/$HOST
+rsync --delete ${4} -a $HOST:${SRCDIR}/. $DESTDIR/$HOST
+
+rm /var/tmp/backup_$1.pid
+[ "$VERBOSITY" = "" ] || echo FINISH backup_$1 `date` >> $LOG
+
+exit 0

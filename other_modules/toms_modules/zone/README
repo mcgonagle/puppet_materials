@@ -1,0 +1,22 @@
+Puppet module: zone
+
+# Written by Tom McGonagle #
+# mcgonagle@gmail.com
+# Google Voice (617)229-5185
+# http://www.puppetll.com
+
+
+DESCRIPTION:
+This module installs and manages zone software
+Standard and extended classes are available.
+Decide and customize how you want to define configation files: static files, templates, infile modifications...
+
+
+USAGE:
+# Standard Classes 
+include zone              # Install and run zone with standard configurations.
+include zone::disable     # Disable zone service.
+include zone::disableboot # Disable zone service at boot time, but don't stop if it's running.
+include zone::absent      # Remove zone package.
+
+DEPENDENCIES:
